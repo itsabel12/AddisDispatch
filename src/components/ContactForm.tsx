@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { CheckIcon } from "./icons";
+import { createClient } from "@/lib/supabase/client";
 
 type Fields = {
   name: string;
@@ -21,6 +22,8 @@ export default function ContactForm() {
   const [fields, setFields] = useState<Fields>(empty);
   const [errors, setErrors] = useState<Errors>({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   function validate(values: Fields): Errors {
     const next: Errors = {};
@@ -41,14 +44,31 @@ export default function ContactForm() {
     }
   }
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const found = validate(fields);
     setErrors(found);
     if (Object.keys(found).length > 0) return;
 
-    // Stubbed handler — no backend. Swap in a real submission later.
-    console.log("Dispatch request (stub):", fields);
+    setSubmitting(true);
+    setSubmitError(null);
+
+    const supabase = createClient();
+    const { error } = await supabase.from("dispatch_requests").insert({
+      name: fields.name.trim(),
+      company: fields.company.trim() || null,
+      mc_number: fields.mc.trim() || null,
+      email: fields.email.trim(),
+      lane_details: fields.lane.trim(),
+    });
+
+    setSubmitting(false);
+
+    if (error) {
+      setSubmitError("Something went wrong submitting your request. Please try again.");
+      return;
+    }
+
     setSubmitted(true);
     setFields(empty);
   }
@@ -132,12 +152,20 @@ export default function ContactForm() {
         )}
       </div>
 
-      <button
-        type="submit"
-        className="w-full rounded-full bg-gold px-7 py-3.5 text-sm font-semibold text-bandDarker transition-all hover:shadow-[0_0_30px_-4px] hover:shadow-gold/60 sm:w-auto"
-      >
-        Request Dispatch
-      </button>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <button
+          type="submit"
+          disabled={submitting}
+          className="w-full rounded-full bg-gold px-7 py-3.5 text-sm font-semibold text-bandDarker transition-all hover:shadow-[0_0_30px_-4px] hover:shadow-gold/60 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+        >
+          {submitting ? "Submitting…" : "Request Dispatch"}
+        </button>
+        {submitError && (
+          <p role="alert" className="text-sm text-red-400">
+            {submitError}
+          </p>
+        )}
+      </div>
     </form>
   );
 }

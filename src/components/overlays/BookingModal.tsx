@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import ModalShell from "./ModalShell";
+import { createClient } from "@/lib/supabase/client";
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -22,6 +23,8 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [errors, setErrors] = useState<{ name?: boolean; phone?: boolean }>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   function prevMonth() {
     if (month === 0) {
@@ -43,13 +46,34 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
     setDay(null);
   }
 
-  function confirm() {
+  async function confirm() {
     const next = {
       name: !name.trim(),
       phone: phone.replace(/\D/g, "").length < 10,
     };
     setErrors(next);
-    if (!next.name && !next.phone) setStep(4);
+    if (next.name || next.phone || day === null || !time) return;
+
+    setSubmitting(true);
+    setSubmitError(null);
+
+    const scheduledDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    const supabase = createClient();
+    const { error } = await supabase.from("consultations").insert({
+      name: name.trim(),
+      phone: phone.trim(),
+      scheduled_date: scheduledDate,
+      scheduled_time: time,
+    });
+
+    setSubmitting(false);
+
+    if (error) {
+      setSubmitError("Couldn't confirm your booking. Please try again.");
+      return;
+    }
+
+    setStep(4);
   }
 
   const today = new Date();
@@ -234,7 +258,13 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
               </div>
             </div>
 
-            <div className="mt-6 flex gap-3">
+            {submitError && (
+              <p role="alert" className="mt-4 text-sm text-red-400">
+                {submitError}
+              </p>
+            )}
+
+            <div className="mt-6 flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => setStep(2)}
@@ -245,9 +275,10 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
               <button
                 type="button"
                 onClick={confirm}
-                className="flex-1 rounded-full bg-gold px-7 py-3 text-sm font-semibold text-bandDarker transition-all hover:shadow-[0_0_24px_-4px] hover:shadow-gold/60"
+                disabled={submitting}
+                className="flex-1 rounded-full bg-gold px-7 py-3 text-sm font-semibold text-bandDarker transition-all hover:shadow-[0_0_24px_-4px] hover:shadow-gold/60 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Confirm Booking →
+                {submitting ? "Confirming…" : "Confirm Booking →"}
               </button>
             </div>
           </div>
