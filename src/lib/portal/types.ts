@@ -44,6 +44,9 @@ export type Load = {
   rate: number | null;
   miles: number | null;
   status: LoadStatus;
+  picked_up_at: string | null;
+  delivered_at: string | null;
+  ready_to_invoice: boolean;
   created_at: string;
 };
 

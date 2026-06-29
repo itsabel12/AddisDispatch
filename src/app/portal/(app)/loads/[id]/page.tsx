@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { fmtMoney, fmtDate, lane } from "@/lib/portal/format";
 import { DOC_LABELS, type Load, type DocumentRow, type Settlement } from "@/lib/portal/types";
-import { LoadBadge, DocBadge, SettlementBadge } from "@/components/portal/Badge";
+import { LoadBadge, DocBadge, SettlementBadge, Badge } from "@/components/portal/Badge";
+import DocumentUpload from "@/components/portal/DocumentUpload";
+import { advanceLoadStatus } from "./actions";
 
 function Field({ label, value }: { label: string; value: string }) {
   return (
@@ -27,6 +29,7 @@ export default async function LoadDetailPage({ params }: { params: Promise<{ id:
     supabase.from("settlements").select("*").eq("load_id", id).maybeSingle<Settlement>(),
   ]);
   const docs = (docsData ?? []) as DocumentRow[];
+  const hasPod = docs.some((d) => d.type === "pod");
 
   const rpm = load.rate && load.miles ? load.rate / load.miles : null;
 
@@ -56,6 +59,53 @@ export default async function LoadDetailPage({ params }: { params: Promise<{ id:
           <Field label="RPM" value={rpm ? `$${rpm.toFixed(2)}` : "—"} />
         </dl>
       </div>
+
+      {/* Carrier load actions */}
+      {load.status !== "cancelled" && (
+        <div className="mt-6 rounded-2xl border border-portalBorder bg-bgSurface p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-textMuted">Load actions</h2>
+            {load.ready_to_invoice && <Badge tone="green">Ready to invoice</Badge>}
+          </div>
+
+          <div className="mt-4">
+            {load.status === "booked" && (
+              <form action={advanceLoadStatus}>
+                <input type="hidden" name="loadId" value={load.id} />
+                <input type="hidden" name="next" value="in_transit" />
+                <button type="submit" className="rounded-full bg-gold px-6 py-2.5 text-sm font-semibold text-black transition-all hover:shadow-[0_0_24px_-4px] hover:shadow-gold/50">
+                  Mark Picked Up
+                </button>
+              </form>
+            )}
+
+            {load.status === "in_transit" && (
+              <form action={advanceLoadStatus}>
+                <input type="hidden" name="loadId" value={load.id} />
+                <input type="hidden" name="next" value="delivered" />
+                <button type="submit" className="rounded-full bg-gold px-6 py-2.5 text-sm font-semibold text-black transition-all hover:shadow-[0_0_24px_-4px] hover:shadow-gold/50">
+                  Mark Delivered
+                </button>
+              </form>
+            )}
+
+            {load.status === "delivered" && (
+              hasPod ? (
+                <p className="text-sm font-light text-textMuted">
+                  Delivered{load.delivered_at ? "" : ""}. POD on file — this load is ready to invoice. ✓
+                </p>
+              ) : (
+                <div>
+                  <p className="mb-3 text-sm font-light text-textMuted">
+                    Delivered. Upload your POD to mark this load ready to invoice.
+                  </p>
+                  <DocumentUpload carrierId={load.carrier_id} fixedType="pod" loadId={load.id} />
+                </div>
+              )
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         {/* Documents */}

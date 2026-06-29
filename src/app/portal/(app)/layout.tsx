@@ -7,7 +7,8 @@ import { signOut } from "../actions";
 export default async function PortalAppLayout({ children }: { children: React.ReactNode }) {
   const { carrier, profile } = await getPortalContext();
 
-  // Pending / suspended carriers never reach interior screens (RLS also blocks data).
+  // Non-active carriers never reach interior screens (RLS also blocks load/settlement data).
+  if (carrier.status === "onboarding") redirect("/portal/onboarding");
   if (carrier.status !== "active") redirect("/portal/pending");
 
   return (
