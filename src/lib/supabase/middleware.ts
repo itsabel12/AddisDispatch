@@ -36,11 +36,17 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
+  // Auth pages: logged-in users get bounced away from these.
   const isAuthPage =
-    path === "/portal/login" || path === "/portal/signup";
+    path === "/portal/login" ||
+    path === "/portal/signup" ||
+    path === "/portal/forgot-password";
+  // The recovery callback must run even with no session yet (it establishes one).
+  const isCallback = path === "/portal/auth/callback";
+  const isPublic = isAuthPage || isCallback;
 
   // Unauthenticated → bounce to login (preserve intended destination).
-  if (!user && !isAuthPage) {
+  if (!user && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/portal/login";
     if (path !== "/portal") url.searchParams.set("redirect", path);
