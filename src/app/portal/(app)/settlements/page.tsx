@@ -24,7 +24,20 @@ export default async function SettlementsPage() {
 
   return (
     <div>
-      <PageHeader title="Settlements" subtitle="Your gross, our dispatch fee, and your net — per load." />
+      <PageHeader
+        title="Settlements"
+        subtitle="Your gross, our dispatch fee, and your net — per load."
+        action={
+          rows.length > 0 ? (
+            <a
+              href="/portal/statements/weekly"
+              className="rounded-full border border-portalBorder px-4 py-2 text-sm font-medium text-textMuted transition-colors hover:border-gold/50 hover:text-gold"
+            >
+              ↓ Weekly statement (PDF)
+            </a>
+          ) : undefined
+        }
+      />
 
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-2xl border border-leafGreen/30 bg-leafGreen/10 p-5">
@@ -58,6 +71,7 @@ export default async function SettlementsPage() {
                   <th className="px-5 py-3 text-right font-medium">Net</th>
                   <th className="px-5 py-3 font-medium">Status</th>
                   <th className="px-5 py-3 font-medium">Paid</th>
+                  <th className="px-5 py-3 font-medium"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-portalBorder">
@@ -69,6 +83,11 @@ export default async function SettlementsPage() {
                     <td className="px-5 py-3 text-right font-semibold text-textPrimary">{fmtMoney(r.net, true)}</td>
                     <td className="px-5 py-3"><SettlementBadge status={r.status} /></td>
                     <td className="px-5 py-3 text-textMuted">{fmtDate(r.paid_at)}</td>
+                    <td className="px-5 py-3 text-right">
+                      <a href={`/portal/statements/load/${r.id}`} className="text-xs font-medium text-textMuted hover:text-gold" title="Download statement">
+                        ↓ PDF
+                      </a>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -88,6 +107,9 @@ export default async function SettlementsPage() {
                   <div className="flex justify-between"><dt className="text-textMuted">Dispatch fee</dt><dd className="font-semibold text-gold">−{fmtMoney(r.dispatch_fee, true)}</dd></div>
                   <div className="flex justify-between border-t border-portalBorder pt-1.5"><dt className="font-medium text-textPrimary">Net</dt><dd className="font-bold text-textPrimary">{fmtMoney(r.net, true)}</dd></div>
                 </dl>
+                <a href={`/portal/statements/load/${r.id}`} className="mt-3 inline-block text-xs font-medium text-gold hover:underline">
+                  ↓ Download statement (PDF)
+                </a>
               </div>
             ))}
           </div>
