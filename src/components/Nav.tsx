@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MenuIcon, CloseIcon } from "./icons";
-import { openPortal } from "@/lib/overlay";
+import Link from "next/link";
+import { MenuIcon, CloseIcon, UserIcon } from "./icons";
 
 const links = [
   { label: "Services", href: "#services" },
@@ -53,22 +53,32 @@ export default function Nav() {
           ))}
         </ul>
 
-        <a
-          href="#contact"
-          className="hidden rounded-full bg-gold px-5 py-2.5 text-sm font-semibold text-bandDarker transition-all hover:shadow-[0_0_24px_-4px] hover:shadow-gold/60 lg:inline-block"
-        >
-          Request Dispatch
-        </a>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/portal/login"
+            className="hidden items-center gap-1.5 text-sm font-light text-mutedGrey transition-colors hover:text-gold lg:inline-flex"
+          >
+            <UserIcon width={18} height={18} />
+            Log In
+          </Link>
 
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          className="text-offWhite lg:hidden"
-          aria-label={open ? "Close menu" : "Open menu"}
-          aria-expanded={open}
-        >
-          {open ? <CloseIcon /> : <MenuIcon />}
-        </button>
+          <a
+            href="#contact"
+            className="hidden rounded-full bg-gold px-5 py-2.5 text-sm font-semibold text-bandDarker transition-all hover:shadow-[0_0_24px_-4px] hover:shadow-gold/60 lg:inline-block"
+          >
+            Request Dispatch
+          </a>
+
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            className="text-offWhite lg:hidden"
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+          >
+            {open ? <CloseIcon /> : <MenuIcon />}
+          </button>
+        </div>
       </nav>
 
       {open && (
@@ -86,16 +96,14 @@ export default function Nav() {
               </li>
             ))}
             <li>
-              <button
-                type="button"
-                onClick={() => {
-                  setOpen(false);
-                  openPortal();
-                }}
-                className="block text-base font-light text-offWhite hover:text-gold"
+              <Link
+                href="/portal/login"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2 text-base font-light text-offWhite hover:text-gold"
               >
-                Carrier Portal
-              </button>
+                <UserIcon width={18} height={18} />
+                Carrier Log In
+              </Link>
             </li>
             <li>
               <a
