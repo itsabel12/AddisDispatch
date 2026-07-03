@@ -22,17 +22,17 @@ export default function Calculator() {
   const barWidth = Math.min(Math.round((withAtlas / Math.max(current, 1)) * 100), 100);
 
   return (
-    <section id="calculator" className="relative bg-bandDarker bg-grid py-24 sm:py-32">
+    <section id="calculator" className="relative bg-grid py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-gold">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-accent">
               Revenue Calculator
             </p>
-            <h2 className="text-4xl font-bold tracking-tight text-offWhite sm:text-5xl">
+            <h2 className="font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">
               See How Much More You Could Earn
             </h2>
-            <p className="mt-5 text-base font-light leading-relaxed text-mutedGrey">
+            <p className="mt-5 text-base font-light leading-relaxed text-inkMuted">
               Enter your current numbers and see your projected earnings with
               AddisDispatch — before you commit to anything.
             </p>
@@ -42,13 +42,13 @@ export default function Calculator() {
         <div className="mt-16 grid gap-8 lg:grid-cols-2">
           {/* Inputs */}
           <Reveal>
-            <div className="flex h-full flex-col gap-8 rounded-2xl border border-white/5 bg-bandDark/60 p-7 sm:p-9">
+            <div className="flex h-full flex-col gap-8 rounded-2xl border border-line bg-surface/50 p-7 backdrop-blur-md sm:p-9">
               <div>
-                <label htmlFor="calc-miles" className="block text-sm font-medium text-offWhite">
+                <label htmlFor="calc-miles" className="block text-sm font-medium text-ink">
                   Weekly Miles Driven
                 </label>
-                <div className="mt-2 flex items-center rounded-xl border border-white/10 bg-bandDarker px-4 py-3">
-                  <span className="mr-2 text-sm text-mutedGrey/60">mi</span>
+                <div className="mt-2 flex items-center rounded-xl border border-line bg-elevated/70 px-4 py-3">
+                  <span className="mr-2 text-sm text-inkMuted/60">mi</span>
                   <input
                     id="calc-miles"
                     type="number"
@@ -56,7 +56,7 @@ export default function Calculator() {
                     max={MILES_MAX}
                     value={miles}
                     onChange={(e) => setMiles(Number(e.target.value) || 0)}
-                    className="w-full bg-transparent text-sm font-light text-offWhite focus:outline-none"
+                    className="w-full bg-transparent text-sm font-light text-ink focus:outline-none"
                   />
                 </div>
                 <input
@@ -66,19 +66,19 @@ export default function Calculator() {
                   step={100}
                   value={miles}
                   onChange={(e) => setMiles(Number(e.target.value))}
-                  className="mt-3 w-full accent-gold"
+                  className="mt-3 w-full accent-accent"
                 />
-                <p className="mt-2 text-xs font-light text-mutedGrey/60">
+                <p className="mt-2 text-xs font-light text-inkMuted/60">
                   Average owner-operator runs 2,000–3,000 mi/week
                 </p>
               </div>
 
               <div>
-                <label htmlFor="calc-rpm" className="block text-sm font-medium text-offWhite">
+                <label htmlFor="calc-rpm" className="block text-sm font-medium text-ink">
                   Current Rate Per Mile
                 </label>
-                <div className="mt-2 flex items-center rounded-xl border border-white/10 bg-bandDarker px-4 py-3">
-                  <span className="mr-2 text-sm text-mutedGrey/60">$</span>
+                <div className="mt-2 flex items-center rounded-xl border border-line bg-elevated/70 px-4 py-3">
+                  <span className="mr-2 text-sm text-inkMuted/60">$</span>
                   <input
                     id="calc-rpm"
                     type="number"
@@ -87,7 +87,7 @@ export default function Calculator() {
                     step={0.05}
                     value={rpm}
                     onChange={(e) => setRpm(Number(e.target.value) || 0)}
-                    className="w-full bg-transparent text-sm font-light text-offWhite focus:outline-none"
+                    className="w-full bg-transparent text-sm font-light text-ink focus:outline-none"
                   />
                 </div>
                 <input
@@ -97,9 +97,9 @@ export default function Calculator() {
                   step={5}
                   value={Math.round(rpm * 100)}
                   onChange={(e) => setRpm(Number(e.target.value) / 100)}
-                  className="mt-3 w-full accent-gold"
+                  className="mt-3 w-full accent-accent"
                 />
-                <p className="mt-2 text-xs font-light text-mutedGrey/60">
+                <p className="mt-2 text-xs font-light text-inkMuted/60">
                   Industry average is $2.20–$2.80/mi for solo operators
                 </p>
               </div>
@@ -109,44 +109,44 @@ export default function Calculator() {
           {/* Results */}
           <Reveal delay={120}>
             <div className="flex h-full flex-col gap-4">
-              <div className="rounded-2xl border border-white/5 bg-bandDark/60 p-6">
-                <div className="text-xs font-medium uppercase tracking-wider text-mutedGrey/70">
+              <div className="rounded-2xl border border-line bg-surface/50 p-6 backdrop-blur-md">
+                <div className="text-xs font-medium uppercase tracking-wider text-inkMuted/70">
                   Your Current Weekly Revenue
                 </div>
-                <div className="mt-1 text-3xl font-bold tracking-tight text-offWhite">
+                <div className="mt-1 font-display text-3xl font-bold tracking-tight text-ink">
                   {money(current)}
                 </div>
-                <div className="mt-1 text-xs font-light text-mutedGrey/60">
+                <div className="mt-1 text-xs font-light text-inkMuted/60">
                   Based on your current rate × weekly miles
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-gold/30 bg-gold/5 p-6">
-                <div className="text-xs font-medium uppercase tracking-wider text-gold/80">
+              <div className="rounded-2xl border border-accent/30 bg-accent/5 p-6 backdrop-blur-md">
+                <div className="text-xs font-medium uppercase tracking-wider text-accent/80">
                   With AddisDispatch (after 7% fee)
                 </div>
-                <div className="mt-1 text-3xl font-bold tracking-tight text-gold">
+                <div className="mt-1 font-display text-3xl font-bold tracking-tight text-accent">
                   {money(withAtlas)}
                 </div>
-                <div className="mt-1 text-xs font-light text-mutedGrey/70">
+                <div className="mt-1 text-xs font-light text-inkMuted/70">
                   Avg 18% RPM improvement + 10% more loaded miles
                 </div>
-                <div className="mt-4 h-2 overflow-hidden rounded-full bg-bandDarker">
+                <div className="mt-4 h-2 overflow-hidden rounded-full bg-elevated/80">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-gold/60 to-gold transition-all duration-500"
+                    className="h-full rounded-full bg-gradient-to-r from-accent/60 to-accent transition-all duration-500"
                     style={{ width: `${barWidth}%` }}
                   />
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-leafGreen/30 bg-leafGreen/10 p-6">
-                <div className="text-xs font-medium uppercase tracking-wider text-mutedGrey/70">
+              <div className="rounded-2xl border border-success/30 bg-success/10 p-6 backdrop-blur-md">
+                <div className="text-xs font-medium uppercase tracking-wider text-inkMuted/70">
                   Your Projected Annual Gain
                 </div>
-                <div className="mt-1 text-3xl font-bold tracking-tight text-leafGreen">
+                <div className="mt-1 font-display text-3xl font-bold tracking-tight text-success">
                   +{money(annualGain)}
                 </div>
-                <div className="mt-1 text-xs font-light text-mutedGrey/60">
+                <div className="mt-1 text-xs font-light text-inkMuted/60">
                   Extra earnings you could put back in your pocket
                 </div>
               </div>
@@ -154,20 +154,20 @@ export default function Calculator() {
               <div className="mt-1 flex flex-col gap-3 sm:flex-row">
                 <a
                   href="#contact"
-                  className="flex-1 rounded-full bg-gold px-7 py-3.5 text-center text-sm font-semibold text-bandDarker transition-all hover:shadow-[0_0_30px_-4px] hover:shadow-gold/60"
+                  className="flex-1 rounded-full bg-accent px-7 py-3.5 text-center text-sm font-semibold text-black transition-all hover:shadow-[0_0_30px_-4px] hover:shadow-accent/60"
                 >
                   Claim My Earnings →
                 </a>
                 <button
                   type="button"
                   onClick={openBooking}
-                  className="flex-1 rounded-full border border-white/15 px-7 py-3.5 text-center text-sm font-light text-offWhite transition-colors hover:border-gold/50 hover:text-gold"
+                  className="flex-1 rounded-full border border-line px-7 py-3.5 text-center text-sm font-light text-ink transition-colors hover:border-accent/50 hover:text-accent"
                 >
                   Book a Call
                 </button>
               </div>
 
-              <p className="text-xs font-light leading-relaxed text-mutedGrey/50">
+              <p className="text-xs font-light leading-relaxed text-inkMuted/50">
                 * Projections based on avg carrier results. Individual results vary. Fee
                 of 7% (Professional plan) applied to AddisDispatch revenue.
               </p>

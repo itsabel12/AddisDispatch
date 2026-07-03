@@ -27,17 +27,17 @@ const edges = [
 
 export default function DataEdge() {
   return (
-    <section id="data-edge" className="relative bg-bandDarker bg-grid py-24 sm:py-32">
+    <section id="data-edge" className="relative bg-grid py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-gold">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-accent">
               The Data Edge
             </p>
-            <h2 className="text-4xl font-bold tracking-tight text-offWhite sm:text-5xl">
+            <h2 className="font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">
               Intelligence is the advantage
             </h2>
-            <p className="mt-5 text-base font-light leading-relaxed text-mutedGrey">
+            <p className="mt-5 text-base font-light leading-relaxed text-inkMuted">
               Our edge isn&apos;t tenure — it&apos;s analysis. Here&apos;s how we
               approach dispatch as a data operation, built to compound efficiency
               load over load.
@@ -56,7 +56,7 @@ export default function DataEdge() {
         </div>
 
         <Reveal delay={120}>
-          <p className="mx-auto mt-12 max-w-2xl text-center text-xs font-light text-mutedGrey/70">
+          <p className="mx-auto mt-12 max-w-2xl text-center text-xs font-light text-inkMuted/70">
             Methodology shown reflects how we run dispatch. AddisDispatch is a new
             operation — any figures added later will be labeled as illustrative until
             backed by live results.

@@ -44,17 +44,17 @@ const segments = [
 
 export default function WhoWeServe() {
   return (
-    <section id="serve" className="bg-seaGrey py-24 sm:py-32">
+    <section id="serve" className="py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-gold">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-accent">
               Who We Serve
             </p>
-            <h2 className="text-4xl font-bold tracking-tight text-offWhite sm:text-5xl">
+            <h2 className="font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">
               Built for Independent Carriers
             </h2>
-            <p className="mt-5 text-base font-light leading-relaxed text-mutedGrey">
+            <p className="mt-5 text-base font-light leading-relaxed text-inkMuted">
               Whether you&apos;re running solo or managing a small fleet, we have the
               expertise and bandwidth you need.
             </p>

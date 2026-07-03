@@ -20,10 +20,10 @@ const aboutVals = [
 ];
 
 const stats = [
-  { value: "$3.24", label: "Avg RPM", color: "text-gold" },
-  { value: "96%", label: "Load Success", color: "text-leafGreen" },
-  { value: "34%", label: "Less Deadhead", color: "text-gold" },
-  { value: "24/7", label: "Support", color: "text-leafGreen" },
+  { value: "$3.24", label: "Avg RPM", color: "text-accent" },
+  { value: "96%", label: "Load Success", color: "text-success" },
+  { value: "34%", label: "Less Deadhead", color: "text-accent" },
+  { value: "24/7", label: "Support", color: "text-success" },
 ];
 
 const team = [
@@ -49,20 +49,20 @@ const team = [
 
 export default function About() {
   return (
-    <section id="about" className="bg-bandDark py-24 sm:py-32">
+    <section id="about" className="py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="grid gap-16 lg:grid-cols-2 lg:gap-12">
           {/* Left: narrative + values */}
           <Reveal>
             <div>
-              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-gold">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-accent">
                 About Us
               </p>
-              <h2 className="text-4xl font-bold tracking-tight text-offWhite sm:text-5xl">
+              <h2 className="font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">
                 Your Dedicated Freight Dispatch Partner
               </h2>
 
-              <div className="mt-6 space-y-4 text-base font-light leading-relaxed text-mutedGrey">
+              <div className="mt-6 space-y-4 text-base font-light leading-relaxed text-inkMuted">
                 <p>
                   AddisDispatch is a dedicated freight dispatch service focused on one
                   thing: helping owner-operators and small fleets earn more, run
@@ -85,8 +85,8 @@ export default function About() {
               <div className="mt-10 grid gap-6 sm:grid-cols-2">
                 {aboutVals.map((v) => (
                   <div key={v.title}>
-                    <h4 className="text-base font-semibold text-offWhite">{v.title}</h4>
-                    <p className="mt-1 text-sm font-light leading-relaxed text-mutedGrey">
+                    <h4 className="font-display text-base font-semibold text-ink">{v.title}</h4>
+                    <p className="mt-1 text-sm font-light leading-relaxed text-inkMuted">
                       {v.body}
                     </p>
                   </div>
@@ -98,73 +98,73 @@ export default function About() {
           {/* Right: animated lane map + stats + drivers */}
           <Reveal delay={120}>
             <div>
-              <div className="flex flex-col gap-3.5 rounded-2xl border border-white/5 bg-gradient-to-br from-bandDarker to-[#0a2040] p-5">
+              <div className="flex flex-col gap-3.5 rounded-2xl border border-line bg-gradient-to-br from-surface/70 to-elevated/60 p-5 backdrop-blur-md">
                 <svg
                   viewBox="0 0 280 110"
                   width="100%"
                   className="min-h-[90px] flex-1"
                   xmlns="http://www.w3.org/2000/svg"
                 >
-                  <path d="M25 85 C70 62 110 55 150 44" stroke="rgba(255,215,0,0.30)" strokeWidth="1.5" fill="none" strokeDasharray="5 4" />
-                  <path d="M150 44 C192 34 232 28 268 20" stroke="rgba(255,215,0,0.20)" strokeWidth="1.5" fill="none" strokeDasharray="5 4" />
-                  <path d="M25 85 C68 100 125 104 178 101" stroke="rgba(70,116,52,0.28)" strokeWidth="1.5" fill="none" strokeDasharray="5 4" />
-                  <path d="M150 44 C158 66 165 84 178 101" stroke="rgba(255,215,0,0.14)" strokeWidth="1" fill="none" strokeDasharray="4 4" />
-                  <circle cx="25" cy="85" r="5" fill="rgba(255,215,0,0.72)" />
-                  <circle cx="25" cy="85" r="5" fill="none" stroke="rgba(255,215,0,0.3)" strokeWidth="1.5">
+                  <path d="M25 85 C70 62 110 55 150 44" stroke="rgba(242,137,31,0.30)" strokeWidth="1.5" fill="none" strokeDasharray="5 4" />
+                  <path d="M150 44 C192 34 232 28 268 20" stroke="rgba(242,137,31,0.20)" strokeWidth="1.5" fill="none" strokeDasharray="5 4" />
+                  <path d="M25 85 C68 100 125 104 178 101" stroke="rgba(78,209,124,0.28)" strokeWidth="1.5" fill="none" strokeDasharray="5 4" />
+                  <path d="M150 44 C158 66 165 84 178 101" stroke="rgba(242,137,31,0.14)" strokeWidth="1" fill="none" strokeDasharray="4 4" />
+                  <circle cx="25" cy="85" r="5" fill="rgba(242,137,31,0.72)" />
+                  <circle cx="25" cy="85" r="5" fill="none" stroke="rgba(242,137,31,0.3)" strokeWidth="1.5">
                     <animate attributeName="r" values="5;14;5" dur="2.5s" repeatCount="indefinite" />
                     <animate attributeName="opacity" values=".7;0;.7" dur="2.5s" repeatCount="indefinite" />
                   </circle>
-                  <circle cx="150" cy="44" r="6" fill="rgba(255,215,0,0.75)" />
-                  <circle cx="150" cy="44" r="6" fill="none" stroke="rgba(255,215,0,0.3)" strokeWidth="1.5">
+                  <circle cx="150" cy="44" r="6" fill="rgba(242,137,31,0.75)" />
+                  <circle cx="150" cy="44" r="6" fill="none" stroke="rgba(242,137,31,0.3)" strokeWidth="1.5">
                     <animate attributeName="r" values="6;17;6" dur="3s" repeatCount="indefinite" />
                     <animate attributeName="opacity" values=".7;0;.7" dur="3s" repeatCount="indefinite" />
                   </circle>
-                  <circle cx="268" cy="20" r="4" fill="rgba(70,116,52,0.75)" />
-                  <circle cx="178" cy="101" r="4" fill="rgba(70,116,52,0.65)" />
-                  <circle r="3" fill="#ffd700" opacity="0">
+                  <circle cx="268" cy="20" r="4" fill="rgba(78,209,124,0.75)" />
+                  <circle cx="178" cy="101" r="4" fill="rgba(78,209,124,0.65)" />
+                  <circle r="3" fill="#f2891f" opacity="0">
                     <animateMotion dur="4s" repeatCount="indefinite" path="M25 85 C70 62 110 55 150 44 C192 34 232 28 268 20" />
                     <animate attributeName="opacity" values="0;.9;.9;0" keyTimes="0;.08;.92;1" dur="4s" repeatCount="indefinite" />
                   </circle>
-                  <text x="14" y="100" fill="rgba(245,245,240,0.28)" fontSize="7" fontWeight="700">L.A.</text>
-                  <text x="142" y="40" fill="rgba(245,245,240,0.28)" fontSize="7" fontWeight="700">CHI</text>
-                  <text x="258" y="17" fill="rgba(245,245,240,0.28)" fontSize="7" fontWeight="700">NYC</text>
-                  <text x="167" y="112" fill="rgba(245,245,240,0.22)" fontSize="7" fontWeight="700">ATL</text>
+                  <text x="14" y="100" fill="rgba(244,244,246,0.28)" fontSize="7" fontWeight="700">L.A.</text>
+                  <text x="142" y="40" fill="rgba(244,244,246,0.28)" fontSize="7" fontWeight="700">CHI</text>
+                  <text x="258" y="17" fill="rgba(244,244,246,0.28)" fontSize="7" fontWeight="700">NYC</text>
+                  <text x="167" y="112" fill="rgba(244,244,246,0.22)" fontSize="7" fontWeight="700">ATL</text>
                 </svg>
 
                 <div className="grid grid-cols-2 gap-2">
                   {stats.map((s) => (
                     <div
                       key={s.label}
-                      className="rounded-lg border border-white/10 bg-white/5 p-2.5 text-center"
+                      className="rounded-lg border border-line bg-elevated/50 p-2.5 text-center"
                     >
-                      <div className={`text-xl font-extrabold leading-none tracking-tight ${s.color}`}>
+                      <div className={`font-display text-xl font-extrabold leading-none tracking-tight ${s.color}`}>
                         {s.value}
                       </div>
-                      <div className="mt-1 text-[0.65rem] text-mutedGrey/60">{s.label}</div>
+                      <div className="mt-1 text-[0.65rem] text-inkMuted/60">{s.label}</div>
                     </div>
                   ))}
                 </div>
 
-                <div className="inline-block rounded-full border border-gold/30 bg-gold/10 px-3 py-1.5 text-center text-xs font-medium text-gold">
+                <div className="inline-block rounded-full border border-accent/30 bg-accent/10 px-3 py-1.5 text-center text-xs font-medium text-accent">
                   📍 Nationwide Coverage · All 48 States
                 </div>
               </div>
 
-              <p className="mt-8 text-xs font-semibold uppercase tracking-[0.2em] text-mutedGrey/60">
+              <p className="mt-8 text-xs font-semibold uppercase tracking-[0.2em] text-inkMuted/60">
                 What Drives Us
               </p>
               <div className="mt-4 grid gap-4 sm:grid-cols-3">
                 {team.map((t) => (
                   <div
                     key={t.title}
-                    className="rounded-2xl border border-white/5 bg-bandDarker/60 p-5 text-center"
+                    className="rounded-2xl border border-line bg-surface/50 p-5 text-center backdrop-blur-md"
                   >
-                    <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full border border-gold/20 bg-gold/5 text-2xl">
+                    <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full border border-accent/20 bg-accent/10 text-2xl">
                       {t.emoji}
                     </div>
-                    <h4 className="text-sm font-semibold text-offWhite">{t.title}</h4>
-                    <div className="mt-0.5 text-xs font-medium text-gold">{t.role}</div>
-                    <p className="mt-2 text-xs font-light leading-relaxed text-mutedGrey">
+                    <h4 className="font-display text-sm font-semibold text-ink">{t.title}</h4>
+                    <div className="mt-0.5 text-xs font-medium text-accent">{t.role}</div>
+                    <p className="mt-2 text-xs font-light leading-relaxed text-inkMuted">
                       {t.body}
                     </p>
                   </div>

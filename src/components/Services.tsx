@@ -26,34 +26,34 @@ const services = [
 
 export default function Services() {
   return (
-    <section id="services" className="bg-seaGrey py-24 sm:py-32">
+    <section id="services" className="py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <Reveal>
           <div className="max-w-2xl">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-gold">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-accent">
               Services
             </p>
-            <h2 className="text-4xl font-bold tracking-tight text-offWhite sm:text-5xl">
+            <h2 className="font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">
               Everything dispatch, run on data
             </h2>
-            <p className="mt-5 text-base font-light leading-relaxed text-mutedGrey">
+            <p className="mt-5 text-base font-light leading-relaxed text-inkMuted">
               A complete back office for carriers and owner-operators — each service
               instrumented so the numbers, not the noise, drive the call.
             </p>
           </div>
         </Reveal>
 
-        <div className="mt-16 grid gap-px overflow-hidden rounded-2xl border border-white/5 bg-white/5 sm:grid-cols-2">
+        <div className="mt-16 grid gap-px overflow-hidden rounded-2xl border border-line bg-line/60 backdrop-blur-md sm:grid-cols-2">
           {services.map((service, i) => (
             <Reveal key={service.title} delay={i * 80}>
-              <div className="group h-full bg-bandDark p-8 transition-colors hover:bg-bandDarker">
-                <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl border border-gold/20 bg-gold/5 text-gold">
+              <div className="group h-full bg-surface/60 p-8 transition-colors hover:bg-surface/85">
+                <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl border border-accent/20 bg-accent/10 text-accent">
                   {service.icon}
                 </div>
-                <h3 className="mb-2.5 text-lg font-semibold text-offWhite">
+                <h3 className="mb-2.5 font-display text-lg font-semibold text-ink">
                   {service.title}
                 </h3>
-                <p className="text-sm font-light leading-relaxed text-mutedGrey">
+                <p className="text-sm font-light leading-relaxed text-inkMuted">
                   {service.body}
                 </p>
               </div>

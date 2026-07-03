@@ -64,17 +64,17 @@ const tiers: Tier[] = [
 
 export default function Pricing() {
   return (
-    <section id="pricing" className="bg-seaGrey py-24 sm:py-32">
+    <section id="pricing" className="py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-gold">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-accent">
               Simple Pricing
             </p>
-            <h2 className="text-4xl font-bold tracking-tight text-offWhite sm:text-5xl">
+            <h2 className="font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">
               Transparent Fees. No Surprises.
             </h2>
-            <p className="mt-5 text-base font-light leading-relaxed text-mutedGrey">
+            <p className="mt-5 text-base font-light leading-relaxed text-inkMuted">
               We charge a flat percentage of your gross load rate — no monthly fees, no
               minimums. You only pay when we earn for you.
             </p>
@@ -85,39 +85,39 @@ export default function Pricing() {
           {tiers.map((tier, i) => (
             <Reveal key={tier.name} delay={i * 90}>
               <div
-                className={`relative flex h-full flex-col rounded-2xl border p-8 transition-colors ${
+                className={`relative flex h-full flex-col rounded-2xl border p-8 backdrop-blur-md transition-colors ${
                   tier.popular
-                    ? "border-gold/50 bg-bandDark"
-                    : "border-white/5 bg-bandDark/60 hover:border-gold/30"
+                    ? "border-accent/50 bg-surface/70"
+                    : "border-line bg-surface/50 hover:border-accent/30"
                 }`}
               >
                 {tier.popular && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gold px-4 py-1 text-xs font-semibold text-bandDarker">
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-accent px-4 py-1 text-xs font-semibold text-black">
                     ⚡ Most Popular
                   </span>
                 )}
 
-                <h3 className="text-sm font-semibold uppercase tracking-[0.15em] text-gold">
+                <h3 className="text-sm font-semibold uppercase tracking-[0.15em] text-accent">
                   {tier.name}
                 </h3>
                 <div className="mt-4 flex items-end gap-1">
-                  <span className="text-5xl font-extrabold tracking-tight text-offWhite">
+                  <span className="font-display text-5xl font-extrabold tracking-tight text-ink">
                     {tier.pct}
                   </span>
-                  <span className="mb-1.5 text-sm font-light text-mutedGrey">% per load</span>
+                  <span className="mb-1.5 text-sm font-light text-inkMuted">% per load</span>
                 </div>
-                <p className="mt-4 text-sm font-light leading-relaxed text-mutedGrey">
+                <p className="mt-4 text-sm font-light leading-relaxed text-inkMuted">
                   {tier.desc}
                 </p>
 
-                <hr className="my-6 border-white/5" />
+                <hr className="my-6 border-line" />
 
                 <ul className="space-y-3">
                   {tier.features.map((f) => (
                     <li key={f.label} className="flex items-start gap-2.5 text-sm">
                       <span
                         className={`mt-0.5 flex-none font-bold ${
-                          f.included ? "text-leafGreen" : "text-mutedGrey/40"
+                          f.included ? "text-success" : "text-inkMuted/40"
                         }`}
                       >
                         {f.included ? "✓" : "✗"}
@@ -125,8 +125,8 @@ export default function Pricing() {
                       <span
                         className={
                           f.included
-                            ? "font-light text-offWhite"
-                            : "font-light text-mutedGrey/50"
+                            ? "font-light text-ink"
+                            : "font-light text-inkMuted/50"
                         }
                       >
                         {f.label}
@@ -140,8 +140,8 @@ export default function Pricing() {
                   onClick={openBooking}
                   className={`mt-8 w-full rounded-full px-7 py-3.5 text-sm font-semibold transition-all ${
                     tier.popular
-                      ? "bg-gold text-bandDarker hover:shadow-[0_0_30px_-4px] hover:shadow-gold/60"
-                      : "border border-gold/40 text-gold hover:bg-gold/10"
+                      ? "bg-accent text-black hover:shadow-[0_0_30px_-4px] hover:shadow-accent/60"
+                      : "border border-accent/40 text-accent hover:bg-accent/10"
                   }`}
                 >
                   Get Started
@@ -152,12 +152,12 @@ export default function Pricing() {
         </div>
 
         <Reveal delay={120}>
-          <p className="mt-10 text-center text-sm font-light text-mutedGrey">
+          <p className="mt-10 text-center text-sm font-light text-inkMuted">
             All plans are month-to-month — no contracts required.{" "}
             <button
               type="button"
               onClick={() => openLegal("terms")}
-              className="font-medium text-gold hover:underline"
+              className="font-medium text-accent hover:underline"
             >
               View full terms →
             </button>

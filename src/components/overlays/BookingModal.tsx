@@ -83,8 +83,8 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
 
   return (
     <ModalShell onClose={onClose}>
-      <h2 className="pr-10 text-2xl font-bold text-offWhite">Book a Free Consultation</h2>
-      <p className="mt-2 text-sm font-light text-mutedGrey">
+      <h2 className="pr-10 font-display text-2xl font-bold text-ink">Book a Free Consultation</h2>
+      <p className="mt-2 text-sm font-light text-inkMuted">
         15-minute call with a dispatcher — no commitment required.
       </p>
 
@@ -100,10 +100,10 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
                 key={label}
                 className={`flex-1 rounded-lg border px-2 py-2 text-center text-xs font-medium transition-colors ${
                   active
-                    ? "border-gold/50 bg-gold/10 text-gold"
+                    ? "border-accent/50 bg-accent/10 text-accent"
                     : done
-                      ? "border-leafGreen/40 bg-leafGreen/10 text-leafGreen"
-                      : "border-white/10 text-mutedGrey/60"
+                      ? "border-success/40 bg-success/10 text-success"
+                      : "border-line text-inkMuted/60"
                 }`}
               >
                 {label}
@@ -120,17 +120,17 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
               <button
                 type="button"
                 onClick={prevMonth}
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-mutedGrey hover:text-offWhite"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-inkMuted hover:text-ink"
               >
                 ←
               </button>
-              <span className="text-sm font-semibold text-offWhite">
+              <span className="text-sm font-semibold text-ink">
                 {MONTHS[month]} {year}
               </span>
               <button
                 type="button"
                 onClick={nextMonth}
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-mutedGrey hover:text-offWhite"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-inkMuted hover:text-ink"
               >
                 →
               </button>
@@ -138,7 +138,7 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
 
             <div className="mt-4 grid grid-cols-7 gap-1 text-center">
               {DAYS.map((d) => (
-                <div key={d} className="py-1 text-xs font-medium text-mutedGrey/50">
+                <div key={d} className="py-1 text-xs font-medium text-inkMuted/50">
                   {d}
                 </div>
               ))}
@@ -162,10 +162,10 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
                     }}
                     className={`aspect-square rounded-lg text-sm transition-colors ${
                       disabled
-                        ? "cursor-not-allowed text-mutedGrey/25"
+                        ? "cursor-not-allowed text-inkMuted/25"
                         : selected
-                          ? "bg-gold font-semibold text-bandDarker"
-                          : "text-offWhite hover:bg-gold/15 hover:text-gold"
+                          ? "bg-accent font-semibold text-black"
+                          : "text-ink hover:bg-accent/15 hover:text-accent"
                     }`}
                   >
                     {d}
@@ -173,15 +173,15 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
                 );
               })}
             </div>
-            <p className="mt-4 text-xs font-light text-mutedGrey/60">Available Mon–Fri only</p>
+            <p className="mt-4 text-xs font-light text-inkMuted/60">Available Mon–Fri only</p>
           </div>
         )}
 
         {step === 2 && (
           <div>
-            <p className="text-sm font-light text-mutedGrey">
+            <p className="text-sm font-light text-inkMuted">
               Pick a time for{" "}
-              <strong className="text-offWhite">
+              <strong className="text-ink">
                 {MONTHS[month]} {day}, {year}
               </strong>
               :
@@ -197,8 +197,8 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
                   }}
                   className={`rounded-lg border px-2 py-2.5 text-sm transition-colors ${
                     time === t
-                      ? "border-gold/50 bg-gold/10 text-gold"
-                      : "border-white/10 text-offWhite hover:border-gold/40 hover:text-gold"
+                      ? "border-accent/50 bg-accent/10 text-accent"
+                      : "border-line text-ink hover:border-accent/40 hover:text-accent"
                   }`}
                 >
                   {t}
@@ -209,7 +209,7 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="text-sm font-medium text-mutedGrey hover:text-offWhite"
+                className="text-sm font-medium text-inkMuted hover:text-ink"
               >
                 ← Back
               </button>
@@ -219,7 +219,7 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
 
         {step === 3 && (
           <div>
-            <div className="rounded-xl border border-gold/20 bg-gold/5 p-4 text-sm text-offWhite">
+            <div className="rounded-xl border border-accent/20 bg-accent/5 p-4 text-sm text-ink">
               📅 {MONTHS[month]} {day}, {year} · {time}
               <br />
               📞 15-min phone consultation with a dispatcher
@@ -227,8 +227,8 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
 
             <div className="mt-5 space-y-4">
               <div>
-                <label htmlFor="bk-name" className="mb-1.5 block text-sm font-medium text-offWhite">
-                  Your Name <span className="text-gold">*</span>
+                <label htmlFor="bk-name" className="mb-1.5 block text-sm font-medium text-ink">
+                  Your Name <span className="text-accent">*</span>
                 </label>
                 <input
                   id="bk-name"
@@ -236,14 +236,14 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="John Smith"
-                  className={`w-full rounded-xl border bg-bandDarker px-4 py-3 text-sm font-light text-offWhite placeholder:text-mutedGrey/50 focus:outline-none focus:ring-1 focus:ring-gold/40 ${
-                    errors.name ? "border-red-500" : "border-white/10 focus:border-gold/60"
+                  className={`w-full rounded-xl border bg-elevated px-4 py-3 text-sm font-light text-ink placeholder:text-inkMuted/50 focus:outline-none focus:ring-1 focus:ring-accent/40 ${
+                    errors.name ? "border-red-500" : "border-line focus:border-accent/60"
                   }`}
                 />
               </div>
               <div>
-                <label htmlFor="bk-phone" className="mb-1.5 block text-sm font-medium text-offWhite">
-                  Phone Number <span className="text-gold">*</span>
+                <label htmlFor="bk-phone" className="mb-1.5 block text-sm font-medium text-ink">
+                  Phone Number <span className="text-accent">*</span>
                 </label>
                 <input
                   id="bk-phone"
@@ -251,8 +251,8 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="(555) 000-0000"
-                  className={`w-full rounded-xl border bg-bandDarker px-4 py-3 text-sm font-light text-offWhite placeholder:text-mutedGrey/50 focus:outline-none focus:ring-1 focus:ring-gold/40 ${
-                    errors.phone ? "border-red-500" : "border-white/10 focus:border-gold/60"
+                  className={`w-full rounded-xl border bg-elevated px-4 py-3 text-sm font-light text-ink placeholder:text-inkMuted/50 focus:outline-none focus:ring-1 focus:ring-accent/40 ${
+                    errors.phone ? "border-red-500" : "border-line focus:border-accent/60"
                   }`}
                 />
               </div>
@@ -268,7 +268,7 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
               <button
                 type="button"
                 onClick={() => setStep(2)}
-                className="text-sm font-medium text-mutedGrey hover:text-offWhite"
+                className="text-sm font-medium text-inkMuted hover:text-ink"
               >
                 ← Back
               </button>
@@ -276,7 +276,7 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
                 type="button"
                 onClick={confirm}
                 disabled={submitting}
-                className="flex-1 rounded-full bg-gold px-7 py-3 text-sm font-semibold text-bandDarker transition-all hover:shadow-[0_0_24px_-4px] hover:shadow-gold/60 disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex-1 rounded-full bg-accent px-7 py-3 text-sm font-semibold text-black transition-all hover:shadow-[0_0_24px_-4px] hover:shadow-accent/60 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {submitting ? "Confirming…" : "Confirm Booking →"}
               </button>
@@ -287,10 +287,10 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
         {step === 4 && (
           <div className="py-4 text-center">
             <div className="text-5xl">✅</div>
-            <h3 className="mt-4 text-xl font-semibold text-offWhite">You&apos;re Booked!</h3>
-            <p className="mt-3 text-sm font-light leading-relaxed text-mutedGrey">
+            <h3 className="mt-4 font-display text-xl font-semibold text-ink">You&apos;re Booked!</h3>
+            <p className="mt-3 text-sm font-light leading-relaxed text-inkMuted">
               Your consultation is confirmed for{" "}
-              <strong className="text-offWhite">
+              <strong className="text-ink">
                 {MONTHS[month]} {day}, {year} at {time}
               </strong>
               .
@@ -302,7 +302,7 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
             <button
               type="button"
               onClick={onClose}
-              className="mt-6 rounded-full bg-gold px-7 py-3 text-sm font-semibold text-bandDarker transition-all hover:shadow-[0_0_24px_-4px] hover:shadow-gold/60"
+              className="mt-6 rounded-full bg-accent px-7 py-3 text-sm font-semibold text-black transition-all hover:shadow-[0_0_24px_-4px] hover:shadow-accent/60"
             >
               Done
             </button>

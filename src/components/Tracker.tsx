@@ -25,10 +25,10 @@ ChartJS.register(
   Filler,
 );
 
-const GOLD = "#ffd700";
-const GREEN = "#467434";
-const GRID = "rgba(255,255,255,0.05)";
-const TICK = "rgba(255,255,255,0.35)";
+const ACCENT = "#f2891f";
+const SUCCESS = "#4ed17c";
+const GRID = "rgba(255,255,255,0.06)";
+const TICK = "rgba(244,244,246,0.4)";
 
 const wkL = ["Wk1", "Wk2", "Wk3", "Wk4", "Wk5", "Wk6", "Wk7", "Wk8", "Wk9", "Wk10", "Wk11", "Wk12"];
 const wkR = [2.61, 2.74, 2.88, 2.95, 3.02, 3.1, 3.08, 3.19, 3.21, 3.24, 3.18, 3.29];
@@ -72,9 +72,9 @@ const statusLabel: Record<LoadStatus, string> = {
 };
 
 const statusClass: Record<LoadStatus, string> = {
-  del: "border-leafGreen/30 bg-leafGreen/10 text-leafGreen",
-  tra: "border-gold/30 bg-gold/10 text-gold",
-  pit: "border-white/15 bg-white/5 text-mutedGrey",
+  del: "border-success/30 bg-success/10 text-success",
+  tra: "border-accent/30 bg-accent/10 text-accent",
+  pit: "border-line bg-elevated/50 text-inkMuted",
 };
 
 const sum = (a: number[]) => a.reduce((x, y) => x + y, 0);
@@ -95,10 +95,10 @@ export default function Tracker() {
   const d = deltas[period];
 
   const kpis = [
-    { label: "Total Revenue", value: "$" + totalRev.toLocaleString(), delta: `↑ ${d.rev}% vs prior period`, gold: true },
-    { label: "Avg RPM", value: "$" + avgRpm, delta: `↑ ${d.rpm}% vs prior period`, gold: true },
-    { label: "Loads Completed", value: `${totalLds} loads`, delta: `↑ ${d.lds}% vs prior period`, gold: false },
-    { label: "Avg Deadhead %", value: `${avgDhd}%`, delta: `↓ ${d.dhd}% vs prior period`, gold: false },
+    { label: "Total Revenue", value: "$" + totalRev.toLocaleString(), delta: `↑ ${d.rev}% vs prior period`, accent: true },
+    { label: "Avg RPM", value: "$" + avgRpm, delta: `↑ ${d.rpm}% vs prior period`, accent: true },
+    { label: "Loads Completed", value: `${totalLds} loads`, delta: `↑ ${d.lds}% vs prior period`, accent: false },
+    { label: "Avg Deadhead %", value: `${avgDhd}%`, delta: `↓ ${d.dhd}% vs prior period`, accent: false },
   ];
 
   const axis = {
@@ -145,17 +145,17 @@ export default function Tracker() {
   };
 
   return (
-    <section id="tracker" className="bg-bandDark py-24 sm:py-32">
+    <section id="tracker" className="py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-gold">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-accent">
               Performance Dashboard
             </p>
-            <h2 className="text-4xl font-bold tracking-tight text-offWhite sm:text-5xl">
+            <h2 className="font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">
               Load Performance Tracker
             </h2>
-            <p className="mt-5 text-base font-light leading-relaxed text-mutedGrey">
+            <p className="mt-5 text-base font-light leading-relaxed text-inkMuted">
               Monitor your revenue per mile, weekly loads, deadhead trends, and gross
               earnings — all in one place.
             </p>
@@ -172,8 +172,8 @@ export default function Tracker() {
                 onClick={() => setPeriod(n)}
                 className={`rounded-full px-5 py-2 text-sm font-medium transition-colors ${
                   period === n
-                    ? "bg-gold text-bandDarker"
-                    : "border border-white/10 text-mutedGrey hover:text-offWhite"
+                    ? "bg-accent text-black"
+                    : "border border-line text-inkMuted hover:text-ink"
                 }`}
               >
                 {n} Weeks
@@ -186,14 +186,14 @@ export default function Tracker() {
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {kpis.map((k, i) => (
             <Reveal key={k.label} delay={i * 70}>
-              <div className="rounded-2xl border border-white/5 bg-bandDarker/60 p-6">
-                <div className="text-xs font-medium uppercase tracking-wider text-mutedGrey/70">
+              <div className="rounded-2xl border border-line bg-surface/50 p-6 backdrop-blur-md">
+                <div className="text-xs font-medium uppercase tracking-wider text-inkMuted/70">
                   {k.label}
                 </div>
-                <div className={`mt-1 text-2xl font-bold tracking-tight ${k.gold ? "text-gold" : "text-offWhite"}`}>
+                <div className={`mt-1 font-display text-2xl font-bold tracking-tight ${k.accent ? "text-accent" : "text-ink"}`}>
                   {k.value}
                 </div>
-                <div className="mt-1 text-xs font-light text-leafGreen">{k.delta}</div>
+                <div className="mt-1 text-xs font-light text-success">{k.delta}</div>
               </div>
             </Reveal>
           ))}
@@ -202,8 +202,8 @@ export default function Tracker() {
         {/* Charts */}
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <Reveal>
-            <div className="rounded-2xl border border-white/5 bg-bandDarker/60 p-6">
-              <h4 className="mb-4 text-sm font-semibold text-offWhite">
+            <div className="rounded-2xl border border-line bg-surface/50 p-6 backdrop-blur-md">
+              <h4 className="mb-4 font-display text-sm font-semibold text-ink">
                 📈 Revenue Per Mile — Weekly Trend
               </h4>
               <div className="h-60">
@@ -213,11 +213,11 @@ export default function Tracker() {
                     datasets: [
                       {
                         data: rpm,
-                        borderColor: GOLD,
-                        backgroundColor: "rgba(255,215,0,0.1)",
+                        borderColor: ACCENT,
+                        backgroundColor: "rgba(242,137,31,0.12)",
                         borderWidth: 2.5,
-                        pointBackgroundColor: GOLD,
-                        pointBorderColor: "#1f1f1f",
+                        pointBackgroundColor: ACCENT,
+                        pointBorderColor: "#0e0e12",
                         pointBorderWidth: 2,
                         pointRadius: 5,
                         fill: true,
@@ -232,8 +232,8 @@ export default function Tracker() {
           </Reveal>
 
           <Reveal delay={90}>
-            <div className="rounded-2xl border border-white/5 bg-bandDarker/60 p-6">
-              <h4 className="mb-4 text-sm font-semibold text-offWhite">
+            <div className="rounded-2xl border border-line bg-surface/50 p-6 backdrop-blur-md">
+              <h4 className="mb-4 font-display text-sm font-semibold text-ink">
                 💵 Weekly Gross Revenue
               </h4>
               <div className="h-60">
@@ -243,8 +243,8 @@ export default function Tracker() {
                     datasets: [
                       {
                         data: rev,
-                        backgroundColor: "rgba(70,116,52,0.65)",
-                        borderColor: GREEN,
+                        backgroundColor: "rgba(78,209,124,0.5)",
+                        borderColor: SUCCESS,
                         borderWidth: 1.5,
                         borderRadius: 6,
                         borderSkipped: false,
@@ -260,12 +260,12 @@ export default function Tracker() {
 
         {/* Load history */}
         <Reveal delay={120}>
-          <div className="mt-6 overflow-hidden rounded-2xl border border-white/5 bg-bandDarker/60 p-6">
-            <h4 className="mb-4 text-sm font-semibold text-offWhite">🚛 Recent Load History</h4>
+          <div className="mt-6 overflow-hidden rounded-2xl border border-line bg-surface/50 p-6 backdrop-blur-md">
+            <h4 className="mb-4 font-display text-sm font-semibold text-ink">🚛 Recent Load History</h4>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[760px] text-left text-sm">
                 <thead>
-                  <tr className="border-b border-white/10 text-xs uppercase tracking-wider text-mutedGrey/60">
+                  <tr className="border-b border-line text-xs uppercase tracking-wider text-inkMuted/60">
                     <th className="py-3 pr-4 font-medium">Load #</th>
                     <th className="py-3 pr-4 font-medium">Route</th>
                     <th className="py-3 pr-4 font-medium">Miles</th>
@@ -276,21 +276,21 @@ export default function Tracker() {
                     <th className="py-3 font-medium">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5 font-light text-mutedGrey">
+                <tbody className="divide-y divide-line font-light text-inkMuted">
                   {loads.map((l) => (
                     <tr key={l.id}>
-                      <td className="py-3 pr-4 font-semibold text-offWhite">{l.id}</td>
+                      <td className="py-3 pr-4 font-semibold text-ink">{l.id}</td>
                       <td className="py-3 pr-4">{l.route}</td>
                       <td className="py-3 pr-4">{l.mi.toLocaleString()}</td>
-                      <td className="py-3 pr-4 font-semibold text-offWhite">
+                      <td className="py-3 pr-4 font-semibold text-ink">
                         ${l.rate.toLocaleString()}
                       </td>
-                      <td className={`py-3 pr-4 font-medium ${l.rpm >= 3 ? "text-leafGreen" : "text-gold"}`}>
+                      <td className={`py-3 pr-4 font-medium ${l.rpm >= 3 ? "text-success" : "text-accent"}`}>
                         ${l.rpm.toFixed(2)}
                       </td>
                       <td className="py-3 pr-4">
                         {l.dh === 0 ? (
-                          <span className="font-medium text-leafGreen">0 mi ✓</span>
+                          <span className="font-medium text-success">0 mi ✓</span>
                         ) : (
                           `${l.dh} mi`
                         )}
@@ -308,7 +308,7 @@ export default function Tracker() {
                 </tbody>
               </table>
             </div>
-            <p className="mt-4 text-xs font-light text-mutedGrey/50">
+            <p className="mt-4 text-xs font-light text-inkMuted/50">
               * Sample data. Live data available via Carrier Portal.
             </p>
           </div>

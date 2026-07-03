@@ -1,4 +1,3 @@
-import Card from "./Card";
 import Reveal from "./Reveal";
 import {
   DollarIcon,
@@ -38,29 +37,33 @@ const values = [
 
 export default function Value() {
   return (
-    <section id="value" className="bg-seaGrey py-24 sm:py-32">
+    <section id="value" className="py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-gold">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-accent">
               Why Choose Us
             </p>
-            <h2 className="text-4xl font-bold tracking-tight text-offWhite sm:text-5xl">
+            <h2 className="font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">
               Built for Carriers Who Want More
             </h2>
-            <p className="mt-5 text-base font-light leading-relaxed text-mutedGrey">
+            <p className="mt-5 text-base font-light leading-relaxed text-inkMuted">
               Market intelligence, broker relationships, and dedicated support — all
               working to put more money in your pocket every week.
             </p>
           </div>
         </Reveal>
 
-        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {values.map((value, i) => (
             <Reveal key={value.title} delay={i * 80}>
-              <Card icon={value.icon} title={value.title}>
-                {value.body}
-              </Card>
+              <div className="group h-full rounded-2xl border border-line bg-surface/60 p-6 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:border-accent/40 hover:bg-surface">
+                <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl border border-accent/25 bg-accent/10 text-accent">
+                  {value.icon}
+                </div>
+                <h3 className="mb-2 font-display text-lg font-semibold text-ink">{value.title}</h3>
+                <p className="text-sm font-light leading-relaxed text-inkMuted">{value.body}</p>
+              </div>
             </Reveal>
           ))}
         </div>

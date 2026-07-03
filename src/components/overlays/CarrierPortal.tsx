@@ -33,14 +33,14 @@ const actions = [
 ];
 
 const badgeTone: Record<string, string> = {
-  tra: "border-gold/30 bg-gold/10 text-gold",
-  pit: "border-white/15 bg-white/5 text-mutedGrey",
+  tra: "border-accent/30 bg-accent/10 text-accent",
+  pit: "border-line bg-elevated/50 text-inkMuted",
 };
 
 function Logo() {
   return (
-    <span className="text-lg font-bold tracking-tight text-gold">
-      Addis<span className="text-offWhite">Dispatch</span>
+    <span className="font-display text-lg font-bold tracking-tight text-accent">
+      Addis<span className="text-ink">Dispatch</span>
     </span>
   );
 }
@@ -50,57 +50,57 @@ export default function CarrierPortal({ onClose }: { onClose: () => void }) {
   const [active, setActive] = useState(0);
 
   return (
-    <div className="fixed inset-0 z-[100] overflow-y-auto bg-seaGrey">
+    <div className="fixed inset-0 z-[100] overflow-y-auto bg-base">
       {!loggedIn ? (
         <div className="flex min-h-screen items-center justify-center p-4">
           <button
             type="button"
             onClick={onClose}
-            className="absolute left-4 top-4 text-sm font-medium text-mutedGrey hover:text-offWhite"
+            className="absolute left-4 top-4 text-sm font-medium text-inkMuted hover:text-ink"
           >
             ← Back to Site
           </button>
 
-          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-bandDark p-8 sm:p-10">
+          <div className="w-full max-w-md rounded-2xl border border-line bg-surface/90 p-8 backdrop-blur-md sm:p-10">
             <Logo />
-            <h2 className="mt-5 text-2xl font-bold text-offWhite">Carrier Portal</h2>
-            <p className="mt-1 text-sm font-light text-mutedGrey">
+            <h2 className="mt-5 font-display text-2xl font-bold text-ink">Carrier Portal</h2>
+            <p className="mt-1 text-sm font-light text-inkMuted">
               Sign in to access your loads, earnings, and dispatcher.
             </p>
 
-            <div className="mt-5 rounded-xl border border-gold/20 bg-gold/5 p-3 text-xs font-medium text-gold">
+            <div className="mt-5 rounded-xl border border-accent/20 bg-accent/5 p-3 text-xs font-medium text-accent">
               🚛 Demo mode — click Login to preview the dashboard
             </div>
 
             <div className="mt-5 space-y-4">
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-offWhite">
+                <label className="mb-1.5 block text-sm font-medium text-ink">
                   Email Address
                 </label>
                 <input
                   type="email"
                   defaultValue="marcus.j@email.com"
-                  className="w-full rounded-xl border border-white/10 bg-bandDarker px-4 py-3 text-sm font-light text-offWhite focus:border-gold/60 focus:outline-none focus:ring-1 focus:ring-gold/40"
+                  className="w-full rounded-xl border border-line bg-elevated px-4 py-3 text-sm font-light text-ink focus:border-accent/60 focus:outline-none focus:ring-1 focus:ring-accent/40"
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-offWhite">Password</label>
+                <label className="mb-1.5 block text-sm font-medium text-ink">Password</label>
                 <input
                   type="password"
                   defaultValue="demopass"
-                  className="w-full rounded-xl border border-white/10 bg-bandDarker px-4 py-3 text-sm font-light text-offWhite focus:border-gold/60 focus:outline-none focus:ring-1 focus:ring-gold/40"
+                  className="w-full rounded-xl border border-line bg-elevated px-4 py-3 text-sm font-light text-ink focus:border-accent/60 focus:outline-none focus:ring-1 focus:ring-accent/40"
                 />
               </div>
             </div>
 
-            <button type="button" className="mt-3 text-sm font-medium text-gold hover:underline">
+            <button type="button" className="mt-3 text-sm font-medium text-accent hover:underline">
               Forgot password?
             </button>
 
             <button
               type="button"
               onClick={() => setLoggedIn(true)}
-              className="mt-4 w-full rounded-full bg-gold px-7 py-3.5 text-sm font-semibold text-bandDarker transition-all hover:shadow-[0_0_24px_-4px] hover:shadow-gold/60"
+              className="mt-4 w-full rounded-full bg-accent px-7 py-3.5 text-sm font-semibold text-black transition-all hover:shadow-[0_0_24px_-4px] hover:shadow-accent/60"
             >
               Login to Portal →
             </button>
@@ -110,7 +110,7 @@ export default function CarrierPortal({ onClose }: { onClose: () => void }) {
                 onClose();
                 openBooking();
               }}
-              className="mt-4 w-full text-center text-sm font-medium text-mutedGrey hover:text-gold"
+              className="mt-4 w-full text-center text-sm font-medium text-inkMuted hover:text-accent"
             >
               New carrier? Book a free consultation
             </button>
@@ -119,22 +119,22 @@ export default function CarrierPortal({ onClose }: { onClose: () => void }) {
       ) : (
         <div className="min-h-screen">
           {/* Header */}
-          <header className="flex items-center justify-between border-b border-white/5 bg-bandDarker px-6 py-4">
+          <header className="flex items-center justify-between border-b border-line bg-elevated/90 px-6 py-4 backdrop-blur-md">
             <div className="flex items-center gap-2">
               <Logo />
-              <span className="ml-1 text-xs font-light text-mutedGrey/40">Carrier Portal</span>
+              <span className="ml-1 text-xs font-light text-inkMuted/40">Carrier Portal</span>
             </div>
             <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gold text-sm font-bold text-bandDarker">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-sm font-bold text-black">
                 MJ
               </span>
-              <span className="hidden text-sm font-medium text-offWhite sm:inline">
+              <span className="hidden text-sm font-medium text-ink sm:inline">
                 Marcus Johnson
               </span>
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-full border border-white/10 px-4 py-1.5 text-sm font-medium text-mutedGrey hover:text-offWhite"
+                className="rounded-full border border-line px-4 py-1.5 text-sm font-medium text-inkMuted hover:text-ink"
               >
                 Logout
               </button>
@@ -151,8 +151,8 @@ export default function CarrierPortal({ onClose }: { onClose: () => void }) {
                   onClick={() => setActive(i)}
                   className={`whitespace-nowrap rounded-xl px-4 py-2.5 text-left text-sm font-medium transition-colors ${
                     active === i
-                      ? "bg-gold/10 text-gold"
-                      : "text-mutedGrey hover:bg-white/5 hover:text-offWhite"
+                      ? "bg-accent/10 text-accent"
+                      : "text-inkMuted hover:bg-elevated hover:text-ink"
                   }`}
                 >
                   {item}
@@ -162,47 +162,47 @@ export default function CarrierPortal({ onClose }: { onClose: () => void }) {
 
             {/* Main */}
             <main className="min-w-0 flex-1">
-              <h1 className="text-2xl font-bold text-offWhite">Good morning, Marcus 👋</h1>
-              <p className="mt-1 text-sm font-light text-mutedGrey">
+              <h1 className="font-display text-2xl font-bold text-ink">Good morning, Marcus 👋</h1>
+              <p className="mt-1 text-sm font-light text-inkMuted">
                 Here&apos;s your performance summary for this week.
               </p>
 
               <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {kpis.map((k) => (
-                  <div key={k.label} className="rounded-2xl border border-white/5 bg-bandDark/60 p-5">
-                    <div className="text-xs font-medium uppercase tracking-wider text-mutedGrey/70">
+                  <div key={k.label} className="rounded-2xl border border-line bg-surface/60 p-5 backdrop-blur-md">
+                    <div className="text-xs font-medium uppercase tracking-wider text-inkMuted/70">
                       {k.label}
                     </div>
-                    <div className={`mt-1 text-2xl font-bold ${k.gold ? "text-gold" : "text-offWhite"}`}>
+                    <div className={`mt-1 font-display text-2xl font-bold ${k.gold ? "text-accent" : "text-ink"}`}>
                       {k.value}
                     </div>
-                    <div className="mt-1 text-xs font-light text-leafGreen">{k.change}</div>
+                    <div className="mt-1 text-xs font-light text-success">{k.change}</div>
                   </div>
                 ))}
               </div>
 
               <div className="mt-8 flex items-center justify-between">
-                <h2 className="text-sm font-semibold uppercase tracking-wider text-offWhite">
+                <h2 className="font-display text-sm font-semibold uppercase tracking-wider text-ink">
                   Active &amp; Upcoming Loads
                 </h2>
-                <span className="text-sm font-medium text-gold">View All →</span>
+                <span className="text-sm font-medium text-accent">View All →</span>
               </div>
               <div className="mt-4 space-y-3">
                 {portalLoads.map((l) => (
                   <div
                     key={l.route}
-                    className="flex flex-wrap items-center gap-3 rounded-2xl border border-white/5 bg-bandDark/60 p-4"
+                    className="flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-surface/60 p-4 backdrop-blur-md"
                   >
-                    <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-medium text-mutedGrey">
+                    <span className="rounded-full border border-line px-3 py-1 text-xs font-medium text-inkMuted">
                       {l.eq}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <div className="text-sm font-medium text-offWhite">{l.route}</div>
-                      <div className="text-xs font-light text-mutedGrey/70">{l.det}</div>
+                      <div className="text-sm font-medium text-ink">{l.route}</div>
+                      <div className="text-xs font-light text-inkMuted/70">{l.det}</div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm font-bold text-offWhite">{l.rate}</div>
-                      <div className="text-xs font-light text-leafGreen">{l.rpm}</div>
+                      <div className="text-sm font-bold text-ink">{l.rate}</div>
+                      <div className="text-xs font-light text-success">{l.rpm}</div>
                     </div>
                     <span className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${badgeTone[l.tone]}`}>
                       {l.badge}
@@ -211,15 +211,15 @@ export default function CarrierPortal({ onClose }: { onClose: () => void }) {
                 ))}
               </div>
 
-              <h2 className="mt-8 text-sm font-semibold uppercase tracking-wider text-offWhite">
+              <h2 className="mt-8 font-display text-sm font-semibold uppercase tracking-wider text-ink">
                 Quick Actions
               </h2>
               <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {actions.map((a) => (
-                  <div key={a.title} className="rounded-2xl border border-white/5 bg-bandDark/60 p-5">
+                  <div key={a.title} className="rounded-2xl border border-line bg-surface/60 p-5 backdrop-blur-md">
                     <div className="text-2xl">{a.ic}</div>
-                    <h4 className="mt-2 text-sm font-semibold text-offWhite">{a.title}</h4>
-                    <p className="mt-1 text-xs font-light leading-relaxed text-mutedGrey">{a.body}</p>
+                    <h4 className="mt-2 text-sm font-semibold text-ink">{a.title}</h4>
+                    <p className="mt-1 text-xs font-light leading-relaxed text-inkMuted">{a.body}</p>
                   </div>
                 ))}
               </div>

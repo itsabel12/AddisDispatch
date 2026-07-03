@@ -20,32 +20,32 @@ const steps = [
 
 export default function Timeline() {
   return (
-    <section id="how-it-works" className="bg-bandDark py-24 sm:py-32">
+    <section id="how-it-works" className="py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-gold">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-accent">
               How It Works
             </p>
-            <h2 className="text-4xl font-bold tracking-tight text-offWhite sm:text-5xl">
+            <h2 className="font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">
               Three steps to a data-run dispatch
             </h2>
           </div>
         </Reveal>
 
         <div className="relative mt-20">
-          {/* Gold connector line (horizontal on desktop) */}
-          <div className="absolute left-0 right-0 top-6 hidden h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent md:block" />
+          {/* Accent connector line (horizontal on desktop) */}
+          <div className="absolute left-0 right-0 top-6 hidden h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent md:block" />
 
           <div className="grid gap-12 md:grid-cols-3 md:gap-8">
             {steps.map((s, i) => (
               <Reveal key={s.step} delay={i * 120}>
                 <div className="relative flex flex-col items-center text-center md:items-start md:text-left">
-                  <div className="relative z-10 mb-6 flex h-12 w-12 items-center justify-center rounded-full border border-gold/40 bg-bandDarker text-sm font-bold text-gold">
+                  <div className="relative z-10 mb-6 flex h-12 w-12 items-center justify-center rounded-full border border-accent/40 bg-surface/70 text-sm font-bold text-accent backdrop-blur">
                     {s.step}
                   </div>
-                  <h3 className="mb-3 text-xl font-semibold text-offWhite">{s.title}</h3>
-                  <p className="max-w-xs text-sm font-light leading-relaxed text-mutedGrey md:max-w-none">
+                  <h3 className="mb-3 font-display text-xl font-semibold text-ink">{s.title}</h3>
+                  <p className="max-w-xs text-sm font-light leading-relaxed text-inkMuted md:max-w-none">
                     {s.body}
                   </p>
                 </div>

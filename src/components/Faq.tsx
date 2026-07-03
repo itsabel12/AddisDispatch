@@ -30,21 +30,21 @@ export default function Faq() {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <section id="faq" className="bg-bandDark py-24 sm:py-32">
+    <section id="faq" className="py-24 sm:py-32">
       <div className="mx-auto max-w-3xl px-6 lg:px-8">
         <Reveal>
           <div className="text-center">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-gold">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-accent">
               Got Questions?
             </p>
-            <h2 className="text-4xl font-bold tracking-tight text-offWhite sm:text-5xl">
+            <h2 className="font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">
               Frequently Asked Questions
             </h2>
           </div>
         </Reveal>
 
         <Reveal delay={100}>
-          <div className="mt-12 divide-y divide-white/5 overflow-hidden rounded-2xl border border-white/5 bg-bandDarker/40">
+          <div className="mt-12 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface/40 backdrop-blur-md">
             {faqs.map((item, i) => {
               const isOpen = open === i;
               return (
@@ -55,9 +55,9 @@ export default function Faq() {
                     aria-expanded={isOpen}
                     className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
                   >
-                    <span className="text-base font-medium text-offWhite">{item.q}</span>
+                    <span className="text-base font-medium text-ink">{item.q}</span>
                     <span
-                      className={`flex-none text-xl font-light text-gold transition-transform duration-300 ${
+                      className={`flex-none text-xl font-light text-accent transition-transform duration-300 ${
                         isOpen ? "rotate-45" : ""
                       }`}
                     >
@@ -70,7 +70,7 @@ export default function Faq() {
                     }`}
                   >
                     <div className="overflow-hidden">
-                      <p className="px-6 pb-5 text-sm font-light leading-relaxed text-mutedGrey">
+                      <p className="px-6 pb-5 text-sm font-light leading-relaxed text-inkMuted">
                         {item.a}
                       </p>
                     </div>

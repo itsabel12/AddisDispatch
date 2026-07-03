@@ -19,18 +19,18 @@ export default function LegalModalView({ modal, onClose }: Props) {
 }
 
 function H3({ children }: { children: React.ReactNode }) {
-  return <h3 className="mt-6 text-base font-semibold text-offWhite">{children}</h3>;
+  return <h3 className="mt-6 font-display text-base font-semibold text-ink">{children}</h3>;
 }
 
 function Body({ children }: { children: React.ReactNode }) {
-  return <p className="mt-2 text-sm font-light leading-relaxed text-mutedGrey">{children}</p>;
+  return <p className="mt-2 text-sm font-light leading-relaxed text-inkMuted">{children}</p>;
 }
 
 function Privacy() {
   return (
     <div>
-      <h2 className="pr-10 text-2xl font-bold text-offWhite">Privacy Policy</h2>
-      <div className="mt-1 text-xs font-medium uppercase tracking-wider text-gold">
+      <h2 className="pr-10 font-display text-2xl font-bold text-ink">Privacy Policy</h2>
+      <div className="mt-1 text-xs font-medium uppercase tracking-wider text-accent">
         Effective: June 1, 2026
       </div>
       <Body>
@@ -39,14 +39,14 @@ function Privacy() {
       </Body>
 
       <H3>1. Information We Collect</H3>
-      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm font-light text-mutedGrey">
+      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm font-light text-inkMuted">
         <li>Full name, phone, and email</li>
         <li>MC number and USDOT number</li>
         <li>Equipment type, fleet size, preferred lanes</li>
       </ul>
 
       <H3>2. How We Use It</H3>
-      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm font-light text-mutedGrey">
+      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm font-light text-inkMuted">
         <li>To contact you about dispatch services</li>
         <li>To set up your carrier profile with vetted brokers</li>
         <li>To communicate load opportunities and dispatch updates</li>
@@ -61,10 +61,10 @@ function Privacy() {
       <H3>4. Your Rights</H3>
       <Body>
         Request access, correction, or deletion at{" "}
-        <strong className="text-offWhite">privacy@addisdispatch.com</strong>.
+        <strong className="text-ink">privacy@addisdispatch.com</strong>.
       </Body>
 
-      <div className="mt-6 rounded-xl border border-white/10 bg-bandDarker/60 p-4 text-xs font-light text-mutedGrey">
+      <div className="mt-6 rounded-xl border border-line bg-elevated/60 p-4 text-xs font-light text-inkMuted">
         AddisDispatch complies with applicable U.S. federal and state privacy laws.
       </div>
     </div>
@@ -74,8 +74,8 @@ function Privacy() {
 function Terms() {
   return (
     <div>
-      <h2 className="pr-10 text-2xl font-bold text-offWhite">Terms of Service</h2>
-      <div className="mt-1 text-xs font-medium uppercase tracking-wider text-gold">
+      <h2 className="pr-10 font-display text-2xl font-bold text-ink">Terms of Service</h2>
+      <div className="mt-1 text-xs font-medium uppercase tracking-wider text-accent">
         Effective: June 1, 2026 · Governing Law: Texas
       </div>
       <Body>
@@ -90,7 +90,7 @@ function Terms() {
       </Body>
 
       <H3>2. Carrier Obligations</H3>
-      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm font-light text-mutedGrey">
+      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm font-light text-inkMuted">
         <li>Valid MC authority and USDOT registration</li>
         <li>Minimum liability insurance of $1,000,000</li>
         <li>Honor all rate confirmations made on your behalf</li>
@@ -108,7 +108,7 @@ function Terms() {
         fees remain due.
       </Body>
 
-      <div className="mt-6 rounded-xl border border-white/10 bg-bandDarker/60 p-4 text-xs font-light text-mutedGrey">
+      <div className="mt-6 rounded-xl border border-line bg-elevated/60 p-4 text-xs font-light text-inkMuted">
         Questions? Contact legal@addisdispatch.com
       </div>
     </div>

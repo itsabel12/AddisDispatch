@@ -1,6 +1,7 @@
 "use client";
 
 import { openPortal, openLegal } from "@/lib/overlay";
+import Logo from "./Logo";
 
 const company = [
   { label: "About Us", href: "#about" },
@@ -18,22 +19,19 @@ const services = [
 ];
 
 const linkClass =
-  "text-sm font-light text-mutedGrey transition-colors hover:text-gold";
+  "text-sm font-light text-inkMuted transition-colors hover:text-accent";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/5 bg-bandDarker">
+    <footer className="border-t border-line bg-surface/40 backdrop-blur-md">
       <div className="mx-auto max-w-7xl px-6 py-14 lg:px-8">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div className="max-w-sm">
-            <a href="#top" className="flex items-center gap-2" aria-label="AddisDispatch home">
-              <span className="inline-block h-2.5 w-2.5 rounded-full bg-gold" />
-              <span className="text-lg font-bold tracking-tight text-gold">
-                Addis<span className="text-offWhite">Dispatch</span>
-              </span>
+            <a href="#top" aria-label="AddisDispatch home">
+              <Logo />
             </a>
-            <p className="mt-4 text-sm font-light leading-relaxed text-mutedGrey">
+            <p className="mt-4 text-sm font-light leading-relaxed text-inkMuted">
               Premium freight dispatch for owner-operators and small carriers across all
               48 U.S. states. We keep your truck loaded and your revenue growing.
             </p>
@@ -41,7 +39,7 @@ export default function Footer() {
 
           {/* Company */}
           <nav aria-label="Company" className="flex flex-col gap-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-mutedGrey/60">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-inkMuted/60">
               Company
             </p>
             {company.map((link) => (
@@ -56,7 +54,7 @@ export default function Footer() {
 
           {/* Services */}
           <nav aria-label="Services" className="flex flex-col gap-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-mutedGrey/60">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-inkMuted/60">
               Services
             </p>
             {services.map((label) => (
@@ -68,7 +66,7 @@ export default function Footer() {
 
           {/* Legal */}
           <nav aria-label="Legal" className="flex flex-col gap-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-mutedGrey/60">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-inkMuted/60">
               Legal
             </p>
             <button type="button" onClick={() => openLegal("privacy")} className={`text-left ${linkClass}`}>
@@ -86,16 +84,16 @@ export default function Footer() {
           </nav>
         </div>
 
-        <div className="mt-12 flex flex-col items-start justify-between gap-3 border-t border-white/5 pt-6 text-xs font-light text-mutedGrey/60 sm:flex-row sm:items-center">
+        <div className="mt-12 flex flex-col items-start justify-between gap-3 border-t border-line pt-6 text-xs font-light text-inkMuted/60 sm:flex-row sm:items-center">
           <p>
             © {new Date().getFullYear()} AddisDispatch. All rights reserved. AddisDispatch
             is a dispatch service, not a licensed freight broker.
           </p>
           <div className="flex items-center gap-4">
-            <button type="button" onClick={() => openLegal("privacy")} className="hover:text-gold">
+            <button type="button" onClick={() => openLegal("privacy")} className="hover:text-accent">
               Privacy Policy
             </button>
-            <button type="button" onClick={() => openLegal("terms")} className="hover:text-gold">
+            <button type="button" onClick={() => openLegal("terms")} className="hover:text-accent">
               Terms of Service
             </button>
           </div>

@@ -5,6 +5,22 @@
    Usage: bg-seaGrey, text-gold, border-leafGreen, etc.
    ───────────────────────────────────────────── */
 @theme {
+  /* ── New dashboard design system (RouteIQ-style: near-black + orange) ── */
+  --color-base: #08080a; /* deepest backdrop (behind the aerial bg image) */
+  --color-surface: #0e0e12; /* cards / panels */
+  --color-elevated: #16161c; /* hover, popovers, inset tiles */
+  --color-line: #23232b; /* hairline borders */
+  --color-ink: #f4f4f6; /* primary text */
+  --color-inkMuted: #8a8b94; /* secondary text */
+  --color-accent: #f2891f; /* orange — primary accent */
+  --color-accentDeep: #d9740f;
+  --color-success: #4ed17c; /* positive states (paid, delivered, gains) */
+  --color-danger: #f2545b;
+
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-space), ui-sans-serif, system-ui, sans-serif;
+
+  /* ── Legacy tokens (kept until every screen is migrated) ── */
   --color-seaGrey: #363636;
   --color-bandDark: #2a2a2a;
   --color-bandDarker: #1f1f1f;
@@ -12,16 +28,12 @@
   --color-leafGreen: #467434;
   --color-offWhite: #f5f5f0;
   --color-mutedGrey: #a0a0a0;
-
-  /* Carrier portal — layered black palette (true black base, lifted surfaces) */
   --color-bgBase: #000000;
   --color-bgSurface: #0e0e10;
   --color-bgElevated: #16161a;
   --color-portalBorder: #262626;
   --color-textPrimary: #f5f5f5;
   --color-textMuted: #a1a1a1;
-
-  --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
 }
 
 @keyframes reveal {
@@ -40,16 +52,41 @@ html {
 }
 
 body {
-  background-color: var(--color-seaGrey);
-  color: var(--color-offWhite);
+  background-color: var(--color-base);
+  color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
 }
 
-/* Faint route-line / data motif used behind sections */
+/* Site-wide aerial backdrop: a fixed, dimmed image behind all content.
+   The image is wired in once provided; until then a dark radial stands in. */
+.bg-aerial::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-color: var(--color-base);
+  background-image:
+    radial-gradient(1200px 700px at 70% -10%, rgba(242, 137, 31, 0.12), transparent 60%),
+    url("/images/aerial-bg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+/* Dark veil so content/cards stay readable over the image. */
+.bg-aerial::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(8, 8, 10, 0.72), rgba(8, 8, 10, 0.88));
+  pointer-events: none;
+}
+
+/* Faint route/data grid behind sections */
 .bg-grid {
   background-image:
-    linear-gradient(to right, rgba(255, 215, 0, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 215, 0, 0.04) 1px, transparent 1px);
+    linear-gradient(to right, rgba(242, 137, 31, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(242, 137, 31, 0.05) 1px, transparent 1px);
   background-size: 64px 64px;
 }
 

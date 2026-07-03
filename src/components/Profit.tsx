@@ -33,17 +33,17 @@ const metrics = [
 
 export default function Profit() {
   return (
-    <section id="profit" className="relative bg-bandDarker bg-grid py-24 sm:py-32">
+    <section id="profit" className="relative bg-grid py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-gold">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-accent">
               Profit Optimization
             </p>
-            <h2 className="text-4xl font-bold tracking-tight text-offWhite sm:text-5xl">
+            <h2 className="font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">
               Data-Driven Revenue Strategy
             </h2>
-            <p className="mt-5 text-base font-light leading-relaxed text-mutedGrey">
+            <p className="mt-5 text-base font-light leading-relaxed text-inkMuted">
               Every decision we make is backed by real market data. We don&apos;t
               guess — we optimize.
             </p>
@@ -55,12 +55,12 @@ export default function Profit() {
             {points.map((p, i) => (
               <Reveal key={p.title} delay={i * 80}>
                 <li className="flex gap-4">
-                  <span className="inline-flex h-11 w-11 flex-none items-center justify-center rounded-xl border border-gold/20 bg-gold/5 text-gold">
+                  <span className="inline-flex h-11 w-11 flex-none items-center justify-center rounded-xl border border-accent/20 bg-accent/10 text-accent">
                     {p.icon}
                   </span>
                   <div>
-                    <h4 className="text-base font-semibold text-offWhite">{p.title}</h4>
-                    <p className="mt-1 text-sm font-light leading-relaxed text-mutedGrey">
+                    <h4 className="font-display text-base font-semibold text-ink">{p.title}</h4>
+                    <p className="mt-1 text-sm font-light leading-relaxed text-inkMuted">
                       {p.body}
                     </p>
                   </div>
@@ -72,11 +72,11 @@ export default function Profit() {
           <div className="grid grid-cols-2 gap-5">
             {metrics.map((m, i) => (
               <Reveal key={m.label} delay={i * 80}>
-                <div className="flex h-full flex-col rounded-2xl border border-white/5 bg-bandDark/60 p-6">
-                  <span className="text-3xl font-bold tracking-tight text-gold sm:text-4xl">
+                <div className="flex h-full flex-col rounded-2xl border border-line bg-surface/50 p-6 backdrop-blur-md">
+                  <span className="font-display text-3xl font-bold tracking-tight text-accent sm:text-4xl">
                     {m.big}
                   </span>
-                  <span className="mt-2 text-sm font-light leading-relaxed text-mutedGrey">
+                  <span className="mt-2 text-sm font-light leading-relaxed text-inkMuted">
                     {m.label}
                   </span>
                 </div>

@@ -20,13 +20,13 @@ export default function ModalShell({ onClose, children, className = "" }: ModalS
         role="dialog"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
-        className={`relative my-8 w-full max-w-lg rounded-2xl border border-white/10 bg-bandDark p-7 shadow-2xl sm:p-9 ${className}`}
+        className={`relative my-8 w-full max-w-lg rounded-2xl border border-line bg-surface/90 p-7 shadow-2xl backdrop-blur-md sm:p-9 ${className}`}
       >
         <button
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full text-xl text-mutedGrey transition-colors hover:bg-white/5 hover:text-offWhite"
+          className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full text-xl text-inkMuted transition-colors hover:bg-elevated hover:text-ink"
         >
           ×
         </button>

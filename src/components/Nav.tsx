@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { MenuIcon, CloseIcon, UserIcon } from "./icons";
+import Logo from "./Logo";
 
 const links = [
   { label: "Services", href: "#services" },
@@ -27,25 +28,20 @@ export default function Nav() {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
-        scrolled
-          ? "border-b border-white/5 bg-bandDarker/85 backdrop-blur-md"
-          : "bg-transparent"
+        scrolled ? "border-b border-line bg-base/80 backdrop-blur-md" : "bg-transparent"
       }`}
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
-        <a href="#top" className="group flex items-center gap-2" aria-label="AddisDispatch home">
-          <span className="inline-block h-2.5 w-2.5 rounded-full bg-gold transition-transform group-hover:scale-125" />
-          <span className="text-lg font-bold tracking-tight text-gold">
-            Addis<span className="text-offWhite">Dispatch</span>
-          </span>
+        <a href="#top" aria-label="AddisDispatch home">
+          <Logo />
         </a>
 
-        <ul className="hidden items-center gap-6 lg:flex">
+        <ul className="hidden items-center gap-7 lg:flex">
           {links.map((link) => (
             <li key={link.href}>
               <a
                 href={link.href}
-                className="text-sm font-light text-mutedGrey transition-colors hover:text-gold"
+                className="text-sm font-medium text-inkMuted transition-colors hover:text-ink"
               >
                 {link.label}
               </a>
@@ -56,7 +52,7 @@ export default function Nav() {
         <div className="flex items-center gap-4">
           <Link
             href="/portal/login"
-            className="hidden items-center gap-1.5 text-sm font-light text-mutedGrey transition-colors hover:text-gold lg:inline-flex"
+            className="hidden items-center gap-1.5 text-sm font-medium text-inkMuted transition-colors hover:text-accent lg:inline-flex"
           >
             <UserIcon width={18} height={18} />
             Log In
@@ -64,7 +60,7 @@ export default function Nav() {
 
           <a
             href="#contact"
-            className="hidden rounded-full bg-gold px-5 py-2.5 text-sm font-semibold text-bandDarker transition-all hover:shadow-[0_0_24px_-4px] hover:shadow-gold/60 lg:inline-block"
+            className="hidden rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-black transition-all hover:bg-accentDeep hover:shadow-[0_0_24px_-6px] hover:shadow-accent/70 lg:inline-block"
           >
             Request Dispatch
           </a>
@@ -72,7 +68,7 @@ export default function Nav() {
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="text-offWhite lg:hidden"
+            className="text-ink lg:hidden"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
           >
@@ -82,14 +78,14 @@ export default function Nav() {
       </nav>
 
       {open && (
-        <div className="border-t border-white/5 bg-bandDarker/95 px-6 py-4 backdrop-blur-md lg:hidden">
+        <div className="border-t border-line bg-base/95 px-6 py-4 backdrop-blur-md lg:hidden">
           <ul className="flex flex-col gap-4">
             {links.map((link) => (
               <li key={link.href}>
                 <a
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="block text-base font-light text-offWhite hover:text-gold"
+                  className="block text-base font-medium text-ink hover:text-accent"
                 >
                   {link.label}
                 </a>
@@ -99,7 +95,7 @@ export default function Nav() {
               <Link
                 href="/portal/login"
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2 text-base font-light text-offWhite hover:text-gold"
+                className="flex items-center gap-2 text-base font-medium text-ink hover:text-accent"
               >
                 <UserIcon width={18} height={18} />
                 Carrier Log In
@@ -109,7 +105,7 @@ export default function Nav() {
               <a
                 href="#contact"
                 onClick={() => setOpen(false)}
-                className="mt-2 inline-block rounded-full bg-gold px-5 py-2.5 text-sm font-semibold text-bandDarker"
+                className="mt-2 inline-block rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-black"
               >
                 Request Dispatch
               </a>

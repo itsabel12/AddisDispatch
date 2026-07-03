@@ -1,11 +1,20 @@
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
+import { Space_Grotesk, Manrope } from "next/font/google";
 import "./globals.css";
 
-const poppins = Poppins({
+// Display — geometric, techy headings
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-poppins",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-space",
+  display: "swap",
+});
+
+// Body / UI / numerals
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-manrope",
   display: "swap",
 });
 
@@ -21,8 +30,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={poppins.variable}>
-      <body className="min-h-screen bg-seaGrey font-sans text-offWhite antialiased">
+    <html lang="en" className={`${spaceGrotesk.variable} ${manrope.variable}`}>
+      <body className="bg-aerial min-h-screen bg-base font-sans text-ink antialiased">
         {children}
       </body>
     </html>

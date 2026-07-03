@@ -75,18 +75,18 @@ export default function ContactForm() {
 
   if (submitted) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-2xl border border-leafGreen/40 bg-bandDark p-12 text-center">
-        <span className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-leafGreen/15 text-leafGreen">
+      <div className="flex flex-col items-center justify-center rounded-2xl border border-success/40 bg-surface/60 p-12 text-center backdrop-blur-md">
+        <span className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-success/15 text-success">
           <CheckIcon />
         </span>
-        <h3 className="text-xl font-semibold text-offWhite">Request received</h3>
-        <p className="mt-2 max-w-sm text-sm font-light text-mutedGrey">
+        <h3 className="font-display text-xl font-semibold text-ink">Request received</h3>
+        <p className="mt-2 max-w-sm text-sm font-light text-inkMuted">
           Thanks — your dispatch request is in. We&apos;ll be in touch shortly.
         </p>
         <button
           type="button"
           onClick={() => setSubmitted(false)}
-          className="mt-6 text-sm font-medium text-gold hover:underline"
+          className="mt-6 text-sm font-medium text-accent hover:underline"
         >
           Submit another request
         </button>
@@ -132,8 +132,8 @@ export default function ContactForm() {
       </div>
 
       <div>
-        <label htmlFor="lane" className="mb-1.5 block text-sm font-medium text-offWhite">
-          Lane details <span className="text-gold">*</span>
+        <label htmlFor="lane" className="mb-1.5 block text-sm font-medium text-ink">
+          Lane details <span className="text-accent">*</span>
         </label>
         <textarea
           id="lane"
@@ -143,10 +143,10 @@ export default function ContactForm() {
           aria-invalid={!!errors.lane}
           aria-describedby={errors.lane ? "lane-error" : undefined}
           placeholder="Origin, destination, equipment, typical frequency…"
-          className="w-full resize-none rounded-xl border border-white/10 bg-bandDarker px-4 py-3 text-sm font-light text-offWhite placeholder:text-mutedGrey/50 focus:border-gold/60 focus:outline-none focus:ring-1 focus:ring-gold/40"
+          className="w-full resize-none rounded-xl border border-line bg-elevated/70 px-4 py-3 text-sm font-light text-ink placeholder:text-inkMuted/50 focus:border-accent/60 focus:outline-none focus:ring-1 focus:ring-accent/40"
         />
         {errors.lane && (
-          <p id="lane-error" className="mt-1.5 text-xs text-gold">
+          <p id="lane-error" className="mt-1.5 text-xs text-accent">
             {errors.lane}
           </p>
         )}
@@ -156,12 +156,12 @@ export default function ContactForm() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full rounded-full bg-gold px-7 py-3.5 text-sm font-semibold text-bandDarker transition-all hover:shadow-[0_0_30px_-4px] hover:shadow-gold/60 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+          className="w-full rounded-full bg-accent px-7 py-3.5 text-sm font-semibold text-black transition-all hover:shadow-[0_0_30px_-4px] hover:shadow-accent/60 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
         >
           {submitting ? "Submitting…" : "Request Dispatch"}
         </button>
         {submitError && (
-          <p role="alert" className="text-sm text-red-400">
+          <p role="alert" className="text-sm text-danger">
             {submitError}
           </p>
         )}
@@ -183,8 +183,8 @@ type FieldProps = {
 function Field({ id, label, value, onChange, type = "text", required, error }: FieldProps) {
   return (
     <div>
-      <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-offWhite">
-        {label} {required && <span className="text-gold">*</span>}
+      <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-ink">
+        {label} {required && <span className="text-accent">*</span>}
       </label>
       <input
         id={id}
@@ -193,10 +193,10 @@ function Field({ id, label, value, onChange, type = "text", required, error }: F
         onChange={(e) => onChange(e.target.value)}
         aria-invalid={!!error}
         aria-describedby={error ? `${id}-error` : undefined}
-        className="w-full rounded-xl border border-white/10 bg-bandDarker px-4 py-3 text-sm font-light text-offWhite placeholder:text-mutedGrey/50 focus:border-gold/60 focus:outline-none focus:ring-1 focus:ring-gold/40"
+        className="w-full rounded-xl border border-line bg-elevated/70 px-4 py-3 text-sm font-light text-ink placeholder:text-inkMuted/50 focus:border-accent/60 focus:outline-none focus:ring-1 focus:ring-accent/40"
       />
       {error && (
-        <p id={`${id}-error`} className="mt-1.5 text-xs text-gold">
+        <p id={`${id}-error`} className="mt-1.5 text-xs text-accent">
           {error}
         </p>
       )}
