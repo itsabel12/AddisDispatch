@@ -17,6 +17,7 @@ const nav = [
   { label: "My Loads", href: "/carrier/loads" },
   { label: "Settlements", href: "/carrier/settlements" },
   { label: "Pay", href: "/carrier/pay" },
+  { label: "Documents", href: "/carrier/documents" },
   { label: "Profile", href: "/carrier/profile" },
 ];
 

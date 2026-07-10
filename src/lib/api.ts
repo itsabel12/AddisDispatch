@@ -869,6 +869,8 @@ export type IntakeDocument = {
     | null;
   extraction_error: string | null;
   load_id: string | null;
+  carrier_id: string | null;
+  expires_at: string | null;
   content_url: string;
 };
 
@@ -1095,7 +1097,133 @@ export type Carrier = CarrierInput & {
   pay_type: string;
   pay_rate: number | null;
   dispatcher_commission_pct: number | null;
+  docs_requested_at: string | null;
 };
+
+// --- Carrier compliance vault (Phase 1) -------------------------------------
+
+/** Compliance checklist entry for one required document type. */
+export type ComplianceItem = {
+  present: boolean;
+  document_id: string | null;
+  expires_at: string | null;
+  expired: boolean;
+  expiring_soon: boolean;
+};
+
+/** A carrier's compliance summary (W-9 / COI / authority + overall flag). */
+export type ComplianceSummary = {
+  w9: ComplianceItem;
+  certificate_of_insurance: ComplianceItem;
+  authority_letter: ComplianceItem;
+  complete: boolean;
+};
+
+/** The three compliance document types. */
+export const COMPLIANCE_DOC_TYPES = [
+  { value: "w9", label: "W-9" },
+  { value: "certificate_of_insurance", label: "Certificate of Insurance" },
+  { value: "authority_letter", label: "Authority Letter" },
+] as const;
+
+/** Fetch a carrier's compliance checklist. */
+export async function getCarrierCompliance(
+  token: string | null,
+  carrierId: string,
+): Promise<ComplianceSummary> {
+  const res = await fetch(`${ADMIN_BASE_URL}/carriers/${carrierId}/compliance`, {
+    cache: "no-store",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) throw new Error(`Failed to load compliance (HTTP ${res.status})`);
+  return (await res.json()) as ComplianceSummary;
+}
+
+/** List a carrier's vault documents. */
+export async function getCarrierDocuments(
+  token: string | null,
+  carrierId: string,
+): Promise<IntakeDocument[]> {
+  const res = await fetch(`${ADMIN_BASE_URL}/carriers/${carrierId}/documents`, {
+    cache: "no-store",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) throw new Error(`Failed to load documents (HTTP ${res.status})`);
+  return (await res.json()) as IntakeDocument[];
+}
+
+/** Upload a compliance document into a carrier's vault. */
+export async function uploadCarrierDocument(
+  token: string | null,
+  carrierId: string,
+  file: File,
+  docType: string,
+): Promise<IntakeDocument> {
+  const body = new FormData();
+  body.append("file", file);
+  body.append("doc_type", docType);
+  const res = await fetch(`${ADMIN_BASE_URL}/carriers/${carrierId}/documents`, {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body,
+  });
+  if (!res.ok) {
+    let detail = `HTTP ${res.status}`;
+    try {
+      const b = await res.json();
+      if (b?.detail) detail = String(b.detail);
+    } catch {
+      // keep status
+    }
+    throw new Error(`Upload failed: ${detail}`);
+  }
+  return (await res.json()) as IntakeDocument;
+}
+
+/** Email the onboarding document packet to a carrier. */
+export async function requestCarrierDocuments(
+  token: string | null,
+  carrierId: string,
+): Promise<Carrier> {
+  const res = await fetch(
+    `${ADMIN_BASE_URL}/carriers/${carrierId}/request-documents`,
+    {
+      method: "POST",
+      cache: "no-store",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    },
+  );
+  if (!res.ok) {
+    let detail = `HTTP ${res.status}`;
+    try {
+      const b = await res.json();
+      if (b?.detail) detail = String(b.detail);
+    } catch {
+      // keep status
+    }
+    throw new Error(`Request failed: ${detail}`);
+  }
+  return (await res.json()) as Carrier;
+}
+
+/** Update a document's type and/or expiry (dispatcher override). */
+export async function updateDocumentMeta(
+  token: string | null,
+  documentId: string,
+  input: { type: string; expires_at?: string | null },
+): Promise<IntakeDocument> {
+  const res = await fetch(`${ADMIN_BASE_URL}/documents/${documentId}/type`, {
+    method: "PATCH",
+    cache: "no-store",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(input),
+  });
+  if (!res.ok) throw new Error(`Update failed (HTTP ${res.status})`);
+  return (await res.json()) as IntakeDocument;
+}
 
 /** Fetch all carriers with their load counts. */
 export async function getCarriers(token: string | null): Promise<Carrier[]> {

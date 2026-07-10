@@ -6,6 +6,7 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
 
 import {
@@ -351,6 +352,12 @@ export function CarriersTable() {
                       >
                         Edit
                       </button>
+                      <Link
+                        href={`/admin/carriers/${c.id}`}
+                        className="text-xs font-medium text-accentDeep hover:underline"
+                      >
+                        Compliance
+                      </Link>
                       <button
                         type="button"
                         disabled={busy}

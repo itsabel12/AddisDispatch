@@ -51,6 +51,56 @@ export function getMyCarrier(token: string | null): Promise<CarrierProfile> {
   return getJson<CarrierProfile>("/me", token);
 }
 
+/** Update the carrier's own contact details (identity fields stay locked). */
+export async function updateMyCarrier(
+  token: string | null,
+  input: { contact_email?: string | null; contact_phone?: string | null },
+): Promise<CarrierProfile> {
+  const res = await fetch(`${CARRIER_BASE_URL}/me`, {
+    method: "PATCH",
+    cache: "no-store",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(input),
+  });
+  if (!res.ok) throw new Error(`Update failed (HTTP ${res.status})`);
+  return (await res.json()) as CarrierProfile;
+}
+
+/** The carrier's own compliance documents (W-9 / COI / authority). */
+export function getMyDocuments(token: string | null): Promise<CarrierDocument[]> {
+  return getJson<CarrierDocument[]>("/documents", token);
+}
+
+/** Upload one of the carrier's own onboarding documents. */
+export async function uploadMyDocument(
+  token: string | null,
+  file: File,
+  docType: string,
+): Promise<CarrierDocument> {
+  const body = new FormData();
+  body.append("file", file);
+  body.append("doc_type", docType);
+  const res = await fetch(`${CARRIER_BASE_URL}/documents`, {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body,
+  });
+  if (!res.ok) {
+    let detail = `HTTP ${res.status}`;
+    try {
+      const b = await res.json();
+      if (b?.detail) detail = String(b.detail);
+    } catch {
+      // keep status
+    }
+    throw new Error(`Upload failed: ${detail}`);
+  }
+  return (await res.json()) as CarrierDocument;
+}
+
 /** Only the signed-in carrier's loads. */
 export function getMyLoads(token: string | null): Promise<Load[]> {
   return getJson<Load[]>("/loads", token);
@@ -71,13 +121,14 @@ export function getMyPay(token: string | null): Promise<PayrollItem[]> {
   return getJson<PayrollItem[]>("/pay", token);
 }
 
-/** A document the carrier uploaded for one of their loads (e.g. a POD). */
+/** A document the carrier uploaded (a load POD or a compliance document). */
 export type CarrierDocument = {
   id: string;
   type: string;
   status: string;
   filename: string;
   created_at: string;
+  expires_at: string | null;
 };
 
 /** Upload a proof-of-delivery for one of the carrier's own loads. */
