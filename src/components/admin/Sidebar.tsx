@@ -39,6 +39,7 @@ const I = {
   users: svg(<><circle cx="9" cy="8" r="3" /><path d="M3 20a6 6 0 0 1 12 0" /><path d="M16 6a3 3 0 0 1 0 6M18 20a6 6 0 0 0-3-5" /></>),
   route: svg(<><circle cx="6" cy="6" r="2" /><circle cx="18" cy="18" r="2" /><path d="M8 6h7a3 3 0 0 1 0 6H9a3 3 0 0 0 0 6h7" /></>),
   usercheck: svg(<><circle cx="9" cy="8" r="3" /><path d="M3 20a6 6 0 0 1 11-3.3" /><path d="M16 18l1.5 1.5L21 16" /></>),
+  userplus: svg(<><circle cx="9" cy="8" r="3" /><path d="M3 20a6 6 0 0 1 11-3.3" /><path d="M18 13v6M15 16h6" /></>),
   mail: svg(<><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m4 7 8 6 8-6" /></>),
   chat: svg(<><path d="M4 5h16v11H9l-4 3v-3H4z" /><path d="M8 10h8M8 13h5" /></>),
   template: svg(<><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M8 8h8M8 12h8M8 16h5" /></>),
@@ -69,6 +70,7 @@ const GROUPS: { title: string; items: NavItem[] }[] = [
   {
     title: "Network",
     items: [
+      { label: "Applications", href: "/admin/applications", icon: I.userplus },
       { label: "Brokers", href: "/admin/brokers", icon: I.building },
       { label: "Carriers", href: "/admin/carriers", icon: I.users },
       { label: "Lanes", href: "/admin/lanes", icon: I.route },

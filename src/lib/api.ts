@@ -1100,6 +1100,89 @@ export type Carrier = CarrierInput & {
   docs_requested_at: string | null;
 };
 
+// --- Carrier applications (marketing-site leads) ----------------------------
+
+/** A carrier application submitted on the public site. */
+export type CarrierApplication = {
+  id: string;
+  created_at: string;
+  company_name: string;
+  contact_name: string;
+  email: string;
+  phone: string | null;
+  mc_number: string | null;
+  dot_number: string | null;
+  equipment_type: string | null;
+  truck_count: number | null;
+  preferred_lanes: string | null;
+  notes: string | null;
+  status: string; // new | contacted | onboarded | declined
+};
+
+/** List applications (newest first), optionally by triage status. */
+export async function getCarrierApplications(
+  token: string | null,
+  status?: string,
+): Promise<CarrierApplication[]> {
+  const qs = status ? `?status=${status}` : "";
+  const res = await fetch(`${ADMIN_BASE_URL}/carrier-applications${qs}`, {
+    cache: "no-store",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) {
+    let detail = `HTTP ${res.status}`;
+    try {
+      const b = await res.json();
+      if (b?.detail) detail = String(b.detail);
+    } catch {
+      // keep status
+    }
+    throw new Error(detail);
+  }
+  return (await res.json()) as CarrierApplication[];
+}
+
+/** Set an application's triage status (contacted / declined / …). */
+export async function setApplicationStatus(
+  token: string | null,
+  id: string,
+  status: string,
+): Promise<void> {
+  const res = await fetch(`${ADMIN_BASE_URL}/carrier-applications/${id}/status`, {
+    method: "POST",
+    cache: "no-store",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify({ status }),
+  });
+  if (!res.ok) throw new Error(`Update failed (HTTP ${res.status})`);
+}
+
+/** Onboard an applicant: creates the Carrier + auto-sends the doc packet. */
+export async function onboardApplication(
+  token: string | null,
+  id: string,
+): Promise<Carrier> {
+  const res = await fetch(`${ADMIN_BASE_URL}/carrier-applications/${id}/onboard`, {
+    method: "POST",
+    cache: "no-store",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) {
+    let detail = `HTTP ${res.status}`;
+    try {
+      const b = await res.json();
+      if (b?.detail) detail = String(b.detail);
+    } catch {
+      // keep status
+    }
+    throw new Error(`Onboard failed: ${detail}`);
+  }
+  return (await res.json()) as Carrier;
+}
+
 // --- Carrier compliance vault (Phase 1) -------------------------------------
 
 /** Compliance checklist entry for one required document type. */

@@ -18,6 +18,8 @@ const DESTINATIONS: { label: string; href: string; keywords?: string }[] = [
   { label: "Invoices", href: "/admin/invoices", keywords: "billing" },
   { label: "Customer Emails", href: "/admin/comm-templates", keywords: "templates milestone" },
   { label: "Carrier Accounts", href: "/admin/carrier-accounts", keywords: "approve signup" },
+  { label: "Applications", href: "/admin/applications", keywords: "carrier apply leads onboard" },
+  { label: "Payroll", href: "/admin/payroll", keywords: "pay settlements carrier" },
 ];
 
 export function CommandPalette() {
