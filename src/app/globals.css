@@ -16,9 +16,15 @@
   --color-accentDeep: #d9740f;
   --color-success: #4ed17c; /* positive states (paid, delivered, gains) */
   --color-danger: #f2545b;
+  --color-info: #2f6fed; /* informational states (portal; overridden in .portal-scope) */
 
   --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-space), ui-sans-serif, system-ui, sans-serif;
+
+  /* Dispatcher portal type pairing (light redesign):
+     font-heading = Bricolage Grotesque, font-body = Hanken Grotesk. */
+  --font-heading: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
 
   /* ── Legacy tokens (kept until every screen is migrated) ── */
   --color-seaGrey: #363636;
@@ -34,6 +40,190 @@
   --color-portalBorder: #262626;
   --color-textPrimary: #f5f5f5;
   --color-textMuted: #a1a1a1;
+}
+
+/* ─────────────────────────────────────────────
+   Carrier portal (shadcn/ui token layer). Kept separate from the marketing
+   tokens above and dark by default so the portal matches the site. `accent`
+   is intentionally inherited from the marketing orange (on-brand). No global
+   base reset — border defaults are scoped to `.portal-scope` below so the
+   public pages are never repainted.
+   ───────────────────────────────────────────── */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+}
+
+:root {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --radius: 0.625rem;
+}
+
+/* ─────────────────────────────────────────────
+   DISPATCHER PORTAL — light redesign (2026)
+   A warm, airy light theme scoped to `.portal-scope.dispatch-light` (the admin
+   shell adds `dispatch-light`). Overrides the shadcn semantic tokens so every
+   dispatcher screen flips to light with no per-component changes. The carrier
+   portal keeps plain `.portal-scope` (its dark defaults) and marketing pages,
+   which don't use these tokens, are untouched.
+   ───────────────────────────────────────────── */
+.portal-scope.dispatch-light {
+  /* Surfaces & ink */
+  --background: #faf5ee;        /* warm cream canvas */
+  --foreground: #23201b;        /* near-black warm ink */
+  --card: #ffffff;              /* white panels */
+  --card-foreground: #23201b;
+  --popover: #ffffff;
+  --popover-foreground: #23201b;
+
+  /* Brand primary = AddisDispatch orange. Foreground is dark ink, not white:
+     bright orange + white fails WCAG AA (~2.2:1); dark ink on orange is ~8:1. */
+  --primary: #ef7f18;
+  --primary-foreground: #1a1712;
+
+  /* Neutrals — muted text darkened to meet AA 4.5:1 on the cream/white surfaces. */
+  --secondary: #f4ede2;
+  --secondary-foreground: #3a352d;
+  --muted: #f4ede2;            /* subtle fills */
+  --muted-foreground: #6b6155; /* secondary text (AA-compliant) */
+  --accent-foreground: #23201b;
+  --destructive: #dc2b2b;
+  --border: #ece3d5;           /* warm hairline */
+  --input: #e2d7c5;            /* input borders */
+  --ring: #ef7f18;             /* focus ring */
+  --radius: 0.75rem;
+
+  /* Semantic status colors, tuned for a light canvas (override marketing). */
+  --color-accent: #ef7f18;
+  --color-accentDeep: #d96f0c;
+  --color-success: #12a150;
+  --color-danger: #dc2b2b;
+  --color-info: #2f6fed;
+
+  /* Soft, warm elevation used by cards & the sidebar. */
+  --shadow-soft: 0 1px 2px rgba(35, 32, 27, 0.04), 0 1px 3px rgba(35, 32, 27, 0.06);
+  --shadow-card: 0 1px 2px rgba(35, 32, 27, 0.04), 0 12px 28px -14px rgba(35, 32, 27, 0.14);
+  --shadow-pop: 0 8px 40px -12px rgba(35, 32, 27, 0.22);
+
+  font-family: var(--font-body);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* shadcn components assume a default border color via a base reset. Scope that
+   to the portal subtree only (utilities like `border-accent` still win). */
+@layer base {
+  .portal-scope *,
+  .portal-scope ::after,
+  .portal-scope ::before {
+    border-color: var(--color-border);
+  }
+
+  /* Consistent form controls across every dispatcher form. Lives in @layer base
+     so component utility classes (rounded-*, px-*, bg-*) always override these
+     defaults — this just gives unstyled inputs a coherent baseline + focus. */
+  .dispatch-light input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
+  .dispatch-light select,
+  .dispatch-light textarea {
+    border-radius: 0.625rem;
+    border: 1px solid var(--input);
+    background-color: var(--card);
+    color: var(--foreground);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .dispatch-light input:focus-visible,
+  .dispatch-light select:focus-visible,
+  .dispatch-light textarea:focus-visible {
+    outline: none;
+    border-color: var(--ring);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 20%, transparent);
+  }
+  .dispatch-light ::placeholder {
+    color: var(--muted-foreground);
+    opacity: 1;
+  }
+
+  /* Visible keyboard focus on every interactive element (WCAG 2.4.7). */
+  .dispatch-light a:focus-visible,
+  .dispatch-light button:focus-visible,
+  .dispatch-light [role="button"]:focus-visible,
+  .dispatch-light [tabindex]:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+}
+
+/* Portal utilities */
+.portal-scope .font-heading {
+  font-family: var(--font-heading);
+  letter-spacing: -0.011em;
+}
+.shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
+.shadow-card {
+  box-shadow: var(--shadow-card);
+}
+.shadow-pop {
+  box-shadow: var(--shadow-pop);
+}
+
+/* Subtle entrance for cards/rows in the portal. */
+@keyframes portal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.portal-rise {
+  animation: portal-rise 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .portal-rise {
+    animation: none;
+  }
 }
 
 @keyframes reveal {

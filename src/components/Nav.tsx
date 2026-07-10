@@ -49,13 +49,19 @@ export default function Nav() {
           ))}
         </ul>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <Link
-            href="/portal/login"
-            className="hidden items-center gap-1.5 text-sm font-medium text-inkMuted transition-colors hover:text-accent lg:inline-flex"
+            href="/admin/login"
+            className="hidden rounded-lg border border-line px-3.5 py-2 text-xs font-semibold text-inkMuted transition-colors hover:border-accent hover:text-accent lg:inline-flex"
           >
-            <UserIcon width={18} height={18} />
-            Log In
+            Dispatcher Login
+          </Link>
+          <Link
+            href="/carrier/login"
+            className="hidden items-center gap-1.5 rounded-lg border border-line px-3.5 py-2 text-xs font-semibold text-inkMuted transition-colors hover:border-accent hover:text-accent lg:inline-flex"
+          >
+            <UserIcon width={15} height={15} />
+            Carrier Login
           </Link>
 
           <a
@@ -93,12 +99,21 @@ export default function Nav() {
             ))}
             <li>
               <Link
-                href="/portal/login"
+                href="/admin/login"
+                onClick={() => setOpen(false)}
+                className="block text-base font-medium text-ink hover:text-accent"
+              >
+                Dispatcher Login
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/carrier/login"
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-2 text-base font-medium text-ink hover:text-accent"
               >
                 <UserIcon width={18} height={18} />
-                Carrier Log In
+                Carrier Login
               </Link>
             </li>
             <li>

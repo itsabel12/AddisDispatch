@@ -14,7 +14,9 @@ export function openBooking() {
 }
 
 export function openPortal() {
-  window.dispatchEvent(new CustomEvent("ad:open-portal"));
+  // The carrier portal is a real, separate app section (/carrier) backed by
+  // Clerk + FastAPI, not an in-page overlay. Navigate there.
+  window.location.href = "/carrier";
 }
 
 export function openLegal(modal: LegalModal) {
