@@ -12,6 +12,7 @@ const links = [
   { label: "Calculator", href: "#calculator" },
   { label: "About", href: "#about" },
   { label: "Contact", href: "#contact" },
+  { label: "Apply as Carrier", href: "/apply" },
 ];
 
 export default function Nav() {
