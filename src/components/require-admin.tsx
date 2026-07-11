@@ -15,6 +15,7 @@
 import { SignIn, SignOutButton, useAuth, useUser } from "@clerk/nextjs";
 
 import { clerkAppearance } from "@/lib/clerk-appearance";
+import { TruckMark } from "@/components/Logo";
 
 function Shell({
   title,
@@ -28,9 +29,10 @@ function Shell({
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12">
       <div className="portal-rise w-full max-w-md rounded-3xl border border-border bg-card p-8 text-center shadow-card">
-        <p className="font-heading text-lg font-semibold tracking-tight">
+        <p className="flex items-center justify-center gap-2 font-heading text-lg font-semibold tracking-tight text-foreground">
+          <TruckMark size={26} />
           Addis<span className="text-accentDeep">Dispatch</span>
-          <span className="ml-2 font-normal text-muted-foreground">Command Center</span>
+          <span className="ml-1 font-normal text-muted-foreground">Command Center</span>
         </p>
         <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
         <h1 className="sr-only">{title}</h1>

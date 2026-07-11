@@ -21,8 +21,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusBadge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/ui/page-header";
+import { EmptyState } from "@/components/carrier/ui";
 import { LoadChat } from "@/components/chat/LoadChat";
 import { money, lane, formatDate } from "@/components/carrier/format";
+
+const truckIcon = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-5">
+    <path d="M3 6h11v9H3z" /><path d="M14 9h4l3 3v3h-7z" /><circle cx="7" cy="18" r="1.6" /><circle cx="17" cy="18" r="1.6" />
+  </svg>
+);
+
+const actionBtn =
+  "rounded-lg border border-border px-2.5 py-1 text-xs font-medium transition-colors hover:border-accent hover:text-accentDeep disabled:opacity-50";
 
 export function CarrierLoads() {
   const { getToken } = useAuth();
@@ -75,12 +88,11 @@ export function CarrierLoads() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-6xl p-8">
-      <h1 className="mb-1 text-2xl font-semibold">My Loads</h1>
-      <p className="mb-6 text-sm text-muted-foreground">
-        Every load assigned to your account. Upload a POD once you&apos;ve
-        delivered.
-      </p>
+    <main className="mx-auto w-full max-w-6xl p-5 lg:p-8">
+      <PageHeader
+        title="My Loads"
+        subtitle="Every load assigned to your account. Upload a POD once you've delivered."
+      />
 
       {/* Shared hidden picker — no `capture` so mobile offers camera OR files. */}
       <input
@@ -92,78 +104,83 @@ export function CarrierLoads() {
       />
 
       {error && (
-        <p className="mb-6 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <p className="mb-4 rounded-xl border border-danger/25 bg-danger/5 px-4 py-3 text-sm text-danger">
           {error}
         </p>
       )}
       {message && (
-        <p className="mb-6 rounded-lg border border-success/40 bg-success/10 px-4 py-3 text-sm text-success">
+        <p className="mb-4 rounded-xl border border-success/25 bg-success/10 px-4 py-3 text-sm text-success">
           {message}
         </p>
       )}
 
-      <div className="rounded-xl border border-border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Lane</TableHead>
-              <TableHead>Broker</TableHead>
-              <TableHead>Pickup</TableHead>
-              <TableHead>Delivery</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Rate</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loads.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
-                  {loading ? "Loading…" : "No loads assigned to you yet."}
-                </TableCell>
-              </TableRow>
-            ) : (
-              loads.map((l) => (
-                <TableRow key={l.id}>
-                  <TableCell>{lane(l)}</TableCell>
-                  <TableCell>{l.broker_name}</TableCell>
-                  <TableCell>{formatDate(l.pickup_at)}</TableCell>
-                  <TableCell>{formatDate(l.delivery_at)}</TableCell>
-                  <TableCell className="capitalize">{l.status.replace("_", " ")}</TableCell>
-                  <TableCell className="text-right">{money(l.rate)}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setChatLoad(l)}
-                        className="rounded-md border border-border px-2.5 py-1 text-xs font-medium hover:border-accent hover:text-accent"
-                      >
-                        Chat
-                      </button>
-                      <button
-                        type="button"
-                        disabled={uploadingId === l.id}
-                        onClick={() => pickPod(l.id)}
-                        className="rounded-md border border-border px-2.5 py-1 text-xs font-medium hover:border-accent hover:text-accent disabled:opacity-50"
-                      >
-                        {uploadingId === l.id ? "Uploading…" : "Upload POD"}
-                      </button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Assigned loads</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-2">
+          {loads.length === 0 ? (
+            <EmptyState
+              icon={truckIcon}
+              title={loading ? "Loading…" : "No loads assigned yet"}
+              body={loading ? undefined : "When your dispatcher assigns you a load, it shows up here."}
+            />
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Lane</TableHead>
+                    <TableHead>Broker</TableHead>
+                    <TableHead>Pickup</TableHead>
+                    <TableHead>Delivery</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Rate</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {loads.map((l) => (
+                    <TableRow key={l.id}>
+                      <TableCell className="font-medium">{lane(l)}</TableCell>
+                      <TableCell>{l.broker_name}</TableCell>
+                      <TableCell className="text-muted-foreground">{formatDate(l.pickup_at)}</TableCell>
+                      <TableCell className="text-muted-foreground">{formatDate(l.delivery_at)}</TableCell>
+                      <TableCell>
+                        <StatusBadge status={l.status} />
+                      </TableCell>
+                      <TableCell className="text-right">{money(l.rate)}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <button type="button" onClick={() => setChatLoad(l)} className={actionBtn}>
+                            Chat
+                          </button>
+                          <button
+                            type="button"
+                            disabled={uploadingId === l.id}
+                            onClick={() => pickPod(l.id)}
+                            className={actionBtn}
+                          >
+                            {uploadingId === l.id ? "Uploading…" : "Upload POD"}
+                          </button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {chatLoad && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
           onClick={() => setChatLoad(null)}
         >
           <div
-            className="flex h-[560px] w-full max-w-lg flex-col rounded-xl border border-border bg-card p-4"
+            className="flex h-[560px] w-full max-w-lg flex-col rounded-2xl border border-border bg-card p-4 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-3 flex items-center justify-between">
@@ -174,7 +191,7 @@ export function CarrierLoads() {
               <button
                 type="button"
                 onClick={() => setChatLoad(null)}
-                className="rounded-md border border-border px-2 py-1 text-xs hover:bg-muted"
+                className="rounded-lg border border-border px-2.5 py-1 text-xs hover:bg-muted"
               >
                 Close
               </button>

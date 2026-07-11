@@ -16,13 +16,16 @@
 
 import { SignIn, SignOutButton, useAuth, useUser } from "@clerk/nextjs";
 
+import { TruckMark } from "@/components/Logo";
+
 function Shell({ subtitle, children }: { subtitle: string; children: React.ReactNode }) {
   return (
     <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center px-4 py-12">
       <div className="w-full max-w-md text-center">
-        <p className="text-lg font-semibold tracking-tight">
+        <p className="flex items-center justify-center gap-2 text-lg font-semibold tracking-tight text-foreground">
+          <TruckMark size={26} />
           Addis<span className="text-accent">Dispatch</span>
-          <span className="ml-2 font-normal text-muted-foreground">Carrier Portal</span>
+          <span className="ml-1 font-normal text-muted-foreground">Carrier Portal</span>
         </p>
         <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
         <div className="mt-6 flex justify-center">{children}</div>

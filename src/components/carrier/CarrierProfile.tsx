@@ -8,12 +8,17 @@ import {
   updateMyCarrier,
   type CarrierProfile as Profile,
 } from "@/lib/carrier-api";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
+
+const fieldClass =
+  "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-accent focus:ring-1 focus:ring-accent/40";
 
 function Row({ label, value }: { label: string; value: string | null }) {
   return (
-    <div className="flex flex-col gap-1 border-b border-border py-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-1 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
       <dt className="text-sm text-muted-foreground">{label}</dt>
-      <dd className="text-sm font-medium">{value || "—"}</dd>
+      <dd className="text-sm font-medium text-foreground">{value || "—"}</dd>
     </div>
   );
 }
@@ -67,61 +72,80 @@ export function CarrierProfile() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-2xl p-8">
-      <h1 className="mb-1 text-2xl font-semibold">Company Profile</h1>
-      <p className="mb-6 text-sm text-muted-foreground">
-        Your carrier details on file. You can maintain your contact info here;
-        for name/MC/DOT changes, contact your dispatcher.
-      </p>
+    <main className="mx-auto w-full max-w-2xl p-5 lg:p-8">
+      <PageHeader
+        title="Company Profile"
+        subtitle="Your carrier details on file. Maintain your contact info here; for name/MC/DOT changes, contact your dispatcher."
+      />
 
       {error && (
-        <p className="mb-6 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <p className="mb-4 rounded-xl border border-danger/25 bg-danger/5 px-4 py-3 text-sm text-danger">
           {error}
         </p>
       )}
-      {message && <p className="mb-4 text-sm text-success">{message}</p>}
+      {message && (
+        <p className="mb-4 rounded-xl border border-success/25 bg-success/10 px-4 py-3 text-sm text-success">
+          {message}
+        </p>
+      )}
 
-      <div className="rounded-xl border border-border bg-card p-6">
-        {loading || !profile ? (
-          <p className="text-sm text-muted-foreground">Loading…</p>
-        ) : (
-          <>
-            <dl>
-              <Row label="Carrier name" value={profile.name} />
-              <Row label="MC number" value={profile.mc_number} />
-              <Row label="DOT number" value={profile.dot_number} />
-            </dl>
+      {loading || !profile ? (
+        <Card>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">Loading…</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Carrier details</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-2">
+              <dl className="divide-y divide-border">
+                <Row label="Carrier name" value={profile.name} />
+                <Row label="MC number" value={profile.mc_number} />
+                <Row label="DOT number" value={profile.dot_number} />
+              </dl>
+            </CardContent>
+          </Card>
 
-            <form onSubmit={onSave} className="mt-4 space-y-3">
-              <label className="block text-sm">
-                <span className="mb-1 block text-muted-foreground">Contact email</span>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent"
-                />
-              </label>
-              <label className="block text-sm">
-                <span className="mb-1 block text-muted-foreground">Contact phone</span>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent"
-                />
-              </label>
-              <button
-                type="submit"
-                disabled={saving}
-                className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-accentDeep disabled:opacity-50"
-              >
-                {saving ? "Saving…" : "Save contact details"}
-              </button>
-            </form>
-          </>
-        )}
-      </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Contact details</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-2">
+              <form onSubmit={onSave} className="space-y-4">
+                <label className="block text-sm">
+                  <span className="mb-1.5 block font-medium text-foreground">Contact email</span>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={fieldClass}
+                  />
+                </label>
+                <label className="block text-sm">
+                  <span className="mb-1.5 block font-medium text-foreground">Contact phone</span>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className={fieldClass}
+                  />
+                </label>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-[#1a1712] shadow-soft transition-colors hover:bg-accentDeep disabled:opacity-50"
+                >
+                  {saving ? "Saving…" : "Save contact details"}
+                </button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </main>
   );
 }

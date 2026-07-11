@@ -13,14 +13,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusBadge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/ui/page-header";
+import { StatTile, EmptyState } from "@/components/carrier/ui";
 import { money, formatDate } from "@/components/carrier/format";
 
-const STATUS_STYLE: Record<string, string> = {
-  pending: "border-accent/40 bg-accent/10 text-accent",
-  approved: "border-blue-400/40 bg-blue-400/10 text-blue-400",
-  paid: "border-success/40 bg-success/10 text-success",
-  needs_review: "border-border bg-muted text-muted-foreground",
-};
+const paidIcon = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-5">
+    <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+const pendingIcon = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-5">
+    <circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
 
 export function CarrierPay() {
   const { getToken } = useAuth();
@@ -51,74 +59,64 @@ export function CarrierPay() {
     .reduce((sum, i) => sum + (i.net_pay ?? 0), 0);
 
   return (
-    <main className="mx-auto w-full max-w-6xl p-8">
-      <h1 className="mb-1 text-2xl font-semibold">Pay</h1>
-      <p className="mb-6 text-sm text-muted-foreground">
-        What you&apos;ve earned per delivered load, net of deductions. (Separate
-        from broker invoices under Settlements.)
-      </p>
+    <main className="mx-auto w-full max-w-6xl p-5 lg:p-8">
+      <PageHeader
+        title="Pay"
+        subtitle="What you've earned per delivered load, net of deductions. Separate from broker invoices under Settlements."
+      />
 
       {error && (
-        <p className="mb-6 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <p className="mb-6 rounded-xl border border-danger/25 bg-danger/5 px-4 py-3 text-sm text-danger">
           {error}
         </p>
       )}
 
-      <div className="mb-6 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border border-border bg-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Paid to date
-          </div>
-          <div className="mt-1 text-2xl font-semibold text-success">{money(paidTotal)}</div>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Pending
-          </div>
-          <div className="mt-1 text-2xl font-semibold text-accent">{money(pendingTotal)}</div>
-        </div>
+      <div className="mb-8 grid gap-4 sm:grid-cols-2">
+        <StatTile icon={paidIcon} label="Paid to date" value={money(paidTotal)} loading={loading} />
+        <StatTile icon={pendingIcon} label="Pending" value={money(pendingTotal)} loading={loading} />
       </div>
 
-      <div className="rounded-xl border border-border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Lane</TableHead>
-              <TableHead className="text-right">Gross</TableHead>
-              <TableHead className="text-right">Net</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Paid</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {items.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
-                  {loading ? "Loading…" : "No pay items yet."}
-                </TableCell>
-              </TableRow>
-            ) : (
-              items.map((i) => (
-                <TableRow key={i.id}>
-                  <TableCell>{i.lane ?? "—"}</TableCell>
-                  <TableCell className="text-right">{money(i.gross_pay)}</TableCell>
-                  <TableCell className="text-right font-semibold">{money(i.net_pay)}</TableCell>
-                  <TableCell>
-                    <span
-                      className={`rounded-full border px-2 py-0.5 text-[10px] font-medium capitalize ${
-                        STATUS_STYLE[i.status] ?? STATUS_STYLE.pending
-                      }`}
-                    >
-                      {i.status.replace("_", " ")}
-                    </span>
-                  </TableCell>
-                  <TableCell>{formatDate(i.paid_at)}</TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Pay history</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-2">
+          {items.length === 0 ? (
+            <EmptyState
+              icon={pendingIcon}
+              title={loading ? "Loading…" : "No pay items yet"}
+              body={loading ? undefined : "Pay for your delivered loads will appear here."}
+            />
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Lane</TableHead>
+                    <TableHead className="text-right">Gross</TableHead>
+                    <TableHead className="text-right">Net</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Paid</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {items.map((i) => (
+                    <TableRow key={i.id}>
+                      <TableCell className="font-medium">{i.lane ?? "—"}</TableCell>
+                      <TableCell className="text-right">{money(i.gross_pay)}</TableCell>
+                      <TableCell className="text-right font-semibold">{money(i.net_pay)}</TableCell>
+                      <TableCell>
+                        <StatusBadge status={i.status} />
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">{formatDate(i.paid_at)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </main>
   );
 }

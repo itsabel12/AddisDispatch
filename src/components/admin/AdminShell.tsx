@@ -7,6 +7,7 @@ import { Sidebar, SidebarTrigger, useSidebar } from "@/components/admin/Sidebar"
 import { CommandPalette } from "@/components/admin/CommandPalette";
 import { AssistantWidget } from "@/components/admin/AssistantWidget";
 import { AdminFeedbackProvider } from "@/components/admin/feedback";
+import { TruckMark } from "@/components/Logo";
 
 function openPalette() {
   // CommandPalette listens for ⌘K / Ctrl-K on window; synthesize it so the
@@ -42,7 +43,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-card/80 px-4 backdrop-blur lg:px-8">
           <SidebarTrigger onOpen={drawer.open} />
-          <Link href="/admin/dashboard" className="font-heading text-sm font-semibold lg:hidden">
+          <Link
+            href="/admin/dashboard"
+            className="flex items-center gap-2 font-heading text-sm font-semibold text-foreground lg:hidden"
+          >
+            <TruckMark size={24} />
             Addis<span className="text-accentDeep">Dispatch</span>
           </Link>
 

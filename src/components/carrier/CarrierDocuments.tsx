@@ -8,6 +8,10 @@ import {
   uploadMyDocument,
   type CarrierDocument,
 } from "@/lib/carrier-api";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/ui/page-header";
+import { IconChip } from "@/components/carrier/ui";
 
 const DOC_TYPES = [
   { value: "w9", label: "W-9", hint: "Taxpayer identification form" },
@@ -16,6 +20,12 @@ const DOC_TYPES = [
 ] as const;
 
 const fmtDate = (iso: string | null) => (iso ? iso.slice(0, 10) : null);
+
+const docIcon = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-[18px]">
+    <path d="M8 3h6l4 4v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" /><path d="M14 3v4h4" />
+  </svg>
+);
 
 export function CarrierDocuments() {
   const { getToken } = useAuth();
@@ -72,12 +82,11 @@ export function CarrierDocuments() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-3xl p-8">
-      <h1 className="mb-1 text-2xl font-semibold">Documents</h1>
-      <p className="mb-6 text-sm text-muted-foreground">
-        Your onboarding documents. We need all three on file (and current) to
-        keep dispatching your loads.
-      </p>
+    <main className="mx-auto w-full max-w-3xl p-5 lg:p-8">
+      <PageHeader
+        title="Documents"
+        subtitle="Your onboarding documents. We need all three on file (and current) to keep dispatching your loads."
+      />
 
       <input
         ref={fileRef}
@@ -88,56 +97,52 @@ export function CarrierDocuments() {
       />
 
       {error && (
-        <p className="mb-6 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <p className="mb-4 rounded-xl border border-danger/25 bg-danger/5 px-4 py-3 text-sm text-danger">
           {error}
         </p>
       )}
       {message && (
-        <p className="mb-6 rounded-lg border border-success/40 bg-success/10 px-4 py-3 text-sm text-success">
+        <p className="mb-4 rounded-xl border border-success/25 bg-success/10 px-4 py-3 text-sm text-success">
           {message}
         </p>
       )}
 
-      <div className="space-y-4">
-        {DOC_TYPES.map(({ value, label, hint }) => {
-          const doc = newestByType.get(value);
-          const expires = fmtDate(doc?.expires_at ?? null);
-          return (
-            <div
-              key={value}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-5"
-            >
-              <div className="min-w-0">
-                <p className="text-sm font-semibold">{label}</p>
-                <p className="text-xs text-muted-foreground">
-                  {doc
-                    ? `On file: ${doc.filename}${expires ? ` · expires ${expires}` : ""}`
-                    : hint}
-                </p>
+      <Card>
+        <CardContent className="divide-y divide-border p-0">
+          {DOC_TYPES.map(({ value, label, hint }) => {
+            const doc = newestByType.get(value);
+            const expires = fmtDate(doc?.expires_at ?? null);
+            return (
+              <div key={value} className="flex flex-wrap items-center justify-between gap-3 p-5">
+                <div className="flex min-w-0 items-center gap-3">
+                  <IconChip>{docIcon}</IconChip>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold">{label}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {doc
+                        ? `On file: ${doc.filename}${expires ? ` · expires ${expires}` : ""}`
+                        : hint}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <Badge tone={doc ? "success" : "accent"} dot>
+                    {doc ? "Received" : "Needed"}
+                  </Badge>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => pick(value)}
+                    className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium transition-colors hover:border-accent hover:text-accentDeep disabled:opacity-50"
+                  >
+                    {doc ? "Upload newer" : "Upload"}
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span
-                  className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${
-                    doc
-                      ? "border-success/40 bg-success/10 text-success"
-                      : "border-accent/40 bg-accent/10 text-accent"
-                  }`}
-                >
-                  {doc ? "Received" : "Needed"}
-                </span>
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={() => pick(value)}
-                  className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium hover:border-accent hover:text-accent disabled:opacity-50"
-                >
-                  {doc ? "Upload newer" : "Upload"}
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </CardContent>
+      </Card>
 
       {loading && <p className="mt-4 text-sm text-muted-foreground">Loading…</p>}
     </main>

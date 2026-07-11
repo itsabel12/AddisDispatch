@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 import { clerkAppearance } from "@/lib/clerk-appearance";
+import { TruckMark } from "@/components/Logo";
 
 /**
  * AuthShell — premium split sign-in card: a dark brand panel (echoing the
@@ -20,14 +21,8 @@ function AuthShell({ children }: { children: React.ReactNode }) {
           className="pointer-events-none absolute -right-16 -top-16 size-64 rounded-full opacity-60 blur-3xl"
           style={{ background: "radial-gradient(circle, rgba(239,127,24,0.55), transparent 70%)" }}
         />
-        <div className="relative flex items-center gap-2.5">
-          <span className="grid size-9 place-items-center rounded-xl bg-accent text-white">
-            <svg viewBox="0 0 24 24" fill="none" className="size-5" aria-hidden>
-              <path d="M3 7h11v8H3zM14 10h4l3 3v2h-7z" stroke="currentColor" strokeWidth={1.8} strokeLinejoin="round" />
-              <circle cx="7" cy="17" r="1.4" fill="currentColor" />
-              <circle cx="17" cy="17" r="1.4" fill="currentColor" />
-            </svg>
-          </span>
+        <div className="relative flex items-center gap-2.5 text-white">
+          <TruckMark size={34} />
           <span className="font-heading text-lg font-semibold tracking-tight">
             Addis<span className="text-accent">Dispatch</span>
           </span>
@@ -46,12 +41,8 @@ function AuthShell({ children }: { children: React.ReactNode }) {
 
       {/* Form panel */}
       <div className="p-8 sm:p-9">
-        <div className="mb-6 flex items-center gap-2.5 md:hidden">
-          <span className="grid size-8 place-items-center rounded-xl bg-accent text-white">
-            <svg viewBox="0 0 24 24" fill="none" className="size-4" aria-hidden>
-              <path d="M3 7h11v8H3zM14 10h4l3 3v2h-7z" stroke="currentColor" strokeWidth={1.8} strokeLinejoin="round" />
-            </svg>
-          </span>
+        <div className="mb-6 flex items-center gap-2.5 text-foreground md:hidden">
+          <TruckMark size={28} />
           <span className="font-heading text-base font-semibold tracking-tight">
             Addis<span className="text-accentDeep">Dispatch</span>
           </span>

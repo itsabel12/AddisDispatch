@@ -17,15 +17,59 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusBadge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/ui/page-header";
+import { StatTile, EmptyState } from "@/components/carrier/ui";
 import { money, lane, formatDate } from "@/components/carrier/format";
 
-const KPIS: { key: keyof CarrierSummary; label: string; money?: boolean }[] = [
-  { key: "total_loads", label: "Total Loads" },
-  { key: "in_transit", label: "In Transit" },
-  { key: "delivered", label: "Delivered" },
-  { key: "paid_total", label: "Paid", money: true },
-  { key: "outstanding_total", label: "Outstanding", money: true },
+const icons = {
+  loads: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-5">
+      <path d="M3 6h11v9H3z" /><path d="M14 9h4l3 3v3h-7z" /><circle cx="7" cy="18" r="1.6" /><circle cx="17" cy="18" r="1.6" />
+    </svg>
+  ),
+  transit: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-5">
+      <path d="M2 12h13M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  delivered: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-5">
+      <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  paid: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-5">
+      <rect x="3" y="6" width="18" height="13" rx="2" /><path d="M3 10h18" /><circle cx="17" cy="14" r="1" />
+    </svg>
+  ),
+  outstanding: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-5">
+      <circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+};
+
+const KPIS: {
+  key: keyof CarrierSummary;
+  label: string;
+  icon: React.ReactNode;
+  money?: boolean;
+}[] = [
+  { key: "total_loads", label: "Total Loads", icon: icons.loads },
+  { key: "in_transit", label: "In Transit", icon: icons.transit },
+  { key: "delivered", label: "Delivered", icon: icons.delivered },
+  { key: "paid_total", label: "Paid", icon: icons.paid, money: true },
+  { key: "outstanding_total", label: "Outstanding", icon: icons.outstanding, money: true },
 ];
+
+const today = new Date().toLocaleDateString("en-US", {
+  weekday: "long",
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+});
 
 export function CarrierDashboard() {
   const { getToken } = useAuth();
@@ -57,74 +101,77 @@ export function CarrierDashboard() {
   const recent = loads.slice(0, 8);
 
   return (
-    <main className="mx-auto w-full max-w-6xl p-8">
-      <h1 className="text-2xl font-semibold">
-        Welcome{user?.firstName ? `, ${user.firstName}` : ""}
-      </h1>
-      <p className="mb-6 text-sm text-muted-foreground">
-        Your loads and settlements at a glance.
-      </p>
+    <main className="mx-auto w-full max-w-6xl p-5 lg:p-8">
+      <PageHeader
+        title={`Welcome${user?.firstName ? `, ${user.firstName}` : ""}`}
+        subtitle={today}
+      />
 
       {error && (
-        <p className="mb-6 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <p className="mb-6 rounded-xl border border-danger/25 bg-danger/5 px-4 py-3 text-sm text-danger">
           {error}
         </p>
       )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {KPIS.map((kpi) => (
-          <div key={kpi.key} className="rounded-xl border border-border bg-card p-5">
-            <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              {kpi.label}
-            </div>
-            <div className="mt-1 text-2xl font-semibold">
-              {loading || !summary
-                ? "—"
-                : kpi.money
+          <StatTile
+            key={kpi.key}
+            icon={kpi.icon}
+            label={kpi.label}
+            loading={loading || !summary}
+            value={
+              summary
+                ? kpi.money
                   ? money(summary[kpi.key])
-                  : summary[kpi.key]}
-            </div>
-          </div>
+                  : summary[kpi.key]
+                : "—"
+            }
+          />
         ))}
       </div>
 
-      <h2 className="mt-10 mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-        Recent Loads
-      </h2>
-      <div className="rounded-xl border border-border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Lane</TableHead>
-              <TableHead>Pickup</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Rate</TableHead>
-              <TableHead className="text-right">RPM</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {recent.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
-                  {loading ? "Loading…" : "No loads assigned to you yet."}
-                </TableCell>
-              </TableRow>
-            ) : (
-              recent.map((l) => (
-                <TableRow key={l.id}>
-                  <TableCell>{lane(l)}</TableCell>
-                  <TableCell>{formatDate(l.pickup_at)}</TableCell>
-                  <TableCell className="capitalize">
-                    {l.status.replace("_", " ")}
-                  </TableCell>
-                  <TableCell className="text-right">{money(l.rate)}</TableCell>
-                  <TableCell className="text-right">{money(l.rpm)}</TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>Recent Loads</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-2">
+          {recent.length === 0 ? (
+            <EmptyState
+              icon={icons.loads}
+              title={loading ? "Loading…" : "No loads assigned yet"}
+              body={loading ? undefined : "Loads your dispatcher assigns to you will appear here."}
+            />
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Lane</TableHead>
+                    <TableHead>Pickup</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Rate</TableHead>
+                    <TableHead className="text-right">RPM</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {recent.map((l) => (
+                    <TableRow key={l.id}>
+                      <TableCell className="font-medium">{lane(l)}</TableCell>
+                      <TableCell className="text-muted-foreground">{formatDate(l.pickup_at)}</TableCell>
+                      <TableCell>
+                        <StatusBadge status={l.status} />
+                      </TableCell>
+                      <TableCell className="text-right">{money(l.rate)}</TableCell>
+                      <TableCell className="text-right">{money(l.rpm)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </main>
   );
 }

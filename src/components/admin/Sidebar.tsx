@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { cn } from "@/lib/utils";
 import { HeaderAuth } from "@/components/header-auth";
+import { TruckMark } from "@/components/Logo";
 
 /* — compact 20px stroke icon set (currentColor) — */
 type Ico = (p: { className?: string }) => React.ReactElement;
@@ -94,19 +95,8 @@ function isActive(pathname: string, href: string): boolean {
 
 function Logo() {
   return (
-    <Link href="/admin/dashboard" className="flex items-center gap-2.5 px-2">
-      <span className="grid size-8 place-items-center rounded-xl bg-accent text-white shadow-soft">
-        <svg viewBox="0 0 24 24" fill="none" className="size-4" aria-hidden>
-          <path
-            d="M3 7h11v8H3zM14 10h4l3 3v2h-7z"
-            stroke="currentColor"
-            strokeWidth={1.8}
-            strokeLinejoin="round"
-          />
-          <circle cx="7" cy="17" r="1.4" fill="currentColor" />
-          <circle cx="17" cy="17" r="1.4" fill="currentColor" />
-        </svg>
-      </span>
+    <Link href="/admin/dashboard" className="flex items-center gap-2.5 px-2 text-foreground">
+      <TruckMark size={30} />
       <span className="font-heading text-[15px] font-semibold tracking-tight">
         Addis<span className="text-accentDeep">Dispatch</span>
       </span>
