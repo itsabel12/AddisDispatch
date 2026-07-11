@@ -13,6 +13,52 @@ export const API_BASE_URL =
 /** All dispatcher endpoints live under /admin. */
 const ADMIN_BASE_URL = `${API_BASE_URL}/admin`;
 
+/**
+ * Turn a failed Response into an Error message, preferring the backend's
+ * ``{detail: "..."}`` body over a bare status code.
+ */
+async function errorMessage(res: Response, fallback?: string): Promise<string> {
+  try {
+    const body = await res.json();
+    if (body?.detail) return String(body.detail);
+  } catch {
+    // no JSON body — fall through to the status-code message
+  }
+  return fallback ?? `HTTP ${res.status}`;
+}
+
+type RequestOptions = {
+  method?: string;
+  /** JSON-serialized and sent with a application/json content-type when present. */
+  body?: unknown;
+  token?: string | null;
+  /** Error message prefix used when the response has no `detail` body. */
+  errorFallback?: string;
+};
+
+/**
+ * Shared admin request: attaches the Clerk token, disables caching, serializes a
+ * JSON body, and raises a detail-aware Error on non-2xx. Returns the parsed JSON
+ * (or `undefined` for 204/empty responses). Blob/CSV/FormData calls use their own
+ * helpers below since they don't fit this JSON shape.
+ */
+async function adminRequest<T>(path: string, opts: RequestOptions = {}): Promise<T> {
+  const hasBody = opts.body !== undefined;
+  const res = await fetch(`${ADMIN_BASE_URL}${path}`, {
+    method: opts.method ?? "GET",
+    cache: "no-store",
+    headers: {
+      ...(hasBody ? { "Content-Type": "application/json" } : {}),
+      ...(opts.token ? { Authorization: `Bearer ${opts.token}` } : {}),
+    },
+    ...(hasBody ? { body: JSON.stringify(opts.body) } : {}),
+  });
+  if (!res.ok) throw new Error(await errorMessage(res, opts.errorFallback));
+  if (res.status === 204) return undefined as T;
+  const text = await res.text();
+  return (text ? JSON.parse(text) : undefined) as T;
+}
+
 /** A freight load, matching the backend's LoadRead schema (subset we use). */
 export type Load = {
   id: string;
@@ -43,14 +89,7 @@ export type Load = {
  *   so the backend can verify the caller is signed in.
  */
 export async function getLoads(token: string | null): Promise<Load[]> {
-  const res = await fetch(`${ADMIN_BASE_URL}/loads`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
-  if (!res.ok) {
-    throw new Error(`Failed to fetch loads (HTTP ${res.status})`);
-  }
-  return (await res.json()) as Load[];
+  return adminRequest<Load[]>("/loads", { token, errorFallback: "Failed to fetch loads" });
 }
 
 /** Fields accepted when creating a load (matches the backend LoadCreate). */
@@ -75,32 +114,12 @@ export async function createLoad(
   token: string | null,
   input: LoadInput,
 ): Promise<Load> {
-  const res = await fetch(`${ADMIN_BASE_URL}/loads`, {
+  return adminRequest<Load>("/loads", {
     method: "POST",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(input),
+    body: input,
+    token,
+    errorFallback: "Failed to create load",
   });
-  if (!res.ok) {
-    // Surface the backend's validation message when we can.
-    let detail = `HTTP ${res.status}`;
-    try {
-      const body = await res.json();
-      if (body?.detail) {
-        detail =
-          typeof body.detail === "string"
-            ? body.detail
-            : JSON.stringify(body.detail);
-      }
-    } catch {
-      // response had no JSON body; keep the status code
-    }
-    throw new Error(`Failed to create load: ${detail}`);
-  }
-  return (await res.json()) as Load;
 }
 
 /** Update a load's editable fields. Returns the updated (re-scored) load. */
@@ -109,34 +128,21 @@ export async function updateLoad(
   id: string,
   input: LoadInput,
 ): Promise<Load> {
-  const res = await fetch(`${ADMIN_BASE_URL}/loads/${id}`, {
+  return adminRequest<Load>(`/loads/${id}`, {
     method: "PUT",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(input),
+    body: input,
+    token,
+    errorFallback: "Failed to update load",
   });
-  if (!res.ok) {
-    throw new Error(`Failed to update load (HTTP ${res.status})`);
-  }
-  return (await res.json()) as Load;
 }
 
 /** Delete a load by id. */
-export async function deleteLoad(
-  token: string | null,
-  id: string,
-): Promise<void> {
-  const res = await fetch(`${ADMIN_BASE_URL}/loads/${id}`, {
+export async function deleteLoad(token: string | null, id: string): Promise<void> {
+  await adminRequest<void>(`/loads/${id}`, {
     method: "DELETE",
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    token,
+    errorFallback: "Failed to delete load",
   });
-  if (!res.ok && res.status !== 204) {
-    throw new Error(`Failed to delete load (HTTP ${res.status})`);
-  }
 }
 
 /** Editable broker fields. */
@@ -158,14 +164,7 @@ export type Broker = BrokerInput & {
 
 /** Fetch all brokers with their load counts (busiest first). */
 export async function getBrokers(token: string | null): Promise<Broker[]> {
-  const res = await fetch(`${ADMIN_BASE_URL}/brokers`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
-  if (!res.ok) {
-    throw new Error(`Failed to fetch brokers (HTTP ${res.status})`);
-  }
-  return (await res.json()) as Broker[];
+  return adminRequest<Broker[]>("/brokers", { token, errorFallback: "Failed to fetch brokers" });
 }
 
 /** Update a broker's fields. */
@@ -174,33 +173,21 @@ export async function updateBroker(
   id: string,
   input: BrokerInput,
 ): Promise<void> {
-  const res = await fetch(`${ADMIN_BASE_URL}/brokers/${id}`, {
+  await adminRequest<void>(`/brokers/${id}`, {
     method: "PUT",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(input),
+    body: input,
+    token,
+    errorFallback: "Failed to update broker",
   });
-  if (!res.ok) {
-    throw new Error(`Failed to update broker (HTTP ${res.status})`);
-  }
 }
 
 /** Delete a broker (its loads keep their name but are unlinked). */
-export async function deleteBroker(
-  token: string | null,
-  id: string,
-): Promise<void> {
-  const res = await fetch(`${ADMIN_BASE_URL}/brokers/${id}`, {
+export async function deleteBroker(token: string | null, id: string): Promise<void> {
+  await adminRequest<void>(`/brokers/${id}`, {
     method: "DELETE",
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    token,
+    errorFallback: "Failed to delete broker",
   });
-  if (!res.ok && res.status !== 204) {
-    throw new Error(`Failed to delete broker (HTTP ${res.status})`);
-  }
 }
 
 /** An invoice as returned by the API. */
@@ -240,14 +227,7 @@ export type InvoiceUpdateInput = {
 
 /** Fetch all invoices (newest first). */
 export async function getInvoices(token: string | null): Promise<Invoice[]> {
-  const res = await fetch(`${ADMIN_BASE_URL}/invoices`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
-  if (!res.ok) {
-    throw new Error(`Failed to fetch invoices (HTTP ${res.status})`);
-  }
-  return (await res.json()) as Invoice[];
+  return adminRequest<Invoice[]>("/invoices", { token, errorFallback: "Failed to fetch invoices" });
 }
 
 /** Create an invoice from a load. */
@@ -255,18 +235,12 @@ export async function createInvoice(
   token: string | null,
   input: InvoiceCreateInput,
 ): Promise<void> {
-  const res = await fetch(`${ADMIN_BASE_URL}/invoices`, {
+  await adminRequest<void>("/invoices", {
     method: "POST",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(input),
+    body: input,
+    token,
+    errorFallback: "Failed to create invoice",
   });
-  if (!res.ok) {
-    throw new Error(`Failed to create invoice (HTTP ${res.status})`);
-  }
 }
 
 /** Update an invoice (e.g. mark paid). */
@@ -275,69 +249,40 @@ export async function updateInvoice(
   id: string,
   input: InvoiceUpdateInput,
 ): Promise<void> {
-  const res = await fetch(`${ADMIN_BASE_URL}/invoices/${id}`, {
+  await adminRequest<void>(`/invoices/${id}`, {
     method: "PUT",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(input),
+    body: input,
+    token,
+    errorFallback: "Failed to update invoice",
   });
-  if (!res.ok) {
-    throw new Error(`Failed to update invoice (HTTP ${res.status})`);
-  }
 }
 
 /** Delete an invoice. */
-export async function deleteInvoice(
-  token: string | null,
-  id: string,
-): Promise<void> {
-  const res = await fetch(`${ADMIN_BASE_URL}/invoices/${id}`, {
+export async function deleteInvoice(token: string | null, id: string): Promise<void> {
+  await adminRequest<void>(`/invoices/${id}`, {
     method: "DELETE",
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    token,
+    errorFallback: "Failed to delete invoice",
   });
-  if (!res.ok && res.status !== 204) {
-    throw new Error(`Failed to delete invoice (HTTP ${res.status})`);
-  }
 }
 
 /** Email an invoice to the broker and advance it to 'sent'. */
-export async function sendInvoice(
-  token: string | null,
-  id: string,
-): Promise<Invoice> {
-  const res = await fetch(`${ADMIN_BASE_URL}/invoices/${id}/send`, {
+export async function sendInvoice(token: string | null, id: string): Promise<Invoice> {
+  return adminRequest<Invoice>(`/invoices/${id}/send`, {
     method: "POST",
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    token,
+    errorFallback: "Send failed",
   });
-  if (!res.ok) {
-    let detail = `HTTP ${res.status}`;
-    try {
-      const b = await res.json();
-      if (b?.detail) detail = String(b.detail);
-    } catch {
-      // keep status
-    }
-    throw new Error(`Send failed: ${detail}`);
-  }
-  return (await res.json()) as Invoice;
 }
 
 /** Mark past-due sent/viewed invoices as overdue. Returns how many changed. */
-export async function sweepOverdueInvoices(
-  token: string | null,
-): Promise<number> {
-  const res = await fetch(`${ADMIN_BASE_URL}/invoices/sweep-overdue`, {
+export async function sweepOverdueInvoices(token: string | null): Promise<number> {
+  const body = await adminRequest<{ marked_overdue: number }>("/invoices/sweep-overdue", {
     method: "POST",
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    token,
+    errorFallback: "Sweep failed",
   });
-  if (!res.ok) throw new Error(`Sweep failed (HTTP ${res.status})`);
-  return ((await res.json()) as { marked_overdue: number }).marked_overdue;
+  return body.marked_overdue;
 }
 
 // --- Global record search (⌘K palette) -------------------------------------
@@ -357,12 +302,10 @@ export async function searchRecords(
   q: string,
 ): Promise<SearchHit[]> {
   if (q.trim().length < 2) return [];
-  const res = await fetch(`${ADMIN_BASE_URL}/search?q=${encodeURIComponent(q)}`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  return adminRequest<SearchHit[]>(`/search?q=${encodeURIComponent(q)}`, {
+    token,
+    errorFallback: "Search failed",
   });
-  if (!res.ok) throw new Error(`Search failed (HTTP ${res.status})`);
-  return (await res.json()) as SearchHit[];
 }
 
 // --- Authenticated file downloads (PDFs, CSVs) -----------------------------
@@ -430,22 +373,7 @@ export const exportInvoicesQuickbooks = (token: string | null) =>
 
 /** Email the broker a payment reminder (invoice attached). */
 export async function remindInvoice(token: string | null, id: string): Promise<Invoice> {
-  const res = await fetch(`${ADMIN_BASE_URL}/invoices/${id}/remind`, {
-    method: "POST",
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
-  if (!res.ok) {
-    let detail = `HTTP ${res.status}`;
-    try {
-      const b = await res.json();
-      if (b?.detail) detail = String(b.detail);
-    } catch {
-      // keep status
-    }
-    throw new Error(detail);
-  }
-  return (await res.json()) as Invoice;
+  return adminRequest<Invoice>(`/invoices/${id}/remind`, { method: "POST", token });
 }
 
 // --- POD review queue (dispatcher) -----------------------------------------
@@ -467,51 +395,29 @@ export type PodReviewItem = {
 };
 
 /** List PODs awaiting review. */
-export async function getPodQueue(
-  token: string | null,
-): Promise<PodReviewItem[]> {
-  const res = await fetch(`${ADMIN_BASE_URL}/pod-review`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+export async function getPodQueue(token: string | null): Promise<PodReviewItem[]> {
+  return adminRequest<PodReviewItem[]>("/pod-review", {
+    token,
+    errorFallback: "Failed to load POD queue",
   });
-  if (!res.ok) throw new Error(`Failed to load POD queue (HTTP ${res.status})`);
-  return (await res.json()) as PodReviewItem[];
 }
 
 /** Approve a POD: marks the load delivered and auto-generates its invoice. */
-export async function approvePod(
-  token: string | null,
-  documentId: string,
-): Promise<Invoice> {
-  const res = await fetch(`${ADMIN_BASE_URL}/pod-review/${documentId}/approve`, {
+export async function approvePod(token: string | null, documentId: string): Promise<Invoice> {
+  return adminRequest<Invoice>(`/pod-review/${documentId}/approve`, {
     method: "POST",
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    token,
+    errorFallback: "Approve failed",
   });
-  if (!res.ok) {
-    let detail = `HTTP ${res.status}`;
-    try {
-      const b = await res.json();
-      if (b?.detail) detail = String(b.detail);
-    } catch {
-      // keep status
-    }
-    throw new Error(`Approve failed: ${detail}`);
-  }
-  return (await res.json()) as Invoice;
 }
 
 /** Reject a POD. */
-export async function rejectPod(
-  token: string | null,
-  documentId: string,
-): Promise<void> {
-  const res = await fetch(`${ADMIN_BASE_URL}/pod-review/${documentId}/reject`, {
+export async function rejectPod(token: string | null, documentId: string): Promise<void> {
+  await adminRequest<void>(`/pod-review/${documentId}/reject`, {
     method: "POST",
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    token,
+    errorFallback: "Reject failed",
   });
-  if (!res.ok) throw new Error(`Reject failed (HTTP ${res.status})`);
 }
 
 // --- Command Center, notifications & AI assistant --------------------------
@@ -566,30 +472,21 @@ export type CommandCenterSummary = {
 export async function getCommandCenter(
   token: string | null,
 ): Promise<CommandCenterSummary> {
-  const res = await fetch(`${ADMIN_BASE_URL}/command-center`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  return adminRequest<CommandCenterSummary>("/command-center", {
+    token,
+    errorFallback: "Failed to load Command Center",
   });
-  if (!res.ok) throw new Error(`Failed to load Command Center (HTTP ${res.status})`);
-  return (await res.json()) as CommandCenterSummary;
 }
 
 /** Ask the read-only AI assistant a question. */
-export async function askAssistant(
-  token: string | null,
-  message: string,
-): Promise<string> {
-  const res = await fetch(`${ADMIN_BASE_URL}/assistant`, {
+export async function askAssistant(token: string | null, message: string): Promise<string> {
+  const body = await adminRequest<{ answer: string }>("/assistant", {
     method: "POST",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify({ message }),
+    body: { message },
+    token,
+    errorFallback: "Assistant failed",
   });
-  if (!res.ok) throw new Error(`Assistant failed (HTTP ${res.status})`);
-  return ((await res.json()) as { answer: string }).answer;
+  return body.answer;
 }
 
 /** List notifications (optionally unread only). */
@@ -597,53 +494,38 @@ export async function getNotifications(
   token: string | null,
   unreadOnly = false,
 ): Promise<AdminNotification[]> {
-  const qs = unreadOnly ? "?unread_only=true" : "";
-  const res = await fetch(`${ADMIN_BASE_URL}/notifications${qs}`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
-  if (!res.ok) throw new Error(`Failed to load notifications (HTTP ${res.status})`);
-  return (await res.json()) as AdminNotification[];
+  return adminRequest<AdminNotification[]>(
+    `/notifications${unreadOnly ? "?unread_only=true" : ""}`,
+    { token, errorFallback: "Failed to load notifications" },
+  );
 }
 
 /** Mark one notification read. */
-export async function markNotificationRead(
-  token: string | null,
-  id: string,
-): Promise<void> {
-  const res = await fetch(`${ADMIN_BASE_URL}/notifications/${id}/read`, {
+export async function markNotificationRead(token: string | null, id: string): Promise<void> {
+  await adminRequest<void>(`/notifications/${id}/read`, {
     method: "POST",
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    token,
+    errorFallback: "Failed to mark read",
   });
-  if (!res.ok) throw new Error(`Failed to mark read (HTTP ${res.status})`);
 }
 
 /** Mark all notifications read. */
-export async function markAllNotificationsRead(
-  token: string | null,
-): Promise<void> {
-  const res = await fetch(`${ADMIN_BASE_URL}/notifications/read-all`, {
+export async function markAllNotificationsRead(token: string | null): Promise<void> {
+  await adminRequest<void>("/notifications/read-all", {
     method: "POST",
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    token,
+    errorFallback: "Failed to mark all read",
   });
-  if (!res.ok && res.status !== 204) {
-    throw new Error(`Failed to mark all read (HTTP ${res.status})`);
-  }
 }
 
 /** Run the notification rules engine now (returns how many were created). */
-export async function runNotificationRules(
-  token: string | null,
-): Promise<number> {
-  const res = await fetch(`${ADMIN_BASE_URL}/notifications/run-rules`, {
+export async function runNotificationRules(token: string | null): Promise<number> {
+  const body = await adminRequest<{ created: number }>("/notifications/run-rules", {
     method: "POST",
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    token,
+    errorFallback: "Run rules failed",
   });
-  if (!res.ok) throw new Error(`Run rules failed (HTTP ${res.status})`);
-  return ((await res.json()) as { created: number }).created;
+  return body.created;
 }
 
 // --- Payroll ----------------------------------------------------------------
@@ -687,25 +569,18 @@ export async function getPayrollQueue(
   token: string | null,
   status?: string,
 ): Promise<PayrollItem[]> {
-  const qs = status ? `?status=${status}` : "";
-  const res = await fetch(`${ADMIN_BASE_URL}/payroll${qs}`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  return adminRequest<PayrollItem[]>(`/payroll${status ? `?status=${status}` : ""}`, {
+    token,
+    errorFallback: "Failed to load payroll",
   });
-  if (!res.ok) throw new Error(`Failed to load payroll (HTTP ${res.status})`);
-  return (await res.json()) as PayrollItem[];
 }
 
 /** Paid payroll history. */
-export async function getPayrollHistory(
-  token: string | null,
-): Promise<PayrollItem[]> {
-  const res = await fetch(`${ADMIN_BASE_URL}/payroll/history`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+export async function getPayrollHistory(token: string | null): Promise<PayrollItem[]> {
+  return adminRequest<PayrollItem[]>("/payroll/history", {
+    token,
+    errorFallback: "Failed to load history",
   });
-  if (!res.ok) throw new Error(`Failed to load history (HTTP ${res.status})`);
-  return (await res.json()) as PayrollItem[];
 }
 
 /** Adjust a payroll item's components (net recomputed server-side). */
@@ -714,17 +589,12 @@ export async function updatePayrollItem(
   id: string,
   input: PayrollItemUpdate,
 ): Promise<PayrollItem> {
-  const res = await fetch(`${ADMIN_BASE_URL}/payroll/${id}`, {
+  return adminRequest<PayrollItem>(`/payroll/${id}`, {
     method: "PUT",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(input),
+    body: input,
+    token,
+    errorFallback: "Save failed",
   });
-  if (!res.ok) throw new Error(`Save failed (HTTP ${res.status})`);
-  return (await res.json()) as PayrollItem;
 }
 
 async function payrollAction(
@@ -732,17 +602,12 @@ async function payrollAction(
   action: "approve" | "pay",
   itemIds: string[],
 ): Promise<number> {
-  const res = await fetch(`${ADMIN_BASE_URL}/payroll/${action}`, {
+  const body = await adminRequest<Record<string, number>>(`/payroll/${action}`, {
     method: "POST",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify({ item_ids: itemIds }),
+    body: { item_ids: itemIds },
+    token,
+    errorFallback: `${action} failed`,
   });
-  if (!res.ok) throw new Error(`${action} failed (HTTP ${res.status})`);
-  const body = (await res.json()) as Record<string, number>;
   return body[action === "approve" ? "approved" : "paid"] ?? 0;
 }
 
@@ -770,13 +635,10 @@ export async function getSettlements(
   token: string | null,
   carrierId?: string,
 ): Promise<Settlement[]> {
-  const qs = carrierId ? `?carrier_id=${carrierId}` : "";
-  const res = await fetch(`${ADMIN_BASE_URL}/payroll/settlements${qs}`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
-  if (!res.ok) throw new Error(`Failed to load settlements (HTTP ${res.status})`);
-  return (await res.json()) as Settlement[];
+  return adminRequest<Settlement[]>(
+    `/payroll/settlements${carrierId ? `?carrier_id=${carrierId}` : ""}`,
+    { token, errorFallback: "Failed to load settlements" },
+  );
 }
 
 /** Bundle approved payroll items into a settlement statement. */
@@ -784,26 +646,11 @@ export async function createSettlement(
   token: string | null,
   itemIds: string[],
 ): Promise<Settlement> {
-  const res = await fetch(`${ADMIN_BASE_URL}/payroll/settlements`, {
+  return adminRequest<Settlement>("/payroll/settlements", {
     method: "POST",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify({ item_ids: itemIds }),
+    body: { item_ids: itemIds },
+    token,
   });
-  if (!res.ok) {
-    let detail = `HTTP ${res.status}`;
-    try {
-      const b = await res.json();
-      if (b?.detail) detail = String(b.detail);
-    } catch {
-      // keep status
-    }
-    throw new Error(detail);
-  }
-  return (await res.json()) as Settlement;
 }
 
 /** Open a settlement statement PDF. */
@@ -840,13 +687,10 @@ export async function getInbox(
   token: string | null,
   includeArchived = false,
 ): Promise<InboundEmail[]> {
-  const qs = includeArchived ? "?include_archived=true" : "";
-  const res = await fetch(`${ADMIN_BASE_URL}/inbox${qs}`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
-  if (!res.ok) throw new Error(`Failed to load inbox (HTTP ${res.status})`);
-  return (await res.json()) as InboundEmail[];
+  return adminRequest<InboundEmail[]>(
+    `/inbox${includeArchived ? "?include_archived=true" : ""}`,
+    { token, errorFallback: "Failed to load inbox" },
+  );
 }
 
 /** Documents that arrived as attachments on an email (for the intake deep-link). */
@@ -854,12 +698,10 @@ export async function getEmailDocuments(
   token: string | null,
   emailId: string,
 ): Promise<IntakeDocument[]> {
-  const res = await fetch(`${ADMIN_BASE_URL}/inbox/${emailId}/documents`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  return adminRequest<IntakeDocument[]>(`/inbox/${emailId}/documents`, {
+    token,
+    errorFallback: "Failed to load email documents",
   });
-  if (!res.ok) throw new Error(`Failed to load email documents (HTTP ${res.status})`);
-  return (await res.json()) as IntakeDocument[];
 }
 
 async function inboxAction(
@@ -867,12 +709,11 @@ async function inboxAction(
   id: string,
   action: "archive" | "handled",
 ): Promise<void> {
-  const res = await fetch(`${ADMIN_BASE_URL}/inbox/${id}/${action}`, {
+  await adminRequest<void>(`/inbox/${id}/${action}`, {
     method: "POST",
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    token,
+    errorFallback: "Action failed",
   });
-  if (!res.ok) throw new Error(`Action failed (HTTP ${res.status})`);
 }
 
 export const archiveEmail = (token: string | null, id: string) =>
@@ -886,16 +727,12 @@ export async function replyEmail(
   id: string,
   input: { subject: string; body: string },
 ): Promise<void> {
-  const res = await fetch(`${ADMIN_BASE_URL}/inbox/${id}/reply`, {
+  await adminRequest<void>(`/inbox/${id}/reply`, {
     method: "POST",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(input),
+    body: input,
+    token,
+    errorFallback: "Reply failed",
   });
-  if (!res.ok) throw new Error(`Reply failed (HTTP ${res.status})`);
 }
 
 /** A customer-communication milestone template. */
@@ -909,15 +746,11 @@ export type CommTemplate = {
 };
 
 /** List milestone email templates. */
-export async function getCommTemplates(
-  token: string | null,
-): Promise<CommTemplate[]> {
-  const res = await fetch(`${ADMIN_BASE_URL}/comm-templates`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+export async function getCommTemplates(token: string | null): Promise<CommTemplate[]> {
+  return adminRequest<CommTemplate[]>("/comm-templates", {
+    token,
+    errorFallback: "Failed to load templates",
   });
-  if (!res.ok) throw new Error(`Failed to load templates (HTTP ${res.status})`);
-  return (await res.json()) as CommTemplate[];
 }
 
 /** Update a milestone template. */
@@ -926,17 +759,12 @@ export async function updateCommTemplate(
   key: string,
   input: { subject: string; body: string; enabled: boolean },
 ): Promise<CommTemplate> {
-  const res = await fetch(`${ADMIN_BASE_URL}/comm-templates/${key}`, {
+  return adminRequest<CommTemplate>(`/comm-templates/${key}`, {
     method: "PUT",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(input),
+    body: input,
+    token,
+    errorFallback: "Save failed",
   });
-  if (!res.ok) throw new Error(`Save failed (HTTP ${res.status})`);
-  return (await res.json()) as CommTemplate;
 }
 
 /** A driver/dispatcher chat message. */
@@ -966,12 +794,10 @@ export async function getLoadMessages(
   token: string | null,
   loadId: string,
 ): Promise<ChatMessage[]> {
-  const res = await fetch(`${ADMIN_BASE_URL}/loads/${loadId}/messages`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  return adminRequest<ChatMessage[]>(`/loads/${loadId}/messages`, {
+    token,
+    errorFallback: "Failed to load messages",
   });
-  if (!res.ok) throw new Error(`Failed to load messages (HTTP ${res.status})`);
-  return (await res.json()) as ChatMessage[];
 }
 
 /** Dispatcher: post a message to a load's thread. */
@@ -980,17 +806,12 @@ export async function postLoadMessage(
   loadId: string,
   input: ChatMessageInput,
 ): Promise<ChatMessage> {
-  const res = await fetch(`${ADMIN_BASE_URL}/loads/${loadId}/messages`, {
+  return adminRequest<ChatMessage>(`/loads/${loadId}/messages`, {
     method: "POST",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(input),
+    body: input,
+    token,
+    errorFallback: "Send failed",
   });
-  if (!res.ok) throw new Error(`Send failed (HTTP ${res.status})`);
-  return (await res.json()) as ChatMessage;
 }
 
 /** Dispatcher: upload a chat attachment; returns the stored document. */
@@ -1038,32 +859,21 @@ export async function fetchAdminAttachmentUrl(
 }
 
 /** Dispatcher: total unread carrier messages (for the Command Center badge). */
-export async function getUnreadMessageCount(
-  token: string | null,
-): Promise<number> {
-  const res = await fetch(`${ADMIN_BASE_URL}/messages/unread-count`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+export async function getUnreadMessageCount(token: string | null): Promise<number> {
+  const body = await adminRequest<{ unread: number }>("/messages/unread-count", {
+    token,
+    errorFallback: "Failed to load unread count",
   });
-  if (!res.ok) throw new Error(`Failed to load unread count (HTTP ${res.status})`);
-  return ((await res.json()) as { unread: number }).unread;
+  return body.unread;
 }
 
 /** Dispatcher: AI-summarize a load's thread. */
-export async function summarizeThread(
-  token: string | null,
-  loadId: string,
-): Promise<string> {
-  const res = await fetch(
-    `${ADMIN_BASE_URL}/loads/${loadId}/messages/summarize`,
-    {
-      method: "POST",
-      cache: "no-store",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    },
+export async function summarizeThread(token: string | null, loadId: string): Promise<string> {
+  const body = await adminRequest<{ summary: string }>(
+    `/loads/${loadId}/messages/summarize`,
+    { method: "POST", token, errorFallback: "Summarize failed" },
   );
-  if (!res.ok) throw new Error(`Summarize failed (HTTP ${res.status})`);
-  return ((await res.json()) as { summary: string }).summary;
+  return body.summary;
 }
 
 // --- Document intake & AI load automation ----------------------------------
@@ -1113,13 +923,10 @@ export async function getDocuments(
   token: string | null,
   status?: string,
 ): Promise<IntakeDocument[]> {
-  const qs = status ? `?status=${status}` : "";
-  const res = await fetch(`${ADMIN_BASE_URL}/documents${qs}`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  return adminRequest<IntakeDocument[]>(`/documents${status ? `?status=${status}` : ""}`, {
+    token,
+    errorFallback: "Failed to fetch documents",
   });
-  if (!res.ok) throw new Error(`Failed to fetch documents (HTTP ${res.status})`);
-  return (await res.json()) as IntakeDocument[];
 }
 
 /** Documents linked to a specific load (rate con, POD, receipts…). */
@@ -1127,12 +934,10 @@ export async function getLoadDocuments(
   token: string | null,
   loadId: string,
 ): Promise<IntakeDocument[]> {
-  const res = await fetch(`${ADMIN_BASE_URL}/documents?load_id=${loadId}`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  return adminRequest<IntakeDocument[]>(`/documents?load_id=${loadId}`, {
+    token,
+    errorFallback: "Failed to fetch documents",
   });
-  if (!res.ok) throw new Error(`Failed to fetch documents (HTTP ${res.status})`);
-  return (await res.json()) as IntakeDocument[];
 }
 
 /** Upload a document for AI classification + extraction. */
@@ -1162,16 +967,11 @@ export async function uploadDocument(
 }
 
 /** Fetch a document by id (poll while it's processing). */
-export async function getDocument(
-  token: string | null,
-  id: string,
-): Promise<IntakeDocument> {
-  const res = await fetch(`${ADMIN_BASE_URL}/documents/${id}`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+export async function getDocument(token: string | null, id: string): Promise<IntakeDocument> {
+  return adminRequest<IntakeDocument>(`/documents/${id}`, {
+    token,
+    errorFallback: "Failed to fetch document",
   });
-  if (!res.ok) throw new Error(`Failed to fetch document (HTTP ${res.status})`);
-  return (await res.json()) as IntakeDocument;
 }
 
 /** Fetch a document's file bytes as an object URL for in-app preview. */
@@ -1194,54 +994,30 @@ export async function approveDocument(
   id: string,
   input: LoadInput,
 ): Promise<Load> {
-  const res = await fetch(`${ADMIN_BASE_URL}/documents/${id}/approve`, {
+  return adminRequest<Load>(`/documents/${id}/approve`, {
     method: "POST",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(input),
+    body: input,
+    token,
+    errorFallback: "Approve failed",
   });
-  if (!res.ok) {
-    let detail = `HTTP ${res.status}`;
-    try {
-      const b = await res.json();
-      if (b?.detail) detail = typeof b.detail === "string" ? b.detail : JSON.stringify(b.detail);
-    } catch {
-      // keep status
-    }
-    throw new Error(`Approve failed: ${detail}`);
-  }
-  return (await res.json()) as Load;
 }
 
 /** Reject (discard) a document. */
-export async function rejectDocument(
-  token: string | null,
-  id: string,
-): Promise<void> {
-  const res = await fetch(`${ADMIN_BASE_URL}/documents/${id}/reject`, {
+export async function rejectDocument(token: string | null, id: string): Promise<void> {
+  await adminRequest<void>(`/documents/${id}/reject`, {
     method: "POST",
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    token,
+    errorFallback: "Reject failed",
   });
-  if (!res.ok) throw new Error(`Reject failed (HTTP ${res.status})`);
 }
 
 /** Delete a document and its stored file. */
-export async function deleteDocument(
-  token: string | null,
-  id: string,
-): Promise<void> {
-  const res = await fetch(`${ADMIN_BASE_URL}/documents/${id}`, {
+export async function deleteDocument(token: string | null, id: string): Promise<void> {
+  await adminRequest<void>(`/documents/${id}`, {
     method: "DELETE",
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    token,
+    errorFallback: "Delete failed",
   });
-  if (!res.ok && res.status !== 204) {
-    throw new Error(`Delete failed (HTTP ${res.status})`);
-  }
 }
 
 // --- Profitability intelligence --------------------------------------------
@@ -1290,14 +1066,10 @@ export async function getProfitability(
   token: string | null,
   period: ProfitabilityPeriod = "week",
 ): Promise<ProfitabilityReport> {
-  const res = await fetch(`${ADMIN_BASE_URL}/profitability?period=${period}`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  return adminRequest<ProfitabilityReport>(`/profitability?period=${period}`, {
+    token,
+    errorFallback: "Failed to fetch profitability",
   });
-  if (!res.ok) {
-    throw new Error(`Failed to fetch profitability (HTTP ${res.status})`);
-  }
-  return (await res.json()) as ProfitabilityReport;
 }
 
 /** Aggregated stats for one origin -> destination lane. */
@@ -1311,14 +1083,7 @@ export type LaneStat = {
 
 /** Fetch per-lane analytics (best average rpm first). */
 export async function getLanes(token: string | null): Promise<LaneStat[]> {
-  const res = await fetch(`${ADMIN_BASE_URL}/lanes`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
-  if (!res.ok) {
-    throw new Error(`Failed to fetch lanes (HTTP ${res.status})`);
-  }
-  return (await res.json()) as LaneStat[];
+  return adminRequest<LaneStat[]>("/lanes", { token, errorFallback: "Failed to fetch lanes" });
 }
 
 /** A predictive pricing recommendation for a state-to-state lane. */
@@ -1345,24 +1110,18 @@ export async function getLanePricing(
   originState: string,
   destState: string,
 ): Promise<LanePricing> {
-  const res = await fetch(
-    `${ADMIN_BASE_URL}/lanes/pricing?origin_state=${originState}&dest_state=${destState}`,
-    { cache: "no-store", headers: token ? { Authorization: `Bearer ${token}` } : {} },
+  return adminRequest<LanePricing>(
+    `/lanes/pricing?origin_state=${originState}&dest_state=${destState}`,
+    { token, errorFallback: "Failed to fetch pricing" },
   );
-  if (!res.ok) throw new Error(`Failed to fetch pricing (HTTP ${res.status})`);
-  return (await res.json()) as LanePricing;
 }
 
 /** Full pricing board — every state-lane with rate history. */
-export async function getLanePricingBoard(
-  token: string | null,
-): Promise<LanePricing[]> {
-  const res = await fetch(`${ADMIN_BASE_URL}/lanes/pricing/board`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+export async function getLanePricingBoard(token: string | null): Promise<LanePricing[]> {
+  return adminRequest<LanePricing[]>("/lanes/pricing/board", {
+    token,
+    errorFallback: "Failed to fetch pricing board",
   });
-  if (!res.ok) throw new Error(`Failed to fetch pricing board (HTTP ${res.status})`);
-  return (await res.json()) as LanePricing[];
 }
 
 /** Editable carrier fields. */
@@ -1414,22 +1173,10 @@ export async function verifyCarrierSafer(
   token: string | null,
   carrierId: string,
 ): Promise<Carrier> {
-  const res = await fetch(`${ADMIN_BASE_URL}/carriers/${carrierId}/verify-safer`, {
+  return adminRequest<Carrier>(`/carriers/${carrierId}/verify-safer`, {
     method: "POST",
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    token,
   });
-  if (!res.ok) {
-    let detail = `HTTP ${res.status}`;
-    try {
-      const b = await res.json();
-      if (b?.detail) detail = String(b.detail);
-    } catch {
-      // keep status
-    }
-    throw new Error(detail);
-  }
-  return (await res.json()) as Carrier;
 }
 
 // --- Carrier applications (marketing-site leads) ----------------------------
@@ -1456,22 +1203,10 @@ export async function getCarrierApplications(
   token: string | null,
   status?: string,
 ): Promise<CarrierApplication[]> {
-  const qs = status ? `?status=${status}` : "";
-  const res = await fetch(`${ADMIN_BASE_URL}/carrier-applications${qs}`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
-  if (!res.ok) {
-    let detail = `HTTP ${res.status}`;
-    try {
-      const b = await res.json();
-      if (b?.detail) detail = String(b.detail);
-    } catch {
-      // keep status
-    }
-    throw new Error(detail);
-  }
-  return (await res.json()) as CarrierApplication[];
+  return adminRequest<CarrierApplication[]>(
+    `/carrier-applications${status ? `?status=${status}` : ""}`,
+    { token },
+  );
 }
 
 /** Set an application's triage status (contacted / declined / …). */
@@ -1480,16 +1215,12 @@ export async function setApplicationStatus(
   id: string,
   status: string,
 ): Promise<void> {
-  const res = await fetch(`${ADMIN_BASE_URL}/carrier-applications/${id}/status`, {
+  await adminRequest<void>(`/carrier-applications/${id}/status`, {
     method: "POST",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify({ status }),
+    body: { status },
+    token,
+    errorFallback: "Update failed",
   });
-  if (!res.ok) throw new Error(`Update failed (HTTP ${res.status})`);
 }
 
 /** Onboard an applicant: creates the Carrier + auto-sends the doc packet. */
@@ -1497,22 +1228,11 @@ export async function onboardApplication(
   token: string | null,
   id: string,
 ): Promise<Carrier> {
-  const res = await fetch(`${ADMIN_BASE_URL}/carrier-applications/${id}/onboard`, {
+  return adminRequest<Carrier>(`/carrier-applications/${id}/onboard`, {
     method: "POST",
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    token,
+    errorFallback: "Onboard failed",
   });
-  if (!res.ok) {
-    let detail = `HTTP ${res.status}`;
-    try {
-      const b = await res.json();
-      if (b?.detail) detail = String(b.detail);
-    } catch {
-      // keep status
-    }
-    throw new Error(`Onboard failed: ${detail}`);
-  }
-  return (await res.json()) as Carrier;
 }
 
 // --- Carrier compliance vault (Phase 1) -------------------------------------
@@ -1546,12 +1266,10 @@ export async function getCarrierCompliance(
   token: string | null,
   carrierId: string,
 ): Promise<ComplianceSummary> {
-  const res = await fetch(`${ADMIN_BASE_URL}/carriers/${carrierId}/compliance`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  return adminRequest<ComplianceSummary>(`/carriers/${carrierId}/compliance`, {
+    token,
+    errorFallback: "Failed to load compliance",
   });
-  if (!res.ok) throw new Error(`Failed to load compliance (HTTP ${res.status})`);
-  return (await res.json()) as ComplianceSummary;
 }
 
 /** List a carrier's vault documents. */
@@ -1559,12 +1277,10 @@ export async function getCarrierDocuments(
   token: string | null,
   carrierId: string,
 ): Promise<IntakeDocument[]> {
-  const res = await fetch(`${ADMIN_BASE_URL}/carriers/${carrierId}/documents`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  return adminRequest<IntakeDocument[]>(`/carriers/${carrierId}/documents`, {
+    token,
+    errorFallback: "Failed to load documents",
   });
-  if (!res.ok) throw new Error(`Failed to load documents (HTTP ${res.status})`);
-  return (await res.json()) as IntakeDocument[];
 }
 
 /** Upload a compliance document into a carrier's vault. */
@@ -1600,25 +1316,11 @@ export async function requestCarrierDocuments(
   token: string | null,
   carrierId: string,
 ): Promise<Carrier> {
-  const res = await fetch(
-    `${ADMIN_BASE_URL}/carriers/${carrierId}/request-documents`,
-    {
-      method: "POST",
-      cache: "no-store",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    },
-  );
-  if (!res.ok) {
-    let detail = `HTTP ${res.status}`;
-    try {
-      const b = await res.json();
-      if (b?.detail) detail = String(b.detail);
-    } catch {
-      // keep status
-    }
-    throw new Error(`Request failed: ${detail}`);
-  }
-  return (await res.json()) as Carrier;
+  return adminRequest<Carrier>(`/carriers/${carrierId}/request-documents`, {
+    method: "POST",
+    token,
+    errorFallback: "Request failed",
+  });
 }
 
 /** Update a document's type and/or expiry (dispatcher override). */
@@ -1627,50 +1329,27 @@ export async function updateDocumentMeta(
   documentId: string,
   input: { type: string; expires_at?: string | null },
 ): Promise<IntakeDocument> {
-  const res = await fetch(`${ADMIN_BASE_URL}/documents/${documentId}/type`, {
+  return adminRequest<IntakeDocument>(`/documents/${documentId}/type`, {
     method: "PATCH",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(input),
+    body: input,
+    token,
+    errorFallback: "Update failed",
   });
-  if (!res.ok) throw new Error(`Update failed (HTTP ${res.status})`);
-  return (await res.json()) as IntakeDocument;
 }
 
 /** Fetch all carriers with their load counts. */
 export async function getCarriers(token: string | null): Promise<Carrier[]> {
-  const res = await fetch(`${ADMIN_BASE_URL}/carriers`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
-  if (!res.ok) {
-    throw new Error(`Failed to fetch carriers (HTTP ${res.status})`);
-  }
-  return (await res.json()) as Carrier[];
+  return adminRequest<Carrier[]>("/carriers", { token, errorFallback: "Failed to fetch carriers" });
 }
 
 /** Create a carrier. */
-export async function createCarrier(
-  token: string | null,
-  input: CarrierInput,
-): Promise<void> {
-  const res = await fetch(`${ADMIN_BASE_URL}/carriers`, {
+export async function createCarrier(token: string | null, input: CarrierInput): Promise<void> {
+  await adminRequest<void>("/carriers", {
     method: "POST",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(input),
+    body: input,
+    token,
+    errorFallback: "Failed to create carrier",
   });
-  if (!res.ok) {
-    const detail =
-      res.status === 409 ? "A carrier with that name already exists." : `HTTP ${res.status}`;
-    throw new Error(`Failed to create carrier (${detail})`);
-  }
 }
 
 /** Update a carrier. */
@@ -1679,33 +1358,21 @@ export async function updateCarrier(
   id: string,
   input: CarrierInput,
 ): Promise<void> {
-  const res = await fetch(`${ADMIN_BASE_URL}/carriers/${id}`, {
+  await adminRequest<void>(`/carriers/${id}`, {
     method: "PUT",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(input),
+    body: input,
+    token,
+    errorFallback: "Failed to update carrier",
   });
-  if (!res.ok) {
-    throw new Error(`Failed to update carrier (HTTP ${res.status})`);
-  }
 }
 
 /** Delete a carrier (its loads are unassigned). */
-export async function deleteCarrier(
-  token: string | null,
-  id: string,
-): Promise<void> {
-  const res = await fetch(`${ADMIN_BASE_URL}/carriers/${id}`, {
+export async function deleteCarrier(token: string | null, id: string): Promise<void> {
+  await adminRequest<void>(`/carriers/${id}`, {
     method: "DELETE",
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    token,
+    errorFallback: "Failed to delete carrier",
   });
-  if (!res.ok && res.status !== 204) {
-    throw new Error(`Failed to delete carrier (HTTP ${res.status})`);
-  }
 }
 
 /** Result of importing a Truckstop CSV. */
@@ -1741,17 +1408,12 @@ export type RescoreResult = {
 };
 
 /** Re-run the scoring engine over every load. */
-export async function rescoreLoads(
-  token: string | null,
-): Promise<RescoreResult> {
-  const res = await fetch(`${ADMIN_BASE_URL}/loads/rescore`, {
+export async function rescoreLoads(token: string | null): Promise<RescoreResult> {
+  return adminRequest<RescoreResult>("/loads/rescore", {
     method: "POST",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    token,
+    errorFallback: "Re-score failed",
   });
-  if (!res.ok) {
-    throw new Error(`Re-score failed (HTTP ${res.status})`);
-  }
-  return (await res.json()) as RescoreResult;
 }
 
 // --- Carrier accounts (admin: review & approve carrier sign-ups) -----------
@@ -1776,17 +1438,11 @@ export type ApproveCarrierInput = {
 };
 
 /** List all carrier sign-ups (pending + approved), newest first. */
-export async function getCarrierAccounts(
-  token: string | null,
-): Promise<CarrierAccount[]> {
-  const res = await fetch(`${ADMIN_BASE_URL}/carrier-accounts`, {
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+export async function getCarrierAccounts(token: string | null): Promise<CarrierAccount[]> {
+  return adminRequest<CarrierAccount[]>("/carrier-accounts", {
+    token,
+    errorFallback: "Failed to load carrier accounts",
   });
-  if (!res.ok) {
-    throw new Error(`Failed to load carrier accounts (HTTP ${res.status})`);
-  }
-  return (await res.json()) as CarrierAccount[];
 }
 
 /** Approve a carrier sign-up and link it to a carrier record. */
@@ -1795,29 +1451,12 @@ export async function approveCarrierAccount(
   userId: string,
   input: ApproveCarrierInput,
 ): Promise<CarrierAccount> {
-  const res = await fetch(
-    `${ADMIN_BASE_URL}/carrier-accounts/${userId}/approve`,
-    {
-      method: "POST",
-      cache: "no-store",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: JSON.stringify(input),
-    },
-  );
-  if (!res.ok) {
-    let detail = `HTTP ${res.status}`;
-    try {
-      const body = await res.json();
-      if (body?.detail) detail = String(body.detail);
-    } catch {
-      // keep the status code
-    }
-    throw new Error(`Approve failed: ${detail}`);
-  }
-  return (await res.json()) as CarrierAccount;
+  return adminRequest<CarrierAccount>(`/carrier-accounts/${userId}/approve`, {
+    method: "POST",
+    body: input,
+    token,
+    errorFallback: "Approve failed",
+  });
 }
 
 /** Reject / deactivate a carrier sign-up. */
@@ -1825,16 +1464,9 @@ export async function rejectCarrierAccount(
   token: string | null,
   userId: string,
 ): Promise<CarrierAccount> {
-  const res = await fetch(
-    `${ADMIN_BASE_URL}/carrier-accounts/${userId}/reject`,
-    {
-      method: "POST",
-      cache: "no-store",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    },
-  );
-  if (!res.ok) {
-    throw new Error(`Reject failed (HTTP ${res.status})`);
-  }
-  return (await res.json()) as CarrierAccount;
+  return adminRequest<CarrierAccount>(`/carrier-accounts/${userId}/reject`, {
+    method: "POST",
+    token,
+    errorFallback: "Reject failed",
+  });
 }

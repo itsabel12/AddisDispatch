@@ -16,10 +16,12 @@ import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import FloatingActions from "@/components/FloatingActions";
 import Overlays from "@/components/overlays/Overlays";
+import StructuredData from "@/components/StructuredData";
 
 export default function Home() {
   return (
     <>
+      <StructuredData />
       <Nav />
       <main>
         <Hero />

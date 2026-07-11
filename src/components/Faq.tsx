@@ -2,29 +2,7 @@
 
 import { useState } from "react";
 import Reveal from "./Reveal";
-
-const faqs = [
-  {
-    q: "What percentage do you charge?",
-    a: "We charge 6–8% of the gross load rate depending on fleet size and plan. Solo operators pay 8%, Professional (up to 3 trucks) 7%, and Fleet accounts (4–10 trucks) 6%. No hidden fees, no minimums.",
-  },
-  {
-    q: "Do you work with new carriers?",
-    a: "Yes. We work with newly authorized carriers as long as your MC authority is active and you carry the required insurance. We guide you through setup and help build a strong broker packet from day one.",
-  },
-  {
-    q: "What types of freight do you handle?",
-    a: "We dispatch for dry van, flatbed, reefer, and hotshot carriers. Our dispatchers specialize by equipment type to ensure they understand your rates and lane opportunities.",
-  },
-  {
-    q: "How quickly can I get started?",
-    a: "Most carriers are fully onboarded within 24–48 hours. Once we verify your MC authority, insurance, and carrier packet, your dedicated dispatcher begins sourcing loads immediately.",
-  },
-  {
-    q: "Do I need to sign a long-term contract?",
-    a: "No long-term contracts required. We operate month-to-month because we believe our results should keep you around — not a contract.",
-  },
-];
+import { faqs } from "@/content/faq";
 
 export default function Faq() {
   const [open, setOpen] = useState<number | null>(null);
