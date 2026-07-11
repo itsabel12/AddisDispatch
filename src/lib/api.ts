@@ -1028,6 +1028,15 @@ export async function openAdminAttachment(
   await openAuthedPdf(token, `/documents/${documentId}/content`);
 }
 
+/** Dispatcher: fetch a chat attachment as an object URL (for inline image previews). */
+export async function fetchAdminAttachmentUrl(
+  token: string | null,
+  documentId: string,
+): Promise<string> {
+  const blob = await fetchAuthedBlob(token, `/documents/${documentId}/content`);
+  return URL.createObjectURL(blob);
+}
+
 /** Dispatcher: total unread carrier messages (for the Command Center badge). */
 export async function getUnreadMessageCount(
   token: string | null,

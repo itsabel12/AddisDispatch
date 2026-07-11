@@ -10,6 +10,7 @@ import {
   summarizeThread,
   uploadAdminChatAttachment,
   openAdminAttachment,
+  fetchAdminAttachmentUrl,
   type Load,
 } from "@/lib/api";
 import { LoadChat } from "@/components/chat/LoadChat";
@@ -92,6 +93,7 @@ export function AdminMessages() {
               summarize={summarizeThread}
               uploadAttachment={uploadAdminChatAttachment}
               openAttachment={openAdminAttachment}
+              fetchAttachmentUrl={fetchAdminAttachmentUrl}
             />
           ) : (
             <div className="flex h-full items-center justify-center text-sm text-muted-foreground">

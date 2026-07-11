@@ -15,6 +15,7 @@ export function LoadChat({
   summarize,
   uploadAttachment,
   openAttachment,
+  fetchAttachmentUrl,
 }: {
   loadId: string;
   role: ClientRole;
@@ -31,6 +32,7 @@ export function LoadChat({
     file: File,
   ) => Promise<{ id: string }>;
   openAttachment?: (token: string | null, documentId: string) => Promise<void>;
+  fetchAttachmentUrl?: (token: string | null, documentId: string) => Promise<string>;
 }) {
   const { getToken } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -173,20 +175,29 @@ export function LoadChat({
                   }`}
                 >
                   {m.body && <p className="whitespace-pre-wrap">{m.body}</p>}
-                  {m.attachment_document_id && (
-                    <button
-                      type="button"
-                      onClick={() => viewAttachment(m.attachment_document_id!)}
-                      className={`mt-1 flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium ${
-                        mine ? "bg-black/10 hover:bg-black/20" : "bg-muted hover:bg-muted/70"
-                      }`}
-                    >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-3.5">
-                        <path d="M21 8v10a4 4 0 0 1-8 0V6a2.5 2.5 0 0 1 5 0v10a1 1 0 0 1-2 0V8" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                      {m.attachment_filename ?? "Attachment"}
-                    </button>
-                  )}
+                  {m.attachment_document_id &&
+                    (m.attachment_content_type?.startsWith("image/") && fetchAttachmentUrl ? (
+                      <AttachmentThumb
+                        load={async () =>
+                          fetchAttachmentUrl(await getToken(), m.attachment_document_id!)
+                        }
+                        alt={m.attachment_filename ?? "Attachment"}
+                        onClick={() => viewAttachment(m.attachment_document_id!)}
+                      />
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => viewAttachment(m.attachment_document_id!)}
+                        className={`mt-1 flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium ${
+                          mine ? "bg-black/10 hover:bg-black/20" : "bg-muted hover:bg-muted/70"
+                        }`}
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-3.5">
+                          <path d="M21 8v10a4 4 0 0 1-8 0V6a2.5 2.5 0 0 1 5 0v10a1 1 0 0 1-2 0V8" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        {m.attachment_filename ?? "Attachment"}
+                      </button>
+                    ))}
                   {m.latitude != null && m.longitude != null && (
                     <a
                       href={`https://maps.google.com/?q=${m.latitude},${m.longitude}`}
@@ -257,5 +268,67 @@ export function LoadChat({
         </button>
       </form>
     </div>
+  );
+}
+
+/**
+ * Inline image thumbnail for a chat attachment. The content route is auth-gated,
+ * so we fetch the blob (via `load`) into an object URL rather than using a raw
+ * <img src>. Clicking opens the full image in a new tab. Falls back to a plain
+ * "Image" link if the fetch fails.
+ */
+function AttachmentThumb({
+  load,
+  alt,
+  onClick,
+}: {
+  load: () => Promise<string>;
+  alt: string;
+  onClick: () => void;
+}) {
+  const [url, setUrl] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    let objectUrl: string | null = null;
+    load()
+      .then((u) => {
+        if (active) {
+          objectUrl = u;
+          setUrl(u);
+        } else {
+          URL.revokeObjectURL(u);
+        }
+      })
+      .catch(() => active && setFailed(true));
+    return () => {
+      active = false;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+    // load is recreated per render but keyed by message; run once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (failed) {
+    return (
+      <button type="button" onClick={onClick} className="mt-1 text-xs underline">
+        {alt}
+      </button>
+    );
+  }
+  if (!url) {
+    return (
+      <div className="mt-1 h-32 w-40 animate-pulse rounded-lg bg-black/10" aria-label="Loading image" />
+    );
+  }
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={url}
+      alt={alt}
+      onClick={onClick}
+      className="mt-1 max-h-48 max-w-full cursor-pointer rounded-lg border border-black/10 object-cover"
+    />
   );
 }

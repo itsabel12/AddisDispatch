@@ -219,17 +219,33 @@ export async function uploadMyChatAttachment(
   return (await res.json()) as { id: string; filename: string; content_type: string };
 }
 
-/** Carrier: open a chat attachment (fetches with auth, opens in a new tab). */
-export async function openMyAttachment(
+/** Fetch a carrier chat attachment as a blob (auth-gated content route). */
+async function fetchMyAttachmentBlob(
   token: string | null,
   documentId: string,
-): Promise<void> {
+): Promise<Blob> {
   const res = await fetch(`${CARRIER_BASE_URL}/documents/${documentId}/content`, {
     cache: "no-store",
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
   if (!res.ok) throw new Error(`Could not open attachment (HTTP ${res.status})`);
-  const url = URL.createObjectURL(await res.blob());
+  return res.blob();
+}
+
+/** Carrier: open a chat attachment (fetches with auth, opens in a new tab). */
+export async function openMyAttachment(
+  token: string | null,
+  documentId: string,
+): Promise<void> {
+  const url = URL.createObjectURL(await fetchMyAttachmentBlob(token, documentId));
   window.open(url, "_blank", "noopener");
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
+
+/** Carrier: fetch a chat attachment as an object URL (for inline image previews). */
+export async function fetchMyAttachmentUrl(
+  token: string | null,
+  documentId: string,
+): Promise<string> {
+  return URL.createObjectURL(await fetchMyAttachmentBlob(token, documentId));
 }

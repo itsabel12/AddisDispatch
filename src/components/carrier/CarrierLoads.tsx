@@ -10,6 +10,7 @@ import {
   postMyLoadMessage,
   uploadMyChatAttachment,
   openMyAttachment,
+  fetchMyAttachmentUrl,
 } from "@/lib/carrier-api";
 import type { Load } from "@/lib/api";
 import {
@@ -186,6 +187,7 @@ export function CarrierLoads() {
                 send={postMyLoadMessage}
                 uploadAttachment={uploadMyChatAttachment}
                 openAttachment={openMyAttachment}
+                fetchAttachmentUrl={fetchMyAttachmentUrl}
               />
             </div>
           </div>
