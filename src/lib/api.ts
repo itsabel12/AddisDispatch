@@ -849,6 +849,19 @@ export async function getInbox(
   return (await res.json()) as InboundEmail[];
 }
 
+/** Documents that arrived as attachments on an email (for the intake deep-link). */
+export async function getEmailDocuments(
+  token: string | null,
+  emailId: string,
+): Promise<IntakeDocument[]> {
+  const res = await fetch(`${ADMIN_BASE_URL}/inbox/${emailId}/documents`, {
+    cache: "no-store",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) throw new Error(`Failed to load email documents (HTTP ${res.status})`);
+  return (await res.json()) as IntakeDocument[];
+}
+
 async function inboxAction(
   token: string | null,
   id: string,

@@ -1,17 +1,19 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 
 import {
   getInbox,
+  getEmailDocuments,
   archiveEmail,
   markEmailHandled,
   replyEmail,
   type InboundEmail,
 } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
+import { useToast } from "@/components/admin/feedback";
 
 const CLASS_STYLE: Record<string, string> = {
   load_tender: "border-accent/40 bg-accent/10 text-accent",
@@ -28,12 +30,34 @@ const CREATE_LOAD_CLASSES = new Set(["rate_confirmation", "load_tender"]);
 
 export function Inbox() {
   const { getToken } = useAuth();
+  const router = useRouter();
+  const toast = useToast();
   const [emails, setEmails] = useState<InboundEmail[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const [replyBody, setReplyBody] = useState("");
   const [busy, setBusy] = useState(false);
+
+  // Deep-link into Load Intake: find the rate-con attachment this email became a
+  // Document for, and open its review directly. Falls back to the intake page.
+  async function onCreateLoad(email: InboundEmail) {
+    setBusy(true);
+    try {
+      const docs = await getEmailDocuments(await getToken(), email.id);
+      const doc = docs[0];
+      if (doc) {
+        router.push(`/admin/loads/intake?doc=${doc.id}`);
+      } else {
+        toast.info("No attachment found on this email — upload the rate con in Load Intake.");
+        router.push("/admin/loads/intake");
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Couldn't open Load Intake.");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   const reload = useCallback(async () => {
     try {
@@ -137,12 +161,14 @@ export function Inbox() {
 
               <div className="mt-3 flex flex-wrap gap-2">
                 {CREATE_LOAD_CLASSES.has(email.classification) && (
-                  <Link
-                    href="/admin/loads/intake"
-                    className="rounded-lg border border-accent/50 px-3 py-1.5 text-xs font-medium text-accent hover:bg-accent/10"
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => onCreateLoad(email)}
+                    className="rounded-lg border border-accent/50 px-3 py-1.5 text-xs font-medium text-accent hover:bg-accent/10 disabled:opacity-50"
                   >
                     Create Load →
-                  </Link>
+                  </button>
                 )}
                 <button
                   type="button"

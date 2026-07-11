@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 
 import {
@@ -107,8 +108,10 @@ const REFERENCE_KEYS: (keyof ExtractedFields)[] = [
 
 export function DocumentIntake() {
   const { getToken } = useAuth();
+  const searchParams = useSearchParams();
   const [documents, setDocuments] = useState<IntakeDocument[]>([]);
   const [selected, setSelected] = useState<IntakeDocument | null>(null);
+  const deepLinked = useRef(false);
   const [form, setForm] = useState<FormState>(emptyForm());
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -129,6 +132,19 @@ export function DocumentIntake() {
   useEffect(() => {
     void refresh();
   }, [refresh]);
+
+  // Deep-link from the Inbox: /admin/loads/intake?doc=<id> auto-opens that
+  // document's review once the list has loaded (once, so the user can move on).
+  useEffect(() => {
+    if (deepLinked.current) return;
+    const docId = searchParams.get("doc");
+    if (!docId || documents.length === 0) return;
+    const match = documents.find((d) => d.id === docId);
+    if (match) {
+      deepLinked.current = true;
+      selectDocument(match);
+    }
+  }, [searchParams, documents]);
 
   // Poll while any document is still processing so the list updates live.
   useEffect(() => {
