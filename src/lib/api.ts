@@ -340,6 +340,85 @@ export async function sweepOverdueInvoices(
   return ((await res.json()) as { marked_overdue: number }).marked_overdue;
 }
 
+// --- Authenticated file downloads (PDFs, CSVs) -----------------------------
+
+/** Fetch an auth-gated file as a blob (endpoints require the Bearer token). */
+async function fetchAuthedBlob(token: string | null, path: string): Promise<Blob> {
+  const res = await fetch(`${ADMIN_BASE_URL}${path}`, {
+    cache: "no-store",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) {
+    let detail = `HTTP ${res.status}`;
+    try {
+      const b = await res.json();
+      if (b?.detail) detail = String(b.detail);
+    } catch {
+      // keep status
+    }
+    throw new Error(detail);
+  }
+  return res.blob();
+}
+
+/** Open an auth-gated PDF in a new browser tab (invoice, packet, settlement). */
+export async function openAuthedPdf(token: string | null, path: string): Promise<void> {
+  const blob = await fetchAuthedBlob(token, path);
+  const url = URL.createObjectURL(blob);
+  window.open(url, "_blank", "noopener");
+  // Give the new tab time to load before revoking.
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
+
+/** Download an auth-gated file (CSV export) with a filename. */
+export async function downloadAuthedFile(
+  token: string | null,
+  path: string,
+  filename: string,
+): Promise<void> {
+  const blob = await fetchAuthedBlob(token, path);
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
+/** Open an invoice's PDF. */
+export const openInvoicePdf = (token: string | null, id: string) =>
+  openAuthedPdf(token, `/invoices/${id}/pdf`);
+
+/** Open an invoice's factoring packet (invoice + rate con + POD). */
+export const openFactoringPacket = (token: string | null, id: string) =>
+  openAuthedPdf(token, `/invoices/${id}/factoring-packet`);
+
+/** Download the invoices CSV export. */
+export const exportInvoicesCsv = (token: string | null) =>
+  downloadAuthedFile(token, `/invoices/export.csv`, "invoices.csv");
+
+/** Email the broker a payment reminder (invoice attached). */
+export async function remindInvoice(token: string | null, id: string): Promise<Invoice> {
+  const res = await fetch(`${ADMIN_BASE_URL}/invoices/${id}/remind`, {
+    method: "POST",
+    cache: "no-store",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) {
+    let detail = `HTTP ${res.status}`;
+    try {
+      const b = await res.json();
+      if (b?.detail) detail = String(b.detail);
+    } catch {
+      // keep status
+    }
+    throw new Error(detail);
+  }
+  return (await res.json()) as Invoice;
+}
+
 // --- POD review queue (dispatcher) -----------------------------------------
 
 /** Load context shown alongside a POD in the review queue. */
@@ -642,6 +721,73 @@ export const approvePayroll = (token: string | null, ids: string[]) =>
   payrollAction(token, "approve", ids);
 export const payPayroll = (token: string | null, ids: string[]) =>
   payrollAction(token, "pay", ids);
+
+// --- Settlements (carrier pay-period statements) ---------------------------
+
+/** A settlement batch bundling payroll items for one carrier. */
+export type Settlement = {
+  id: string;
+  created_at: string;
+  carrier_id: string;
+  period_start: string | null;
+  period_end: string | null;
+  total: number | null;
+  carrier_name: string | null;
+  item_count: number;
+};
+
+/** List settlement batches, newest first (optionally by carrier). */
+export async function getSettlements(
+  token: string | null,
+  carrierId?: string,
+): Promise<Settlement[]> {
+  const qs = carrierId ? `?carrier_id=${carrierId}` : "";
+  const res = await fetch(`${ADMIN_BASE_URL}/payroll/settlements${qs}`, {
+    cache: "no-store",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) throw new Error(`Failed to load settlements (HTTP ${res.status})`);
+  return (await res.json()) as Settlement[];
+}
+
+/** Bundle approved payroll items into a settlement statement. */
+export async function createSettlement(
+  token: string | null,
+  itemIds: string[],
+): Promise<Settlement> {
+  const res = await fetch(`${ADMIN_BASE_URL}/payroll/settlements`, {
+    method: "POST",
+    cache: "no-store",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify({ item_ids: itemIds }),
+  });
+  if (!res.ok) {
+    let detail = `HTTP ${res.status}`;
+    try {
+      const b = await res.json();
+      if (b?.detail) detail = String(b.detail);
+    } catch {
+      // keep status
+    }
+    throw new Error(detail);
+  }
+  return (await res.json()) as Settlement;
+}
+
+/** Open a settlement statement PDF. */
+export const openSettlementPdf = (token: string | null, batchId: string) =>
+  openAuthedPdf(token, `/payroll/settlements/${batchId}/pdf`);
+
+/** Download the payroll CSV export (optionally filtered by status). */
+export const exportPayrollCsv = (token: string | null, status?: string) =>
+  downloadAuthedFile(
+    token,
+    `/payroll/export.csv${status ? `?status=${status}` : ""}`,
+    "payroll.csv",
+  );
 
 // --- Communication: inbox, templates, chat ---------------------------------
 

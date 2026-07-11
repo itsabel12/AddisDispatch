@@ -24,6 +24,10 @@ import {
   updateInvoice,
   sendInvoice,
   sweepOverdueInvoices,
+  openInvoicePdf,
+  openFactoringPacket,
+  remindInvoice,
+  exportInvoicesCsv,
   type Invoice,
   type InvoiceCreateInput,
   type InvoiceUpdateInput,
@@ -388,9 +392,59 @@ export function InvoicesTable() {
     }
   }
 
+  // Auth-gated file actions (open PDF in a tab, download CSV, email a reminder).
+  async function withBusy(action: () => Promise<void>, failMsg: string) {
+    setBusy(true);
+    setMsg(null);
+    try {
+      await action();
+    } catch (err) {
+      setMsg(err instanceof Error ? err.message : failMsg);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleRemind(invoice: Invoice) {
+    await withBusy(async () => {
+      const token = await getToken();
+      await remindInvoice(token, invoice.id);
+      setMsg(`Payment reminder sent for ${invoice.invoice_number}.`);
+    }, "Reminder failed");
+  }
+
+  async function handleExportCsv() {
+    await withBusy(async () => {
+      const token = await getToken();
+      await exportInvoicesCsv(token);
+    }, "Export failed");
+  }
+
+  async function handleOpenPdf(invoice: Invoice) {
+    await withBusy(async () => {
+      const token = await getToken();
+      await openInvoicePdf(token, invoice.id);
+    }, "Could not open PDF");
+  }
+
+  async function handleOpenPacket(invoice: Invoice) {
+    await withBusy(async () => {
+      const token = await getToken();
+      await openFactoringPacket(token, invoice.id);
+    }, "Could not open packet");
+  }
+
   return (
     <>
       <div className="mb-3 flex justify-end gap-2">
+        <button
+          type="button"
+          onClick={handleExportCsv}
+          disabled={busy}
+          className="rounded border px-3 py-1.5 text-sm hover:bg-muted disabled:opacity-50"
+        >
+          Export CSV
+        </button>
         <button
           type="button"
           onClick={handleSweep}
@@ -476,7 +530,7 @@ export function InvoicesTable() {
                   <TableCell>{fmtDate(inv.issued_at)}</TableCell>
                   <TableCell>{fmtDate(inv.due_at)}</TableCell>
                   <TableCell>
-                    <div className="flex gap-3">
+                    <div className="flex flex-wrap gap-3">
                       {(inv.status === "draft" || inv.status === "overdue") && (
                         <button
                           type="button"
@@ -487,6 +541,34 @@ export function InvoicesTable() {
                           Send
                         </button>
                       )}
+                      {(inv.status === "sent" ||
+                        inv.status === "viewed" ||
+                        inv.status === "overdue") && (
+                        <button
+                          type="button"
+                          disabled={busy}
+                          className="text-xs text-amber-700 hover:underline disabled:opacity-50"
+                          onClick={() => handleRemind(inv)}
+                        >
+                          Remind
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        disabled={busy}
+                        className="text-xs text-accentDeep hover:underline disabled:opacity-50"
+                        onClick={() => handleOpenPdf(inv)}
+                      >
+                        PDF
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        className="text-xs text-accentDeep hover:underline disabled:opacity-50"
+                        onClick={() => handleOpenPacket(inv)}
+                      >
+                        Packet
+                      </button>
                       <button
                         type="button"
                         className="text-xs text-blue-700 hover:underline"
