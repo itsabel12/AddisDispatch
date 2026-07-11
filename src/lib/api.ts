@@ -424,6 +424,10 @@ export const openFactoringPacket = (token: string | null, id: string) =>
 export const exportInvoicesCsv = (token: string | null) =>
   downloadAuthedFile(token, `/invoices/export.csv`, "invoices.csv");
 
+/** Download a QuickBooks Online-importable invoice CSV. */
+export const exportInvoicesQuickbooks = (token: string | null) =>
+  downloadAuthedFile(token, `/invoices/export.quickbooks.csv`, "invoices-quickbooks.csv");
+
 /** Email the broker a payment reminder (invoice attached). */
 export async function remindInvoice(token: string | null, id: string): Promise<Invoice> {
   const res = await fetch(`${ADMIN_BASE_URL}/invoices/${id}/remind`, {
@@ -1293,6 +1297,50 @@ export async function getLanes(token: string | null): Promise<LaneStat[]> {
     throw new Error(`Failed to fetch lanes (HTTP ${res.status})`);
   }
   return (await res.json()) as LaneStat[];
+}
+
+/** A predictive pricing recommendation for a state-to-state lane. */
+export type LanePricing = {
+  origin_state: string;
+  dest_state: string;
+  sample_count: number;
+  avg_rate: number | null;
+  median_rate: number | null;
+  p25_rate: number | null;
+  p75_rate: number | null;
+  min_rate: number | null;
+  max_rate: number | null;
+  avg_rpm: number | null;
+  suggested_rate: number | null;
+  band_low: number | null;
+  band_high: number | null;
+  confidence: "high" | "medium" | "low" | "none";
+};
+
+/** Suggested rate for a lane, learned from historical loads (state-to-state). */
+export async function getLanePricing(
+  token: string | null,
+  originState: string,
+  destState: string,
+): Promise<LanePricing> {
+  const res = await fetch(
+    `${ADMIN_BASE_URL}/lanes/pricing?origin_state=${originState}&dest_state=${destState}`,
+    { cache: "no-store", headers: token ? { Authorization: `Bearer ${token}` } : {} },
+  );
+  if (!res.ok) throw new Error(`Failed to fetch pricing (HTTP ${res.status})`);
+  return (await res.json()) as LanePricing;
+}
+
+/** Full pricing board — every state-lane with rate history. */
+export async function getLanePricingBoard(
+  token: string | null,
+): Promise<LanePricing[]> {
+  const res = await fetch(`${ADMIN_BASE_URL}/lanes/pricing/board`, {
+    cache: "no-store",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) throw new Error(`Failed to fetch pricing board (HTTP ${res.status})`);
+  return (await res.json()) as LanePricing[];
 }
 
 /** Editable carrier fields. */

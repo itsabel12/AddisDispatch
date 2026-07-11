@@ -13,8 +13,10 @@ import { useAuth } from "@clerk/nextjs";
 import {
   createLoad,
   getCarriers,
+  getLanePricing,
   updateLoad,
   type Carrier,
+  type LanePricing,
   type Load,
   type LoadInput,
 } from "@/lib/api";
@@ -78,6 +80,7 @@ export function NewLoadForm({
   const [carriers, setCarriers] = useState<Carrier[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pricing, setPricing] = useState<LanePricing | null>(null);
 
   // Load carriers to populate the assignment dropdown.
   useEffect(() => {
@@ -94,6 +97,30 @@ export function NewLoadForm({
       active = false;
     };
   }, [getToken]);
+
+  // Predictive lane pricing: once both states are entered, fetch a suggested
+  // rate from historical loads (debounced).
+  const oState = form.origin_state.trim().toUpperCase();
+  const dState = form.dest_state.trim().toUpperCase();
+  useEffect(() => {
+    if (oState.length !== 2 || dState.length !== 2) {
+      setPricing(null);
+      return;
+    }
+    let active = true;
+    const t = setTimeout(async () => {
+      try {
+        const p = await getLanePricing(await getToken(), oState, dState);
+        if (active) setPricing(p);
+      } catch {
+        if (active) setPricing(null);
+      }
+    }, 300);
+    return () => {
+      active = false;
+      clearTimeout(t);
+    };
+  }, [oState, dState, getToken]);
 
   const set =
     (key: keyof FormState) =>
@@ -276,6 +303,34 @@ export function NewLoadForm({
           </select>
         </label>
       </div>
+
+      {pricing && pricing.confidence !== "none" && pricing.suggested_rate != null && (
+        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-accent/30 bg-accent/5 px-3 py-2 text-sm">
+          <span className="font-medium">
+            💡 {oState}→{dState} suggested rate: ${pricing.suggested_rate.toLocaleString()}
+          </span>
+          {pricing.band_low != null && pricing.band_high != null && (
+            <span className="text-xs text-muted-foreground">
+              typical ${pricing.band_low.toLocaleString()}–${pricing.band_high.toLocaleString()}
+            </span>
+          )}
+          {pricing.avg_rpm != null && (
+            <span className="text-xs text-muted-foreground">≈ ${pricing.avg_rpm.toFixed(2)}/mi</span>
+          )}
+          <span className="text-xs text-muted-foreground">
+            ({pricing.sample_count} load{pricing.sample_count === 1 ? "" : "s"}, {pricing.confidence} confidence)
+          </span>
+          <button
+            type="button"
+            onClick={() =>
+              setForm((f) => ({ ...f, rate: String(pricing.suggested_rate) }))
+            }
+            className="ml-auto rounded border border-accent/40 px-2 py-0.5 text-xs font-medium text-accentDeep hover:bg-accent/10"
+          >
+            Use this rate
+          </button>
+        </div>
+      )}
 
       {error && (
         <p className="mt-3 rounded border border-red-300 bg-red-50 p-2 text-sm text-red-700">

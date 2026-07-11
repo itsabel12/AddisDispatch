@@ -30,6 +30,7 @@ import {
   openFactoringPacket,
   remindInvoice,
   exportInvoicesCsv,
+  exportInvoicesQuickbooks,
   type Invoice,
   type InvoiceCreateInput,
   type InvoiceUpdateInput,
@@ -425,6 +426,13 @@ export function InvoicesTable() {
     }, "Export failed");
   }
 
+  async function handleExportQuickbooks() {
+    await withBusy(async () => {
+      const token = await getToken();
+      await exportInvoicesQuickbooks(token);
+    }, "Export failed");
+  }
+
   async function handleOpenPdf(invoice: Invoice) {
     await withBusy(async () => {
       const token = await getToken();
@@ -449,6 +457,15 @@ export function InvoicesTable() {
           className="rounded border px-3 py-1.5 text-sm hover:bg-muted disabled:opacity-50"
         >
           Export CSV
+        </button>
+        <button
+          type="button"
+          onClick={handleExportQuickbooks}
+          disabled={busy}
+          title="QuickBooks Online-importable invoice CSV"
+          className="rounded border px-3 py-1.5 text-sm hover:bg-muted disabled:opacity-50"
+        >
+          Export to QuickBooks
         </button>
         <button
           type="button"
