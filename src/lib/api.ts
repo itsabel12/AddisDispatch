@@ -1357,6 +1357,21 @@ export type CarrierInput = {
   dispatcher_commission_pct?: number | null;
 };
 
+/** FMCSA/SAFER verification snapshot stored on a carrier. */
+export type SaferData = {
+  status: string;
+  legal_name: string | null;
+  dba_name: string | null;
+  dot_number: string | null;
+  mc_number: string | null;
+  allowed_to_operate: boolean | null;
+  operating_status: string | null;
+  bipd_insurance_on_file: boolean | null;
+  bipd_insurance_required: boolean | null;
+  safety_rating: string | null;
+  detail: string | null;
+};
+
 /** A carrier as returned by the API (with its assigned-load count). */
 export type Carrier = CarrierInput & {
   id: string;
@@ -1367,7 +1382,33 @@ export type Carrier = CarrierInput & {
   pay_rate: number | null;
   dispatcher_commission_pct: number | null;
   docs_requested_at: string | null;
+  safer_status: string | null;
+  safer_checked_at: string | null;
+  safer_data: SaferData | null;
 };
+
+/** Re-run the FMCSA/SAFER authority + insurance check for a carrier. */
+export async function verifyCarrierSafer(
+  token: string | null,
+  carrierId: string,
+): Promise<Carrier> {
+  const res = await fetch(`${ADMIN_BASE_URL}/carriers/${carrierId}/verify-safer`, {
+    method: "POST",
+    cache: "no-store",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) {
+    let detail = `HTTP ${res.status}`;
+    try {
+      const b = await res.json();
+      if (b?.detail) detail = String(b.detail);
+    } catch {
+      // keep status
+    }
+    throw new Error(detail);
+  }
+  return (await res.json()) as Carrier;
+}
 
 // --- Carrier applications (marketing-site leads) ----------------------------
 

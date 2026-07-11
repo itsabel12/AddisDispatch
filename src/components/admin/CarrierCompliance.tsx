@@ -12,6 +12,7 @@ import {
   requestCarrierDocuments,
   updateDocumentMeta,
   fetchDocumentPreview,
+  verifyCarrierSafer,
   COMPLIANCE_DOC_TYPES,
   type Carrier,
   type ComplianceSummary,
@@ -30,6 +31,17 @@ function itemState(item: ComplianceItem): { label: string; tone: "success" | "wa
   if (item.expiring_soon) return { label: "Expiring soon", tone: "warning" };
   return { label: "On file", tone: "success" };
 }
+
+const SAFER_STATE: Record<
+  string,
+  { label: string; tone: "success" | "warning" | "danger" | "neutral" }
+> = {
+  verified: { label: "Authorized", tone: "success" },
+  not_authorized: { label: "Not authorized", tone: "danger" },
+  not_found: { label: "Not found", tone: "danger" },
+  error: { label: "Check failed", tone: "warning" },
+  unconfigured: { label: "Not configured", tone: "neutral" },
+};
 
 export function CarrierCompliance({ carrierId }: { carrierId: string }) {
   const { getToken } = useAuth();
@@ -110,6 +122,22 @@ export function CarrierCompliance({ carrierId }: { carrierId: string }) {
       await reload();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Request failed.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onVerifySafer() {
+    setBusy(true);
+    setError(null);
+    setMessage(null);
+    try {
+      const updated = await verifyCarrierSafer(await getToken(), carrierId);
+      const label = SAFER_STATE[updated.safer_status ?? ""]?.label ?? updated.safer_status;
+      setMessage(`FMCSA check complete: ${label}.`);
+      await reload();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Verification failed.");
     } finally {
       setBusy(false);
     }
@@ -197,6 +225,70 @@ export function CarrierCompliance({ carrierId }: { carrierId: string }) {
         </p>
       )}
       {message && <p className="mb-4 text-sm text-success">{message}</p>}
+
+      {/* FMCSA / SAFER verification */}
+      <Card className="mb-4">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-sm">FMCSA / SAFER authority</CardTitle>
+            {carrier?.safer_status ? (
+              <Badge tone={SAFER_STATE[carrier.safer_status]?.tone ?? "neutral"} dot>
+                {SAFER_STATE[carrier.safer_status]?.label ?? carrier.safer_status}
+              </Badge>
+            ) : (
+              <Badge tone="neutral" dot>Not checked</Badge>
+            )}
+          </div>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={onVerifySafer}
+            className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:border-accent/50 hover:text-accentDeep disabled:opacity-50"
+          >
+            {carrier?.safer_checked_at ? "Re-verify with FMCSA" : "Verify with FMCSA"}
+          </button>
+        </CardHeader>
+        <CardContent className="pt-1">
+          {carrier?.safer_data ? (
+            <div className="grid gap-x-6 gap-y-1 text-xs text-muted-foreground sm:grid-cols-2">
+              {carrier.safer_data.legal_name && (
+                <span>Legal name: <span className="text-foreground">{carrier.safer_data.legal_name}</span></span>
+              )}
+              <span>
+                Allowed to operate:{" "}
+                <span className="text-foreground">
+                  {carrier.safer_data.allowed_to_operate == null
+                    ? "—"
+                    : carrier.safer_data.allowed_to_operate ? "Yes" : "No"}
+                </span>
+              </span>
+              <span>
+                Insurance on file:{" "}
+                <span className="text-foreground">
+                  {carrier.safer_data.bipd_insurance_on_file == null
+                    ? "—"
+                    : carrier.safer_data.bipd_insurance_on_file ? "Yes" : "No"}
+                </span>
+              </span>
+              {carrier.safer_data.safety_rating && (
+                <span>Safety rating: <span className="text-foreground">{carrier.safer_data.safety_rating}</span></span>
+              )}
+              {carrier.safer_data.detail && (
+                <span className="sm:col-span-2">{carrier.safer_data.detail}</span>
+              )}
+              {carrier.safer_checked_at && (
+                <span className="sm:col-span-2">Last checked {fmtDate(carrier.safer_checked_at)}</span>
+              )}
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              {loading
+                ? "Loading…"
+                : "Authority and insurance haven't been verified against FMCSA yet."}
+            </p>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Compliance checklist */}
       <div className="grid gap-4 sm:grid-cols-3">
