@@ -135,7 +135,12 @@ export default function AdminLoginPage() {
 
   return (
     <AuthShell>
-      <SignIn routing="hash" appearance={clerkAppearance} />
+      <SignIn
+        routing="hash"
+        appearance={clerkAppearance}
+        fallbackRedirectUrl="/admin/dashboard"
+        signUpFallbackRedirectUrl="/admin/dashboard"
+      />
     </AuthShell>
   );
 }

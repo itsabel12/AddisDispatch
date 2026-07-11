@@ -55,7 +55,12 @@ export function RequireAdmin({ children }: { children: React.ReactNode }) {
   if (!isSignedIn) {
     return (
       <Shell title="Sign in" subtitle="Administrator sign-in — internal dispatch operations.">
-        <SignIn routing="hash" appearance={clerkAppearance} />
+        <SignIn
+          routing="hash"
+          appearance={clerkAppearance}
+          fallbackRedirectUrl="/admin/dashboard"
+          signUpFallbackRedirectUrl="/admin/dashboard"
+        />
       </Shell>
     );
   }

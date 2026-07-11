@@ -48,7 +48,11 @@ export function RequireCarrier({ children }: { children: React.ReactNode }) {
   if (!isSignedIn) {
     return (
       <Shell subtitle="Sign in or create your carrier account.">
-        <SignIn routing="hash" />
+        <SignIn
+          routing="hash"
+          fallbackRedirectUrl="/carrier/dashboard"
+          signUpFallbackRedirectUrl="/carrier/dashboard"
+        />
       </Shell>
     );
   }

@@ -37,10 +37,15 @@ export default function CarrierLoginPage() {
   useEffect(() => {
     if (!isLoaded || !isSignedIn || !user) return;
     const meta = (user.publicMetadata as CarrierMeta) ?? {};
-    if (meta.role === "carrier") {
-      router.replace("/carrier/dashboard");
-    } else {
+    // Only an actual dispatcher (admin) is in the wrong portal here. A carrier —
+    // whether approved or still pending approval — belongs in the carrier portal;
+    // the dashboard's guard (RequireCarrier) shows the awaiting-approval screen for
+    // pending sign-ups. Sending pending carriers to the "use the Dispatcher Login"
+    // error was the bug.
+    if (meta.role === "admin") {
       setWrongRole(true);
+    } else {
+      router.replace("/carrier/dashboard");
     }
   }, [isLoaded, isSignedIn, user, router]);
 
@@ -89,7 +94,11 @@ export default function CarrierLoginPage() {
 
   return (
     <Shell>
-      <SignIn routing="hash" />
+      <SignIn
+        routing="hash"
+        fallbackRedirectUrl="/carrier/dashboard"
+        signUpFallbackRedirectUrl="/carrier/dashboard"
+      />
     </Shell>
   );
 }
