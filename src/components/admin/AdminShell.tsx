@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Sidebar, SidebarTrigger, useSidebar } from "@/components/admin/Sidebar";
 import { CommandPalette } from "@/components/admin/CommandPalette";
 import { AssistantWidget } from "@/components/admin/AssistantWidget";
+import { AdminFeedbackProvider } from "@/components/admin/feedback";
 
 function openPalette() {
   // CommandPalette listens for ⌘K / Ctrl-K on window; synthesize it so the
@@ -34,6 +35,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
+    <AdminFeedbackProvider>
     <div className="portal-scope dispatch-light flex min-h-screen bg-background text-foreground">
       <Sidebar mobileOpen={drawer.mobileOpen} onClose={drawer.close} />
 
@@ -79,5 +81,6 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <CommandPalette />
       <AssistantWidget />
     </div>
+    </AdminFeedbackProvider>
   );
 }

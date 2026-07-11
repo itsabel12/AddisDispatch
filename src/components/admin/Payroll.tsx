@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/table";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatusBadge } from "@/components/ui/badge";
+import { useToast } from "@/components/admin/feedback";
 
 const money = (n: number | null) =>
   n == null
@@ -46,6 +47,7 @@ const COMPONENTS: { key: keyof PayrollItemUpdate; label: string }[] = [
 
 export function Payroll() {
   const { getToken } = useAuth();
+  const toast = useToast();
   const [tab, setTab] = useState<"queue" | "history" | "settlements">("queue");
   const [items, setItems] = useState<PayrollItem[]>([]);
   const [settlements, setSettlements] = useState<Settlement[]>([]);
@@ -55,7 +57,6 @@ export function Payroll() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
     setLoading(true);
@@ -90,7 +91,6 @@ export function Payroll() {
 
   async function saveEdit(item: PayrollItem) {
     setBusy(true);
-    setError(null);
     try {
       const payload: PayrollItemUpdate = {};
       for (const c of COMPONENTS) {
@@ -99,9 +99,10 @@ export function Payroll() {
       }
       await updatePayrollItem(await getToken(), item.id, payload);
       setEditing(null);
+      toast.success("Payroll item recomputed.");
       await reload();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Save failed.");
+      toast.error(e instanceof Error ? e.message : "Save failed.");
     } finally {
       setBusy(false);
     }
@@ -120,15 +121,13 @@ export function Payroll() {
     const ids = [...selected];
     if (ids.length === 0) return;
     setBusy(true);
-    setError(null);
-    setMessage(null);
     try {
       const token = await getToken();
       const n = action === "approve" ? await approvePayroll(token, ids) : await payPayroll(token, ids);
-      setMessage(`${n} item(s) ${action === "approve" ? "approved" : "paid"}.`);
+      toast.success(`${n} item(s) ${action === "approve" ? "approved" : "paid"}.`);
       await reload();
     } catch (e) {
-      setError(e instanceof Error ? e.message : `${action} failed.`);
+      toast.error(e instanceof Error ? e.message : `${action} failed.`);
     } finally {
       setBusy(false);
     }
@@ -139,22 +138,20 @@ export function Payroll() {
     if (chosen.length === 0) return;
     const carriers = new Set(chosen.map((i) => i.carrier_id));
     if (carriers.size > 1) {
-      setError("A settlement must be for a single carrier — narrow your selection.");
+      toast.error("A settlement must be for a single carrier — narrow your selection.");
       return;
     }
     setBusy(true);
-    setError(null);
-    setMessage(null);
     try {
       const batch = await createSettlement(await getToken(), [...selected]);
-      setMessage(
+      toast.success(
         `Settlement created for ${batch.carrier_name ?? "carrier"}: ${batch.item_count} load(s), ${money(
           batch.total,
-        )}. See the Settlements tab for the statement.`,
+        )}. See the Settlements tab.`,
       );
       await reload();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Settlement failed.");
+      toast.error(e instanceof Error ? e.message : "Settlement failed.");
     } finally {
       setBusy(false);
     }
@@ -162,11 +159,10 @@ export function Payroll() {
 
   async function handleExportCsv() {
     setBusy(true);
-    setError(null);
     try {
       await exportPayrollCsv(await getToken(), tab === "history" ? "paid" : undefined);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Export failed.");
+      toast.error(e instanceof Error ? e.message : "Export failed.");
     } finally {
       setBusy(false);
     }
@@ -174,11 +170,10 @@ export function Payroll() {
 
   async function openStatement(batchId: string) {
     setBusy(true);
-    setError(null);
     try {
       await openSettlementPdf(await getToken(), batchId);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not open statement.");
+      toast.error(e instanceof Error ? e.message : "Could not open statement.");
     } finally {
       setBusy(false);
     }
@@ -231,7 +226,6 @@ export function Payroll() {
           {error}
         </p>
       )}
-      {message && <p className="mb-4 text-sm text-success">{message}</p>}
 
       {tab === "queue" && selected.size > 0 && (
         <div className="mb-4 flex items-center gap-2">

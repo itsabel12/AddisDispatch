@@ -8,6 +8,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import {
   type ColumnDef,
@@ -35,9 +36,12 @@ import {
   type Load,
 } from "@/lib/api";
 import { NewLoadForm } from "@/components/new-load-form";
+import { LoadDrawer } from "@/components/admin/LoadDrawer";
+import { useToast, useConfirm } from "@/components/admin/feedback";
 
 /** Handlers passed to the table so the actions column can call them. */
 type LoadsTableMeta = {
+  onView: (load: Load) => void;
   onEdit: (load: Load) => void;
   onDelete: (load: Load) => void;
 };
@@ -163,6 +167,13 @@ const columns: ColumnDef<Load>[] = [
           <button
             type="button"
             className="text-xs font-medium text-accentDeep hover:underline"
+            onClick={() => meta.onView(row.original)}
+          >
+            View
+          </button>
+          <button
+            type="button"
+            className="text-xs font-medium text-accentDeep hover:underline"
             onClick={() => meta.onEdit(row.original)}
           >
             Edit
@@ -182,9 +193,13 @@ const columns: ColumnDef<Load>[] = [
 
 export function LoadsTable() {
   const { getToken } = useAuth();
+  const toast = useToast();
+  const confirm = useConfirm();
+  const searchParams = useSearchParams();
   const [loads, setLoads] = useState<Load[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [drawerLoad, setDrawerLoad] = useState<Load | null>(null);
 
   const reload = useCallback(async () => {
     try {
@@ -203,6 +218,15 @@ export function LoadsTable() {
   useEffect(() => {
     void reload();
   }, [reload]);
+
+  // Deep-link from ⌘K record search: /admin?load=<id> opens that load's drawer.
+  useEffect(() => {
+    const id = searchParams.get("load");
+    if (id && loads.length) {
+      const match = loads.find((l) => l.id === id);
+      if (match) setDrawerLoad(match);
+    }
+  }, [searchParams, loads]);
 
   // Add/edit form: formOpen + which load is being edited (null = creating).
   const [formOpen, setFormOpen] = useState(false);
@@ -223,22 +247,24 @@ export function LoadsTable() {
   // Import CSV / Re-score / Delete actions.
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
-  const [actionMsg, setActionMsg] = useState<string | null>(null);
 
   async function handleDelete(load: Load) {
     const lane = `${load.origin_city}, ${load.origin_state} → ${load.dest_city}, ${load.dest_state}`;
-    if (!window.confirm(`Delete this load?\n\n${load.broker_name}\n${lane}`)) {
-      return;
-    }
+    const ok = await confirm({
+      title: "Delete this load?",
+      body: `${load.broker_name} — ${lane}`,
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
     setBusy(true);
-    setActionMsg(null);
     try {
       const token = await getToken();
       await deleteLoad(token, load.id);
-      setActionMsg("Load deleted.");
+      toast.success("Load deleted.");
       await reload();
     } catch (err) {
-      setActionMsg(err instanceof Error ? err.message : "Delete failed");
+      toast.error(err instanceof Error ? err.message : "Delete failed");
     } finally {
       setBusy(false);
     }
@@ -249,7 +275,6 @@ export function LoadsTable() {
     e.target.value = ""; // let the same file be picked again later
     if (!file) return;
     setBusy(true);
-    setActionMsg(null);
     try {
       const token = await getToken();
       const r = await importTruckstopCsv(token, file);
@@ -257,13 +282,13 @@ export function LoadsTable() {
         r.duplicates ? `${r.duplicates} duplicate` : null,
         r.skipped ? `${r.skipped} skipped` : null,
       ].filter(Boolean);
-      setActionMsg(
+      toast.success(
         `Imported ${r.imported} load(s)` +
           (extras.length ? ` (${extras.join(", ")}).` : "."),
       );
       await reload();
     } catch (err) {
-      setActionMsg(err instanceof Error ? err.message : "Import failed");
+      toast.error(err instanceof Error ? err.message : "Import failed");
     } finally {
       setBusy(false);
     }
@@ -271,14 +296,13 @@ export function LoadsTable() {
 
   async function handleRescore() {
     setBusy(true);
-    setActionMsg(null);
     try {
       const token = await getToken();
       const r = await rescoreLoads(token);
-      setActionMsg(`Re-scored ${r.scored} load(s).`);
+      toast.success(`Re-scored ${r.scored} load(s).`);
       await reload();
     } catch (err) {
-      setActionMsg(err instanceof Error ? err.message : "Re-score failed");
+      toast.error(err instanceof Error ? err.message : "Re-score failed");
     } finally {
       setBusy(false);
     }
@@ -316,7 +340,11 @@ export function LoadsTable() {
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    meta: { onEdit: openEdit, onDelete: handleDelete } satisfies LoadsTableMeta,
+    meta: {
+      onView: setDrawerLoad,
+      onEdit: openEdit,
+      onDelete: handleDelete,
+    } satisfies LoadsTableMeta,
   });
 
   const columnCount = useMemo(() => columns.length, []);
@@ -388,12 +416,6 @@ export function LoadsTable() {
         </div>
       </div>
 
-      {actionMsg && (
-        <p className="mb-3 rounded-lg border border-border bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
-          {actionMsg}
-        </p>
-      )}
-
       {formOpen && (
         <NewLoadForm
           key={editingLoad?.id ?? "new"}
@@ -401,7 +423,7 @@ export function LoadsTable() {
           onSaved={() => {
             const wasEdit = Boolean(editingLoad);
             closeForm();
-            setActionMsg(wasEdit ? "Load updated." : "Load created.");
+            toast.success(wasEdit ? "Load updated." : "Load created.");
             void reload();
           }}
           onCancel={closeForm}
@@ -466,6 +488,8 @@ export function LoadsTable() {
           </TableBody>
         </Table>
       </div>
+
+      <LoadDrawer load={drawerLoad} onClose={() => setDrawerLoad(null)} />
     </>
   );
 }

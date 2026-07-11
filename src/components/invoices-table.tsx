@@ -8,6 +8,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 
+import { useToast, useConfirm } from "@/components/admin/feedback";
+
 import {
   Table,
   TableBody,
@@ -322,13 +324,14 @@ function InvoiceEditForm({
 
 export function InvoicesTable() {
   const { getToken } = useAuth();
+  const toast = useToast();
+  const confirm = useConfirm();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<Invoice | null>(null);
   const [busy, setBusy] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
     try {
@@ -347,17 +350,22 @@ export function InvoicesTable() {
   }, [reload]);
 
   async function handleDelete(invoice: Invoice) {
-    if (!window.confirm(`Delete invoice ${invoice.invoice_number}?`)) return;
+    const ok = await confirm({
+      title: `Delete invoice ${invoice.invoice_number}?`,
+      body: "This permanently removes the invoice record.",
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
     setBusy(true);
-    setMsg(null);
     try {
       const token = await getToken();
       await deleteInvoice(token, invoice.id);
       if (editing?.id === invoice.id) setEditing(null);
-      setMsg("Invoice deleted.");
+      toast.success("Invoice deleted.");
       await reload();
     } catch (err) {
-      setMsg(err instanceof Error ? err.message : "Delete failed");
+      toast.error(err instanceof Error ? err.message : "Delete failed");
     } finally {
       setBusy(false);
     }
@@ -365,14 +373,13 @@ export function InvoicesTable() {
 
   async function handleSend(invoice: Invoice) {
     setBusy(true);
-    setMsg(null);
     try {
       const token = await getToken();
       const updated = await sendInvoice(token, invoice.id);
-      setMsg(`Invoice ${updated.invoice_number} sent.`);
+      toast.success(`Invoice ${updated.invoice_number} sent with PDF attached.`);
       await reload();
     } catch (err) {
-      setMsg(err instanceof Error ? err.message : "Send failed");
+      toast.error(err instanceof Error ? err.message : "Send failed");
     } finally {
       setBusy(false);
     }
@@ -380,13 +387,12 @@ export function InvoicesTable() {
 
   async function handleSweep() {
     setBusy(true);
-    setMsg(null);
     try {
       const n = await sweepOverdueInvoices(await getToken());
-      setMsg(n === 0 ? "No invoices are overdue." : `${n} invoice(s) marked overdue.`);
+      toast.info(n === 0 ? "No invoices are overdue." : `${n} invoice(s) marked overdue.`);
       await reload();
     } catch (err) {
-      setMsg(err instanceof Error ? err.message : "Sweep failed");
+      toast.error(err instanceof Error ? err.message : "Sweep failed");
     } finally {
       setBusy(false);
     }
@@ -395,11 +401,10 @@ export function InvoicesTable() {
   // Auth-gated file actions (open PDF in a tab, download CSV, email a reminder).
   async function withBusy(action: () => Promise<void>, failMsg: string) {
     setBusy(true);
-    setMsg(null);
     try {
       await action();
     } catch (err) {
-      setMsg(err instanceof Error ? err.message : failMsg);
+      toast.error(err instanceof Error ? err.message : failMsg);
     } finally {
       setBusy(false);
     }
@@ -409,7 +414,7 @@ export function InvoicesTable() {
     await withBusy(async () => {
       const token = await getToken();
       await remindInvoice(token, invoice.id);
-      setMsg(`Payment reminder sent for ${invoice.invoice_number}.`);
+      toast.success(`Payment reminder sent for ${invoice.invoice_number}.`);
     }, "Reminder failed");
   }
 
@@ -471,13 +476,11 @@ export function InvoicesTable() {
           <code>http://localhost:8000</code>?
         </p>
       )}
-      {msg && <p className="mb-3 text-sm text-muted-foreground">{msg}</p>}
-
       {creating && (
         <InvoiceCreateForm
           onSaved={() => {
             setCreating(false);
-            setMsg("Invoice created.");
+            toast.success("Invoice created.");
             void reload();
           }}
           onCancel={() => setCreating(false)}
@@ -489,7 +492,7 @@ export function InvoicesTable() {
           invoice={editing}
           onSaved={() => {
             setEditing(null);
-            setMsg("Invoice updated.");
+            toast.success("Invoice updated.");
             void reload();
           }}
           onCancel={() => setEditing(null)}

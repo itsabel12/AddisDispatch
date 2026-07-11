@@ -340,6 +340,31 @@ export async function sweepOverdueInvoices(
   return ((await res.json()) as { marked_overdue: number }).marked_overdue;
 }
 
+// --- Global record search (⌘K palette) -------------------------------------
+
+/** One record match from the global search endpoint. */
+export type SearchHit = {
+  type: "load" | "carrier" | "broker" | "invoice";
+  id: string;
+  label: string;
+  sublabel: string | null;
+  href: string;
+};
+
+/** Search loads/carriers/brokers/invoices for a query string. */
+export async function searchRecords(
+  token: string | null,
+  q: string,
+): Promise<SearchHit[]> {
+  if (q.trim().length < 2) return [];
+  const res = await fetch(`${ADMIN_BASE_URL}/search?q=${encodeURIComponent(q)}`, {
+    cache: "no-store",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) throw new Error(`Search failed (HTTP ${res.status})`);
+  return (await res.json()) as SearchHit[];
+}
+
 // --- Authenticated file downloads (PDFs, CSVs) -----------------------------
 
 /** Fetch an auth-gated file as a blob (endpoints require the Bearer token). */
@@ -1027,6 +1052,19 @@ export async function getDocuments(
 ): Promise<IntakeDocument[]> {
   const qs = status ? `?status=${status}` : "";
   const res = await fetch(`${ADMIN_BASE_URL}/documents${qs}`, {
+    cache: "no-store",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) throw new Error(`Failed to fetch documents (HTTP ${res.status})`);
+  return (await res.json()) as IntakeDocument[];
+}
+
+/** Documents linked to a specific load (rate con, POD, receipts…). */
+export async function getLoadDocuments(
+  token: string | null,
+  loadId: string,
+): Promise<IntakeDocument[]> {
+  const res = await fetch(`${ADMIN_BASE_URL}/documents?load_id=${loadId}`, {
     cache: "no-store",
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   });

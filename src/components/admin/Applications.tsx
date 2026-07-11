@@ -12,6 +12,7 @@ import {
 } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
 import { Badge } from "@/components/ui/badge";
+import { useToast, useConfirm } from "@/components/admin/feedback";
 
 const STATUS_TONE: Record<string, "accent" | "info" | "success" | "neutral"> = {
   new: "accent",
@@ -26,10 +27,11 @@ const fmtDate = (iso: string) => iso.slice(0, 10);
 
 export function Applications() {
   const { getToken } = useAuth();
+  const toast = useToast();
+  const confirm = useConfirm();
   const [applications, setApplications] = useState<CarrierApplication[]>([]);
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>("all");
   const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
 
@@ -51,30 +53,43 @@ export function Applications() {
   }, [reload]);
 
   async function onStatus(app: CarrierApplication, status: string) {
+    if (status === "declined") {
+      const ok = await confirm({
+        title: `Decline ${app.company_name}?`,
+        body: "You can still onboard them later from the Declined filter.",
+        confirmLabel: "Decline",
+        destructive: true,
+      });
+      if (!ok) return;
+    }
     setBusyId(app.id);
-    setMessage(null);
     try {
       await setApplicationStatus(await getToken(), app.id, status);
+      toast.success(`${app.company_name} marked ${status}.`);
       await reload();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Update failed.");
+      toast.error(e instanceof Error ? e.message : "Update failed.");
     } finally {
       setBusyId(null);
     }
   }
 
   async function onOnboard(app: CarrierApplication) {
+    const ok = await confirm({
+      title: `Onboard ${app.company_name}?`,
+      body: "This creates a carrier record and emails the onboarding document packet.",
+      confirmLabel: "Onboard",
+    });
+    if (!ok) return;
     setBusyId(app.id);
-    setMessage(null);
-    setError(null);
     try {
       const carrier = await onboardApplication(await getToken(), app.id);
-      setMessage(
-        `${carrier.name} created as a carrier — onboarding packet emailed. Set their pay profile in Carriers.`,
+      toast.success(
+        `${carrier.name} created — onboarding packet emailed. Set their pay profile in Carriers.`,
       );
       await reload();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Onboard failed.");
+      toast.error(e instanceof Error ? e.message : "Onboard failed.");
     } finally {
       setBusyId(null);
     }
@@ -110,7 +125,6 @@ export function Applications() {
           {error}
         </p>
       )}
-      {message && <p className="mb-4 text-sm text-success">{message}</p>}
 
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading…</p>
