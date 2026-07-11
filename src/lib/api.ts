@@ -933,6 +933,8 @@ export type ChatMessage = {
   latitude: number | null;
   longitude: number | null;
   attachment_document_id: string | null;
+  attachment_filename: string | null;
+  attachment_content_type: string | null;
 };
 
 export type ChatMessageInput = {
@@ -972,6 +974,41 @@ export async function postLoadMessage(
   });
   if (!res.ok) throw new Error(`Send failed (HTTP ${res.status})`);
   return (await res.json()) as ChatMessage;
+}
+
+/** Dispatcher: upload a chat attachment; returns the stored document. */
+export async function uploadAdminChatAttachment(
+  token: string | null,
+  loadId: string,
+  file: File,
+): Promise<IntakeDocument> {
+  const body = new FormData();
+  body.append("file", file);
+  const res = await fetch(`${ADMIN_BASE_URL}/loads/${loadId}/chat-attachment`, {
+    method: "POST",
+    cache: "no-store",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body,
+  });
+  if (!res.ok) {
+    let detail = `HTTP ${res.status}`;
+    try {
+      const b = await res.json();
+      if (b?.detail) detail = String(b.detail);
+    } catch {
+      // keep status
+    }
+    throw new Error(detail);
+  }
+  return (await res.json()) as IntakeDocument;
+}
+
+/** Dispatcher: open a chat attachment (fetches with auth, opens in a new tab). */
+export async function openAdminAttachment(
+  token: string | null,
+  documentId: string,
+): Promise<void> {
+  await openAuthedPdf(token, `/documents/${documentId}/content`);
 }
 
 /** Dispatcher: total unread carrier messages (for the Command Center badge). */

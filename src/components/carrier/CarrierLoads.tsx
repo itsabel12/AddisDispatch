@@ -8,6 +8,8 @@ import {
   uploadPod,
   getMyLoadMessages,
   postMyLoadMessage,
+  uploadMyChatAttachment,
+  openMyAttachment,
 } from "@/lib/carrier-api";
 import type { Load } from "@/lib/api";
 import {
@@ -182,6 +184,8 @@ export function CarrierLoads() {
                 role="carrier"
                 list={getMyLoadMessages}
                 send={postMyLoadMessage}
+                uploadAttachment={uploadMyChatAttachment}
+                openAttachment={openMyAttachment}
               />
             </div>
           </div>

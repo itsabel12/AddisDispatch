@@ -173,7 +173,7 @@ export function getMyLoadMessages(
   return getJson<ChatMessage[]>(`/loads/${loadId}/messages`, token);
 }
 
-/** Carrier: post a message (text / location) to a load's thread. */
+/** Carrier: post a message (text / location / attachment) to a load's thread. */
 export async function postMyLoadMessage(
   token: string | null,
   loadId: string,
@@ -190,4 +190,46 @@ export async function postMyLoadMessage(
   });
   if (!res.ok) throw new Error(`Send failed (HTTP ${res.status})`);
   return (await res.json()) as ChatMessage;
+}
+
+/** Carrier: upload a chat attachment for one of their loads; returns its id. */
+export async function uploadMyChatAttachment(
+  token: string | null,
+  loadId: string,
+  file: File,
+): Promise<{ id: string; filename: string; content_type: string }> {
+  const body = new FormData();
+  body.append("file", file);
+  const res = await fetch(`${CARRIER_BASE_URL}/loads/${loadId}/chat-attachment`, {
+    method: "POST",
+    cache: "no-store",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body,
+  });
+  if (!res.ok) {
+    let detail = `HTTP ${res.status}`;
+    try {
+      const b = await res.json();
+      if (b?.detail) detail = String(b.detail);
+    } catch {
+      // keep status
+    }
+    throw new Error(detail);
+  }
+  return (await res.json()) as { id: string; filename: string; content_type: string };
+}
+
+/** Carrier: open a chat attachment (fetches with auth, opens in a new tab). */
+export async function openMyAttachment(
+  token: string | null,
+  documentId: string,
+): Promise<void> {
+  const res = await fetch(`${CARRIER_BASE_URL}/documents/${documentId}/content`, {
+    cache: "no-store",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) throw new Error(`Could not open attachment (HTTP ${res.status})`);
+  const url = URL.createObjectURL(await res.blob());
+  window.open(url, "_blank", "noopener");
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }

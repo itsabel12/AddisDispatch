@@ -26,15 +26,16 @@ export default function CarrierLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <ClerkProvider>
-      <div className="portal-scope flex min-h-screen flex-col bg-background text-foreground">
-        <header className="flex items-center justify-between border-b border-border px-6 py-3">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="text-sm font-semibold tracking-tight">
-              Addis<span className="text-accent">Dispatch</span>
-              <span className="ml-2 font-normal text-muted-foreground">
+      <div className="portal-scope dispatch-light flex min-h-screen flex-col bg-background text-foreground">
+        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-border bg-card/90 px-4 py-3 backdrop-blur sm:px-6">
+          <div className="flex min-w-0 items-center gap-6">
+            <Link href="/" className="shrink-0 text-sm font-semibold tracking-tight">
+              Addis<span className="text-accentDeep">Dispatch</span>
+              <span className="ml-2 hidden font-normal text-muted-foreground sm:inline">
                 Carrier Portal
               </span>
             </Link>
+            {/* Desktop nav */}
             <nav className="hidden gap-4 text-sm text-muted-foreground sm:flex">
               {nav.map((item) => (
                 <Link
@@ -49,6 +50,20 @@ export default function CarrierLayout({
           </div>
           <HeaderAuth />
         </header>
+
+        {/* Mobile nav — horizontally scrollable pill row, shown under the header. */}
+        <nav className="flex gap-2 overflow-x-auto border-b border-border bg-card/60 px-4 py-2 sm:hidden">
+          {nav.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="shrink-0 rounded-full border border-border px-3 py-1 text-xs font-medium text-muted-foreground hover:text-foreground"
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+
         {children}
       </div>
     </ClerkProvider>

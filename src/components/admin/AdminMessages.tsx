@@ -8,6 +8,8 @@ import {
   getLoadMessages,
   postLoadMessage,
   summarizeThread,
+  uploadAdminChatAttachment,
+  openAdminAttachment,
   type Load,
 } from "@/lib/api";
 import { LoadChat } from "@/components/chat/LoadChat";
@@ -88,6 +90,8 @@ export function AdminMessages() {
               list={getLoadMessages}
               send={postLoadMessage}
               summarize={summarizeThread}
+              uploadAttachment={uploadAdminChatAttachment}
+              openAttachment={openAdminAttachment}
             />
           ) : (
             <div className="flex h-full items-center justify-center text-sm text-muted-foreground">

@@ -13,6 +13,8 @@ export function LoadChat({
   list,
   send,
   summarize,
+  uploadAttachment,
+  openAttachment,
 }: {
   loadId: string;
   role: ClientRole;
@@ -23,6 +25,12 @@ export function LoadChat({
     input: ChatMessageInput,
   ) => Promise<ChatMessage>;
   summarize?: (token: string | null, loadId: string) => Promise<string>;
+  uploadAttachment?: (
+    token: string | null,
+    loadId: string,
+    file: File,
+  ) => Promise<{ id: string }>;
+  openAttachment?: (token: string | null, documentId: string) => Promise<void>;
 }) {
   const { getToken } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -31,6 +39,7 @@ export function LoadChat({
   const [error, setError] = useState<string | null>(null);
   const [summary, setSummary] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const reload = useCallback(async () => {
     try {
@@ -68,6 +77,37 @@ export function LoadChat({
     e.preventDefault();
     if (!text.trim()) return;
     void doSend({ body: text.trim() });
+  }
+
+  async function onPickAttachment(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !uploadAttachment) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const token = await getToken();
+      const doc = await uploadAttachment(token, loadId, file);
+      await send(token, loadId, {
+        body: text.trim() || null,
+        attachment_document_id: doc.id,
+      });
+      setText("");
+      await reload();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Attachment failed.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function viewAttachment(documentId: string) {
+    if (!openAttachment) return;
+    try {
+      await openAttachment(await getToken(), documentId);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not open attachment.");
+    }
   }
 
   function shareLocation() {
@@ -133,6 +173,20 @@ export function LoadChat({
                   }`}
                 >
                   {m.body && <p className="whitespace-pre-wrap">{m.body}</p>}
+                  {m.attachment_document_id && (
+                    <button
+                      type="button"
+                      onClick={() => viewAttachment(m.attachment_document_id!)}
+                      className={`mt-1 flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium ${
+                        mine ? "bg-black/10 hover:bg-black/20" : "bg-muted hover:bg-muted/70"
+                      }`}
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-3.5">
+                        <path d="M21 8v10a4 4 0 0 1-8 0V6a2.5 2.5 0 0 1 5 0v10a1 1 0 0 1-2 0V8" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      {m.attachment_filename ?? "Attachment"}
+                    </button>
+                  )}
                   {m.latitude != null && m.longitude != null && (
                     <a
                       href={`https://maps.google.com/?q=${m.latitude},${m.longitude}`}
@@ -168,6 +222,26 @@ export function LoadChat({
         >
           📍
         </button>
+        {uploadAttachment && (
+          <>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="application/pdf,image/png,image/jpeg,image/webp"
+              className="hidden"
+              onChange={onPickAttachment}
+            />
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              disabled={busy}
+              title="Attach a photo or PDF"
+              className="rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted disabled:opacity-50"
+            >
+              📎
+            </button>
+          </>
+        )}
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
