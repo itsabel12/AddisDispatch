@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/ui/page-header";
 import { IconChip } from "@/components/carrier/ui";
+import { FileText } from "@/components/icons";
 
 const DOC_TYPES = [
   { value: "w9", label: "W-9", hint: "Taxpayer identification form" },
@@ -21,11 +22,7 @@ const DOC_TYPES = [
 
 const fmtDate = (iso: string | null) => (iso ? iso.slice(0, 10) : null);
 
-const docIcon = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-[18px]">
-    <path d="M8 3h6l4 4v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" /><path d="M14 3v4h4" />
-  </svg>
-);
+const docIcon = <FileText size={18} />;
 
 export function CarrierDocuments() {
   const { getToken } = useAuth();

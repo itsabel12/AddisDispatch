@@ -2,6 +2,7 @@
 
 import Reveal from "./Reveal";
 import { openBooking, openLegal } from "@/lib/overlay";
+import { Check, X, Star } from "@/components/icons";
 
 type Feature = { label: string; included: boolean };
 
@@ -92,8 +93,9 @@ export default function Pricing() {
                 }`}
               >
                 {tier.popular && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-accent px-4 py-1 text-xs font-semibold text-black">
-                    ⚡ Most Popular
+                  <span className="absolute -top-3 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-accent px-4 py-1 text-xs font-semibold text-black">
+                    <Star size={14} />
+                    Most Popular
                   </span>
                 )}
 
@@ -116,11 +118,11 @@ export default function Pricing() {
                   {tier.features.map((f) => (
                     <li key={f.label} className="flex items-start gap-2.5 text-sm">
                       <span
-                        className={`mt-0.5 flex-none font-bold ${
+                        className={`mt-0.5 flex-none ${
                           f.included ? "text-success" : "text-inkMuted/40"
                         }`}
                       >
-                        {f.included ? "✓" : "✗"}
+                        {f.included ? <Check size={16} /> : <X size={16} />}
                       </span>
                       <span
                         className={

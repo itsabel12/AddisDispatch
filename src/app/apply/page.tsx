@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import Logo from "@/components/Logo";
+import { Check } from "@/components/icons";
 import CarrierApplicationForm from "@/components/CarrierApplicationForm";
 
 export const metadata: Metadata = {
@@ -63,8 +64,8 @@ export default function ApplyPage() {
             <ul className="mt-10 space-y-6">
               {BENEFITS.map((b) => (
                 <li key={b.title} className="flex gap-4">
-                  <span className="mt-1 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/15 text-xs font-bold text-accent">
-                    ✓
+                  <span className="mt-1 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent">
+                    <Check size={14} />
                   </span>
                   <div>
                     <h3 className="text-sm font-semibold text-ink">{b.title}</h3>

@@ -25,14 +25,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/carrier/ui";
+import { Package } from "@/components/icons";
 import { LoadChat } from "@/components/chat/LoadChat";
 import { money, lane, formatDate } from "@/components/carrier/format";
 
-const truckIcon = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-5">
-    <path d="M3 6h11v9H3z" /><path d="M14 9h4l3 3v3h-7z" /><circle cx="7" cy="18" r="1.6" /><circle cx="17" cy="18" r="1.6" />
-  </svg>
-);
+const truckIcon = <Package size={22} />;
 
 const actionBtn =
   "rounded-lg border border-border px-2.5 py-1 text-xs font-medium transition-colors hover:border-accent hover:text-accentDeep disabled:opacity-50";

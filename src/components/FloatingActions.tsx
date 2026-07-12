@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { openBooking } from "@/lib/overlay";
-import { ArrowUpIcon } from "./icons";
+import { ArrowUpIcon, MessageCircle } from "./icons";
 
 export default function FloatingActions() {
   const [scrollY, setScrollY] = useState(0);
@@ -24,10 +24,11 @@ export default function FloatingActions() {
         href="https://wa.me/15550000000"
         target="_blank"
         rel="noopener noreferrer"
-        title="WhatsApp"
-        className="fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-success text-2xl shadow-lg transition-transform hover:scale-110"
+        title="Chat on WhatsApp"
+        aria-label="Chat on WhatsApp"
+        className="fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-success text-white shadow-lg transition-transform hover:scale-110"
       >
-        💬
+        <MessageCircle size={22} />
       </a>
 
       {/* Back to top */}

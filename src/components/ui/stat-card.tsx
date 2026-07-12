@@ -2,6 +2,7 @@ import * as React from "react";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
+import { ArrowUp, ArrowRight } from "@/components/icons";
 
 /**
  * StatCard — the KPI tile of the dashboard (label, big number, optional trend
@@ -58,7 +59,13 @@ export function StatCard({
                 delta.direction === "flat" && "text-muted-foreground",
               )}
             >
-              {delta.direction === "up" ? "↑" : delta.direction === "down" ? "↓" : "→"}
+              {delta.direction === "up" ? (
+                <ArrowUp size={14} />
+              ) : delta.direction === "down" ? (
+                <ArrowUp size={14} className="rotate-180" />
+              ) : (
+                <ArrowRight size={14} />
+              )}
               {delta.value}
             </span>
           )}

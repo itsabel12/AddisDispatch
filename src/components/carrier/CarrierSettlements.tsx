@@ -17,13 +17,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/carrier/ui";
+import { Receipt } from "@/components/icons";
 import { money, formatDate } from "@/components/carrier/format";
 
-const receiptIcon = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-5">
-    <path d="M6 3h12v18l-3-1.5L12 21l-3-1.5L6 21z" /><path d="M9 8h6M9 12h6" />
-  </svg>
-);
+const receiptIcon = <Receipt size={22} />;
 
 export function CarrierSettlements() {
   const { getToken } = useAuth();

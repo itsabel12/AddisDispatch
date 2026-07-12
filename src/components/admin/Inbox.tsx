@@ -14,6 +14,7 @@ import {
 } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
 import { useToast } from "@/components/admin/feedback";
+import { Check } from "@/components/icons";
 
 const CLASS_STYLE: Record<string, string> = {
   load_tender: "border-accent/40 bg-accent/10 text-accent",
@@ -149,7 +150,9 @@ export function Inbox() {
                       {email.classification.replace(/_/g, " ")}
                     </span>
                     {email.status === "handled" && (
-                      <span className="text-[10px] text-muted-foreground">✓ handled</span>
+                      <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
+                        <Check size={12} /> handled
+                      </span>
                     )}
                   </div>
                   <p className="mt-0.5 text-xs text-muted-foreground">{email.from_address}</p>

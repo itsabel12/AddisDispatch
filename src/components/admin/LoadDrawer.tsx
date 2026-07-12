@@ -17,6 +17,7 @@ import {
 } from "@/lib/api";
 import { StatusBadge } from "@/components/ui/badge";
 import { useToast } from "@/components/admin/feedback";
+import { X } from "@/components/icons";
 
 const money = (n: number | null) =>
   n == null
@@ -99,9 +100,7 @@ export function LoadDrawer({ load, onClose }: { load: Load | null; onClose: () =
               aria-label="Close"
               className="grid size-8 place-items-center rounded-lg text-muted-foreground hover:bg-muted"
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-4">
-                <path d="M18 6 6 18M6 6l12 12" strokeLinecap="round" />
-              </svg>
+              <X size={16} />
             </button>
           </div>
         </header>

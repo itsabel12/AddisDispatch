@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Check, TrendingUp, Dollar, Truck } from "@/components/icons";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -203,8 +204,9 @@ export default function Tracker() {
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <Reveal>
             <div className="rounded-2xl border border-line bg-surface/50 p-6 backdrop-blur-md">
-              <h4 className="mb-4 font-display text-sm font-semibold text-ink">
-                📈 Revenue Per Mile — Weekly Trend
+              <h4 className="mb-4 flex items-center gap-2 font-display text-sm font-semibold text-ink">
+                <TrendingUp size={18} className="text-accent" />
+                Revenue Per Mile — Weekly Trend
               </h4>
               <div className="h-60">
                 <Line
@@ -233,8 +235,9 @@ export default function Tracker() {
 
           <Reveal delay={90}>
             <div className="rounded-2xl border border-line bg-surface/50 p-6 backdrop-blur-md">
-              <h4 className="mb-4 font-display text-sm font-semibold text-ink">
-                💵 Weekly Gross Revenue
+              <h4 className="mb-4 flex items-center gap-2 font-display text-sm font-semibold text-ink">
+                <Dollar size={18} className="text-accent" />
+                Weekly Gross Revenue
               </h4>
               <div className="h-60">
                 <Bar
@@ -261,7 +264,10 @@ export default function Tracker() {
         {/* Load history */}
         <Reveal delay={120}>
           <div className="mt-6 overflow-hidden rounded-2xl border border-line bg-surface/50 p-6 backdrop-blur-md">
-            <h4 className="mb-4 font-display text-sm font-semibold text-ink">🚛 Recent Load History</h4>
+            <h4 className="mb-4 flex items-center gap-2 font-display text-sm font-semibold text-ink">
+              <Truck size={18} className="text-accent" />
+              Recent Load History
+            </h4>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[760px] text-left text-sm">
                 <thead>
@@ -290,7 +296,9 @@ export default function Tracker() {
                       </td>
                       <td className="py-3 pr-4">
                         {l.dh === 0 ? (
-                          <span className="font-medium text-success">0 mi ✓</span>
+                          <span className="inline-flex items-center gap-1 font-medium text-success">
+                            0 mi <Check size={14} />
+                          </span>
                         ) : (
                           `${l.dh} mi`
                         )}

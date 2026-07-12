@@ -38,6 +38,7 @@ import {
 import { NewLoadForm } from "@/components/new-load-form";
 import { LoadDrawer } from "@/components/admin/LoadDrawer";
 import { useToast, useConfirm } from "@/components/admin/feedback";
+import { ChevronDown } from "@/components/icons";
 
 /** Handlers passed to the table so the actions column can call them. */
 type LoadsTableMeta = {
@@ -451,9 +452,11 @@ export function LoadsTable() {
                           header.column.columnDef.header,
                           header.getContext(),
                         )}
-                        {{ asc: "▲", desc: "▼" }[
-                          header.column.getIsSorted() as string
-                        ] ?? null}
+                        {header.column.getIsSorted() === "asc" ? (
+                          <ChevronDown size={14} className="rotate-180" />
+                        ) : header.column.getIsSorted() === "desc" ? (
+                          <ChevronDown size={14} />
+                        ) : null}
                       </span>
                     )}
                   </TableHead>

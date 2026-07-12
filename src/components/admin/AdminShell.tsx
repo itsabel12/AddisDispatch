@@ -8,6 +8,7 @@ import { CommandPalette } from "@/components/admin/CommandPalette";
 import { AssistantWidget } from "@/components/admin/AssistantWidget";
 import { AdminFeedbackProvider } from "@/components/admin/feedback";
 import { TruckMark } from "@/components/Logo";
+import { Search, Bell } from "@/components/icons";
 
 function openPalette() {
   // CommandPalette listens for ⌘K / Ctrl-K on window; synthesize it so the
@@ -56,10 +57,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             onClick={openPalette}
             className="hidden h-9 flex-1 items-center gap-2 rounded-xl border border-border bg-background px-3 text-sm text-muted-foreground transition-colors hover:border-accent/40 sm:flex sm:max-w-sm"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-4">
-              <circle cx="11" cy="11" r="7" />
-              <path d="m20 20-3-3" strokeLinecap="round" />
-            </svg>
+            <Search size={16} />
             Search or jump to…
             <kbd className="ml-auto rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium">
               ⌘K
@@ -72,10 +70,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               aria-label="Alerts"
               className="grid size-9 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-5">
-                <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M13.7 21a2 2 0 0 1-3.4 0" strokeLinecap="round" />
-              </svg>
+              <Bell size={20} />
             </Link>
           </div>
         </header>

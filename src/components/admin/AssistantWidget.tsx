@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 
 import { askAssistant } from "@/lib/api";
+import { X, Sparkles } from "@/components/icons";
 
 type Turn = { role: "you" | "ai"; text: string };
 
@@ -44,7 +45,7 @@ export function AssistantWidget() {
         className="fixed bottom-5 right-5 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-accent text-black shadow-lg transition-transform hover:scale-105"
         aria-label="AI assistant"
       >
-        {open ? "×" : "✦"}
+        {open ? <X size={20} /> : <Sparkles size={20} />}
       </button>
 
       {open && (

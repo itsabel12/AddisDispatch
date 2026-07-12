@@ -1,4 +1,5 @@
 import Reveal from "./Reveal";
+import { MapPin, Gauge, Clock, TrendingUp } from "@/components/icons";
 
 const aboutVals = [
   {
@@ -28,19 +29,19 @@ const stats = [
 
 const team = [
   {
-    emoji: "🎯",
+    icon: Gauge,
     title: "Results-First",
     role: "Our Core Focus",
     body: "We measure our success by your RPM and revenue — not our own metrics.",
   },
   {
-    emoji: "🤝",
+    icon: Clock,
     title: "Always Available",
     role: "24/7 Commitment",
     body: "Real support whenever you need it — day, night, weekends, or holidays.",
   },
   {
-    emoji: "📈",
+    icon: TrendingUp,
     title: "Constant Optimization",
     role: "Weekly Reviews",
     body: "We track your performance and make lane adjustments every week to grow your earnings.",
@@ -145,8 +146,9 @@ export default function About() {
                   ))}
                 </div>
 
-                <div className="inline-block rounded-full border border-accent/30 bg-accent/10 px-3 py-1.5 text-center text-xs font-medium text-accent">
-                  📍 Nationwide Coverage · All 48 States
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1.5 text-center text-xs font-medium text-accent">
+                  <MapPin size={14} />
+                  Nationwide Coverage · All 48 States
                 </div>
               </div>
 
@@ -154,13 +156,15 @@ export default function About() {
                 What Drives Us
               </p>
               <div className="mt-4 grid gap-4 sm:grid-cols-3">
-                {team.map((t) => (
+                {team.map((t) => {
+                  const Icon = t.icon;
+                  return (
                   <div
                     key={t.title}
                     className="rounded-2xl border border-line bg-surface/50 p-5 text-center backdrop-blur-md"
                   >
-                    <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full border border-accent/20 bg-accent/10 text-2xl">
-                      {t.emoji}
+                    <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full border border-accent/20 bg-accent/10 text-accent">
+                      <Icon size={22} />
                     </div>
                     <h4 className="font-display text-sm font-semibold text-ink">{t.title}</h4>
                     <div className="mt-0.5 text-xs font-medium text-accent">{t.role}</div>
@@ -168,7 +172,8 @@ export default function About() {
                       {t.body}
                     </p>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </Reveal>

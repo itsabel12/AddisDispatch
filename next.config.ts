@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Tree-shake the Tabler icon barrel so only used icons are bundled/compiled.
+  experimental: {
+    optimizePackageImports: ["@tabler/icons-react"],
+  },
 };
 
 export default nextConfig;

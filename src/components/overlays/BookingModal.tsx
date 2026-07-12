@@ -3,6 +3,7 @@
 import { useState } from "react";
 import ModalShell from "./ModalShell";
 import { createClient } from "@/lib/supabase/client";
+import { CircleCheck, Calendar, Phone } from "@/components/icons";
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -219,10 +220,15 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
 
         {step === 3 && (
           <div>
-            <div className="rounded-xl border border-accent/20 bg-accent/5 p-4 text-sm text-ink">
-              📅 {MONTHS[month]} {day}, {year} · {time}
-              <br />
-              📞 15-min phone consultation with a dispatcher
+            <div className="space-y-1.5 rounded-xl border border-accent/20 bg-accent/5 p-4 text-sm text-ink">
+              <p className="flex items-center gap-2">
+                <Calendar size={16} className="text-accentDeep" />
+                {MONTHS[month]} {day}, {year} · {time}
+              </p>
+              <p className="flex items-center gap-2">
+                <Phone size={16} className="text-accentDeep" />
+                15-min phone consultation with a dispatcher
+              </p>
             </div>
 
             <div className="mt-5 space-y-4">
@@ -286,7 +292,7 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
 
         {step === 4 && (
           <div className="py-4 text-center">
-            <div className="text-5xl">✅</div>
+            <CircleCheck size={56} className="mx-auto text-success" />
             <h3 className="mt-4 font-display text-xl font-semibold text-ink">You&apos;re Booked!</h3>
             <p className="mt-3 text-sm font-light leading-relaxed text-inkMuted">
               Your consultation is confirmed for{" "}

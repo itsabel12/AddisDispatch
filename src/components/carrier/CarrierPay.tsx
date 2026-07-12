@@ -17,18 +17,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatTile, EmptyState } from "@/components/carrier/ui";
+import { Wallet, Clock } from "@/components/icons";
 import { money, formatDate } from "@/components/carrier/format";
 
-const paidIcon = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-5">
-    <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-const pendingIcon = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-5">
-    <circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
+const paidIcon = <Wallet size={20} />;
+const pendingIcon = <Clock size={20} />;
 
 export function CarrierPay() {
   const { getToken } = useAuth();

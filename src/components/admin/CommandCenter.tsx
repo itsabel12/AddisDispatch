@@ -25,6 +25,7 @@ import {
   type ProfitabilityReport,
 } from "@/lib/api";
 import { useEventStream } from "@/lib/useEventStream";
+import { Package, TrendingUp, FileInvoice, Wallet } from "@/components/icons";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatCard } from "@/components/ui/stat-card";
@@ -48,27 +49,10 @@ const money = (n: number) =>
 
 // small inline icons for the KPI tiles
 const icon = {
-  truck: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-4">
-      <path d="M3 7h11v8H3zM14 10h4l3 3v2h-7z" strokeLinejoin="round" />
-      <circle cx="7" cy="17" r="1.3" /><circle cx="17" cy="17" r="1.3" />
-    </svg>
-  ),
-  profit: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-4">
-      <path d="M4 15l4-4 3 3 5-6" strokeLinecap="round" strokeLinejoin="round" /><path d="M16 8h4v4" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  ),
-  invoice: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-4">
-      <path d="M6 3h12v18l-3-1.5L12 21l-3-1.5L6 21z" /><path d="M9 8h6M9 12h6" strokeLinecap="round" />
-    </svg>
-  ),
-  wallet: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-4">
-      <rect x="3" y="6" width="18" height="13" rx="2" /><path d="M3 10h18" /><circle cx="17" cy="14" r="1" />
-    </svg>
-  ),
+  truck: <Package size={16} />,
+  profit: <TrendingUp size={16} />,
+  invoice: <FileInvoice size={16} />,
+  wallet: <Wallet size={16} />,
 };
 
 export function CommandCenter() {

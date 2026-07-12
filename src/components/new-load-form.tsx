@@ -9,6 +9,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
+import { InfoCircle } from "@/components/icons";
 
 import {
   createLoad,
@@ -306,8 +307,9 @@ export function NewLoadForm({
 
       {pricing && pricing.confidence !== "none" && pricing.suggested_rate != null && (
         <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-accent/30 bg-accent/5 px-3 py-2 text-sm">
-          <span className="font-medium">
-            💡 {oState}→{dState} suggested rate: ${pricing.suggested_rate.toLocaleString()}
+          <span className="flex items-center gap-1.5 font-medium">
+            <InfoCircle size={16} className="text-accentDeep" />
+            {oState}→{dState} suggested rate: ${pricing.suggested_rate.toLocaleString()}
           </span>
           {pricing.band_low != null && pricing.band_high != null && (
             <span className="text-xs text-muted-foreground">

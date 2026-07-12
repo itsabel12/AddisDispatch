@@ -17,53 +17,36 @@ import { UserButton, SignOutButton, useUser } from "@clerk/nextjs";
 
 import { cn } from "@/lib/utils";
 import { TruckMark } from "@/components/Logo";
+import {
+  LayoutGrid,
+  Package,
+  Receipt,
+  Wallet,
+  FileText,
+  User,
+  Sun,
+  Moon,
+  Menu,
+  Logout,
+  type IconProps,
+} from "@/components/icons";
 
-/* — compact 18px stroke icon set (currentColor) — */
-type Ico = (p: { className?: string }) => React.ReactElement;
-const svg = (path: React.ReactNode): Ico =>
-  function Icon({ className }) {
-    return (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={1.75}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className={cn("size-[18px]", className)}
-        aria-hidden
-      >
-        {path}
-      </svg>
-    );
-  };
-
-const I = {
-  grid: svg(<><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></>),
-  truck: svg(<><path d="M3 6h11v9H3z" /><path d="M14 9h4l3 3v3h-7z" /><circle cx="7" cy="18" r="1.6" /><circle cx="17" cy="18" r="1.6" /></>),
-  receipt: svg(<><path d="M6 3h12v18l-3-1.5L12 21l-3-1.5L6 21z" /><path d="M9 8h6M9 12h6" /></>),
-  wallet: svg(<><rect x="3" y="6" width="18" height="13" rx="2" /><path d="M3 10h18" /><circle cx="17" cy="14" r="1" /></>),
-  doc: svg(<><path d="M8 3h6l4 4v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" /><path d="M14 3v4h4" /><path d="M9 13h6M9 16h4" /></>),
-  user: svg(<><circle cx="12" cy="8" r="3.2" /><path d="M5 20a7 7 0 0 1 14 0" /></>),
-  sun: svg(<><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" /></>),
-  moon: svg(<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />),
-};
-
-type NavItem = { label: string; href: string; icon: Ico };
+type NavIcon = React.ComponentType<IconProps>;
+type NavItem = { label: string; href: string; icon: NavIcon };
 const GROUPS: { title: string; items: NavItem[] }[] = [
   {
     title: "Menu",
     items: [
-      { label: "Dashboard", href: "/carrier/dashboard", icon: I.grid },
-      { label: "My Loads", href: "/carrier/loads", icon: I.truck },
-      { label: "Settlements", href: "/carrier/settlements", icon: I.receipt },
-      { label: "Pay", href: "/carrier/pay", icon: I.wallet },
-      { label: "Documents", href: "/carrier/documents", icon: I.doc },
+      { label: "Dashboard", href: "/carrier/dashboard", icon: LayoutGrid },
+      { label: "My Loads", href: "/carrier/loads", icon: Package },
+      { label: "Settlements", href: "/carrier/settlements", icon: Receipt },
+      { label: "Pay", href: "/carrier/pay", icon: Wallet },
+      { label: "Documents", href: "/carrier/documents", icon: FileText },
     ],
   },
   {
     title: "Account",
-    items: [{ label: "Profile", href: "/carrier/profile", icon: I.user }],
+    items: [{ label: "Profile", href: "/carrier/profile", icon: User }],
   },
 ];
 
@@ -116,7 +99,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
                         : "text-muted-foreground hover:bg-muted hover:text-foreground",
                     )}
                   >
-                    <Icon className={active ? "text-accentDeep" : ""} />
+                    <Icon size={20} className={active ? "text-accentDeep" : ""} />
                     {item.label}
                   </Link>
                 </li>
@@ -139,7 +122,7 @@ function ThemeToggle({
   return (
     <div className="flex gap-1 rounded-xl border border-border bg-muted/40 p-1">
       {(["light", "dark"] as const).map((t) => {
-        const Icon = t === "light" ? I.sun : I.moon;
+        const Icon = t === "light" ? Sun : Moon;
         const active = theme === t;
         return (
           <button
@@ -153,7 +136,7 @@ function ThemeToggle({
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
-            <Icon className="size-3.5" />
+            <Icon size={16} />
             {t}
           </button>
         );
@@ -192,10 +175,7 @@ function SidebarBody({
             type="button"
             className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-[18px]" aria-hidden>
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M16 17l5-5-5-5M21 12H9" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <Logout size={18} />
             Log Out
           </button>
         </SignOutButton>
@@ -258,9 +238,7 @@ export function CarrierShell({ children }: { children: React.ReactNode }) {
             aria-label="Open menu"
             className="grid size-9 place-items-center rounded-lg border border-border text-muted-foreground hover:bg-muted"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-5">
-              <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" />
-            </svg>
+            <Menu size={20} />
           </button>
           <Link href="/carrier/dashboard" className="flex items-center gap-2 text-foreground">
             <TruckMark size={24} />

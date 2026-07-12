@@ -21,35 +21,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatTile, EmptyState } from "@/components/carrier/ui";
+import { Package, Truck, CircleCheck, Wallet, Clock } from "@/components/icons";
 import { money, lane, formatDate } from "@/components/carrier/format";
-
-const icons = {
-  loads: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-5">
-      <path d="M3 6h11v9H3z" /><path d="M14 9h4l3 3v3h-7z" /><circle cx="7" cy="18" r="1.6" /><circle cx="17" cy="18" r="1.6" />
-    </svg>
-  ),
-  transit: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-5">
-      <path d="M2 12h13M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  ),
-  delivered: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-5">
-      <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  ),
-  paid: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-5">
-      <rect x="3" y="6" width="18" height="13" rx="2" /><path d="M3 10h18" /><circle cx="17" cy="14" r="1" />
-    </svg>
-  ),
-  outstanding: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="size-5">
-      <circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  ),
-};
 
 const KPIS: {
   key: keyof CarrierSummary;
@@ -57,11 +30,11 @@ const KPIS: {
   icon: React.ReactNode;
   money?: boolean;
 }[] = [
-  { key: "total_loads", label: "Total Loads", icon: icons.loads },
-  { key: "in_transit", label: "In Transit", icon: icons.transit },
-  { key: "delivered", label: "Delivered", icon: icons.delivered },
-  { key: "paid_total", label: "Paid", icon: icons.paid, money: true },
-  { key: "outstanding_total", label: "Outstanding", icon: icons.outstanding, money: true },
+  { key: "total_loads", label: "Total Loads", icon: <Package size={20} /> },
+  { key: "in_transit", label: "In Transit", icon: <Truck size={20} /> },
+  { key: "delivered", label: "Delivered", icon: <CircleCheck size={20} /> },
+  { key: "paid_total", label: "Paid", icon: <Wallet size={20} />, money: true },
+  { key: "outstanding_total", label: "Outstanding", icon: <Clock size={20} />, money: true },
 ];
 
 const today = new Date().toLocaleDateString("en-US", {
@@ -138,7 +111,7 @@ export function CarrierDashboard() {
         <CardContent className="pt-2">
           {recent.length === 0 ? (
             <EmptyState
-              icon={icons.loads}
+              icon={<Package size={22} />}
               title={loading ? "Loading…" : "No loads assigned yet"}
               body={loading ? undefined : "Loads your dispatcher assigns to you will appear here."}
             />

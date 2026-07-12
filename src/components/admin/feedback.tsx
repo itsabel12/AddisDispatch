@@ -22,6 +22,8 @@ import {
   type ReactNode,
 } from "react";
 
+import { CircleCheck, AlertTriangle, InfoCircle, X } from "@/components/icons";
+
 // --- Toasts -----------------------------------------------------------------
 
 type ToastVariant = "success" | "error" | "info";
@@ -48,23 +50,9 @@ const VARIANT_STYLES: Record<ToastVariant, string> = {
 };
 
 const VARIANT_ICON: Record<ToastVariant, ReactNode> = {
-  success: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-4">
-      <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  ),
-  error: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-4">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 8v5M12 16h.01" strokeLinecap="round" />
-    </svg>
-  ),
-  info: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-4">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 11v5M12 8h.01" strokeLinecap="round" />
-    </svg>
-  ),
+  success: <CircleCheck size={18} />,
+  error: <AlertTriangle size={18} />,
+  info: <InfoCircle size={18} />,
 };
 
 // --- Confirm dialog ---------------------------------------------------------
@@ -145,9 +133,7 @@ export function AdminFeedbackProvider({ children }: { children: ReactNode }) {
                 className="shrink-0 opacity-60 transition-opacity hover:opacity-100"
                 aria-label="Dismiss"
               >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-3.5">
-                  <path d="M18 6 6 18M6 6l12 12" strokeLinecap="round" />
-                </svg>
+                <X size={16} />
               </button>
             </div>
           ))}
