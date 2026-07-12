@@ -24,10 +24,10 @@ export default function Timeline() {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-accent">
+            <p className="mb-4 text-[0.6875rem] font-semibold uppercase tracking-[0.3em] text-accent">
               How It Works
             </p>
-            <h2 className="font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">
+            <h2 className="font-display text-4xl font-semibold leading-[1.1] tracking-[-0.02em] text-balance text-ink sm:text-5xl">
               Three steps to a data-run dispatch
             </h2>
           </div>

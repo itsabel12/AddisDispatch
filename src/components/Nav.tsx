@@ -32,42 +32,48 @@ export default function Nav() {
         scrolled ? "border-b border-line bg-base/80 backdrop-blur-md" : "bg-transparent"
       }`}
     >
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
-        <a href="#top" aria-label="AddisDispatch home">
-          <Logo />
-        </a>
+      <nav className="mx-auto flex max-w-7xl items-center justify-between gap-8 px-6 py-5 lg:px-10">
+        {/* Left cluster: logo + primary navigation, with clear separation. */}
+        <div className="flex items-center gap-8 xl:gap-14">
+          <a href="#top" aria-label="AddisDispatch home" className="shrink-0">
+            <Logo />
+          </a>
 
-        <ul className="hidden items-center gap-7 lg:flex">
-          {links.map((link) => (
-            <li key={link.href}>
-              <a
-                href={link.href}
-                className="text-sm font-medium text-inkMuted transition-colors hover:text-ink"
-              >
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
+          <ul className="hidden items-center gap-7 lg:flex xl:gap-9">
+            {links.map((link) => (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  className="text-[0.9375rem] font-medium tracking-tight text-inkMuted transition-colors hover:text-ink"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-        <div className="flex items-center gap-3">
-          <Link
-            href="/admin/login"
-            className="hidden rounded-lg border border-line px-3.5 py-2 text-xs font-semibold text-inkMuted transition-colors hover:border-accent hover:text-accent lg:inline-flex"
-          >
-            Dispatcher Login
-          </Link>
-          <Link
-            href="/carrier/login"
-            className="hidden items-center gap-1.5 rounded-lg border border-line px-3.5 py-2 text-xs font-semibold text-inkMuted transition-colors hover:border-accent hover:text-accent lg:inline-flex"
-          >
-            <UserIcon width={15} height={15} />
-            Carrier Login
-          </Link>
+        {/* Right cluster: secondary logins as ghost links + one primary CTA. */}
+        <div className="flex items-center gap-6">
+          <div className="hidden items-center gap-6 lg:flex">
+            <Link
+              href="/admin/login"
+              className="text-[0.9375rem] font-medium tracking-tight text-inkMuted transition-colors hover:text-ink"
+            >
+              Dispatcher Login
+            </Link>
+            <Link
+              href="/carrier/login"
+              className="flex items-center gap-1.5 text-[0.9375rem] font-medium tracking-tight text-inkMuted transition-colors hover:text-ink"
+            >
+              <UserIcon width={16} height={16} />
+              Carrier Login
+            </Link>
+          </div>
 
           <a
             href="#contact"
-            className="hidden rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-black transition-all hover:bg-accentDeep hover:shadow-[0_0_24px_-6px] hover:shadow-accent/70 lg:inline-block"
+            className="hidden rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold tracking-tight text-black transition-all hover:bg-accentDeep hover:shadow-[0_0_24px_-6px] hover:shadow-accent/70 lg:inline-block"
           >
             Request Dispatch
           </a>

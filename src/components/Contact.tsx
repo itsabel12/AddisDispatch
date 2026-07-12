@@ -8,10 +8,10 @@ export default function Contact() {
         <div className="grid gap-16 lg:grid-cols-2 lg:gap-12">
           <Reveal>
             <div>
-              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-accent">
+              <p className="mb-4 text-[0.6875rem] font-semibold uppercase tracking-[0.3em] text-accent">
                 Request Dispatch
               </p>
-              <h2 className="font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">
+              <h2 className="font-display text-4xl font-semibold leading-[1.1] tracking-[-0.02em] text-balance text-ink sm:text-5xl">
                 Put your fleet on data
               </h2>
               <p className="mt-5 max-w-md text-base font-light leading-relaxed text-inkMuted">

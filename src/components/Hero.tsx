@@ -35,18 +35,18 @@ export default function Hero() {
 
       <div className="mx-auto w-full max-w-7xl px-6 pt-28 pb-20 lg:px-8">
         <div className="max-w-2xl">
-          <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-surface/60 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.2em] text-accent backdrop-blur">
+          <p className="mb-7 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-surface/60 px-4 py-1.5 text-[0.6875rem] font-semibold uppercase tracking-[0.28em] text-accent backdrop-blur">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
             Data-Driven Freight Dispatch
           </p>
 
-          <h1 className="font-display text-5xl font-bold leading-[1.04] tracking-tight text-ink sm:text-6xl lg:text-7xl">
+          <h1 className="font-display text-[2.75rem] font-bold leading-[1.02] tracking-[-0.035em] text-ink text-balance sm:text-6xl lg:text-[5.25rem]">
             Dispatch,
             <br />
             <span className="text-accent">Engineered by Data</span>
           </h1>
 
-          <p className="mt-7 max-w-xl text-lg font-light leading-relaxed text-inkMuted sm:text-xl">
+          <p className="mt-7 max-w-xl text-lg font-light leading-relaxed text-inkMuted text-pretty sm:text-xl">
             We run dispatch like a data operation. Route optimization, cost-per-mile
             intelligence, and on-time performance tracking keep your trucks earning —
             decisions driven by analytics, not guesswork.
@@ -70,8 +70,8 @@ export default function Hero() {
           <div className="mt-10 flex flex-wrap gap-3">
             {sideStats.map((s) => (
               <div key={s.l} className="rounded-xl border border-line bg-surface/60 px-5 py-3 backdrop-blur">
-                <div className="font-display text-2xl font-bold text-ink">{s.v}</div>
-                <div className="text-xs text-inkMuted">{s.l}</div>
+                <div className="font-display text-2xl font-bold tracking-tight tabular-nums text-ink">{s.v}</div>
+                <div className="mt-0.5 text-xs font-medium tracking-wide text-inkMuted">{s.l}</div>
               </div>
             ))}
           </div>

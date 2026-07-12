@@ -31,13 +31,13 @@ export default function DataEdge() {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-accent">
+            <p className="mb-4 text-[0.6875rem] font-semibold uppercase tracking-[0.3em] text-accent">
               The Data Edge
             </p>
-            <h2 className="font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">
+            <h2 className="font-display text-4xl font-semibold leading-[1.1] tracking-[-0.02em] text-balance text-ink sm:text-5xl">
               Intelligence is the advantage
             </h2>
-            <p className="mt-5 text-base font-light leading-relaxed text-inkMuted">
+            <p className="mt-5 text-base font-light leading-relaxed text-pretty text-inkMuted">
               Our edge isn&apos;t tenure — it&apos;s analysis. Here&apos;s how we
               approach dispatch as a data operation, built to compound efficiency
               load over load.

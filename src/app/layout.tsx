@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Space_Grotesk, Manrope, Bricolage_Grotesque, Hanken_Grotesk } from "next/font/google";
+import { Bricolage_Grotesque, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 
 // Canonical site origin (override per-environment). Used for metadataBase,
@@ -9,23 +9,8 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://addisdispatch.com"
 // Cookieless Plausible analytics — only loads when a domain is configured.
 const PLAUSIBLE_DOMAIN = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
 
-// Marketing display — geometric, techy headings
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-space",
-  display: "swap",
-});
-
-// Marketing body / UI / numerals
-const manrope = Manrope({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
-  variable: "--font-manrope",
-  display: "swap",
-});
-
-// Dispatcher portal display — characterful grotesque for headings & big numbers
+// Display — a distinctive editorial grotesque for headlines & big numbers,
+// across both the marketing site and the dispatcher portal.
 const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
@@ -33,7 +18,7 @@ const bricolage = Bricolage_Grotesque({
   display: "swap",
 });
 
-// Dispatcher portal body — warm, highly legible humanist sans for dense data
+// Body — warm, highly legible humanist sans for copy and dense data.
 const hanken = Hanken_Grotesk({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
@@ -91,9 +76,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${spaceGrotesk.variable} ${manrope.variable} ${bricolage.variable} ${hanken.variable}`}
+      className={`${bricolage.variable} ${hanken.variable}`}
     >
-      <body className="bg-aerial min-h-screen bg-base font-sans text-ink antialiased">
+      <body className="bg-aerial min-h-screen bg-base font-sans text-ink antialiased [text-rendering:optimizeLegibility]">
         {children}
         {PLAUSIBLE_DOMAIN && (
           <Script

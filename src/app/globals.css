@@ -18,8 +18,11 @@
   --color-danger: #f2545b;
   --color-info: #2f6fed; /* informational states (portal; overridden in .portal-scope) */
 
-  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-space), ui-sans-serif, system-ui, sans-serif;
+  /* Marketing type pairing: a distinctive editorial grotesque for display
+     (Bricolage Grotesque) over a warm, highly-legible humanist body (Hanken
+     Grotesk). One premium system shared with the portal for brand cohesion. */
+  --font-sans: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
 
   /* Dispatcher portal type pairing (light redesign):
      font-heading = Bricolage Grotesque, font-body = Hanken Grotesk. */

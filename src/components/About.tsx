@@ -56,10 +56,10 @@ export default function About() {
           {/* Left: narrative + values */}
           <Reveal>
             <div>
-              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-accent">
+              <p className="mb-4 text-[0.6875rem] font-semibold uppercase tracking-[0.3em] text-accent">
                 About Us
               </p>
-              <h2 className="font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">
+              <h2 className="font-display text-4xl font-semibold leading-[1.1] tracking-[-0.02em] text-balance text-ink sm:text-5xl">
                 Your Dedicated Freight Dispatch Partner
               </h2>
 

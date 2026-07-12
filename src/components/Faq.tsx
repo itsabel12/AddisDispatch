@@ -12,10 +12,10 @@ export default function Faq() {
       <div className="mx-auto max-w-3xl px-6 lg:px-8">
         <Reveal>
           <div className="text-center">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-accent">
+            <p className="mb-4 text-[0.6875rem] font-semibold uppercase tracking-[0.3em] text-accent">
               Got Questions?
             </p>
-            <h2 className="font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">
+            <h2 className="font-display text-4xl font-semibold leading-[1.1] tracking-[-0.02em] text-balance text-ink sm:text-5xl">
               Frequently Asked Questions
             </h2>
           </div>
