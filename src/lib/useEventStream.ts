@@ -27,8 +27,12 @@ type Handlers = Record<string, EventHandler>;
 export function useEventStream(handlers: Handlers, enabled = true) {
   const { getToken } = useAuth();
   // Keep the latest handlers without re-opening the stream on every render.
+  // Sync in a commit-phase effect (not during render) so the stream loop always
+  // reads the freshest handlers via the ref.
   const handlersRef = useRef<Handlers>(handlers);
-  handlersRef.current = handlers;
+  useEffect(() => {
+    handlersRef.current = handlers;
+  });
 
   useEffect(() => {
     if (!enabled) return;

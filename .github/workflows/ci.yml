@@ -18,6 +18,11 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Install dependencies
         run: npm ci
+      # Lint gates the build. Fails only on eslint *errors* — the intentional
+      # set-state-in-effect / incompatible-library patterns are warnings (see
+      # eslint.config.mjs) and don't block CI.
+      - name: Lint
+        run: npm run lint
       # Build first: it generates next-env.d.ts (gitignored), which declares
       # the image-module types tsc needs. The build type-checks as it goes.
       - name: Build
