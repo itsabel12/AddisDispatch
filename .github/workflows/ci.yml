@@ -34,3 +34,55 @@ jobs:
         run: npm run build
       - name: Type-check
         run: npx tsc --noEmit
+
+  # Playwright E2E. The app's middleware and portal pages need a *real* Clerk
+  # publishable + secret test key at runtime, so this job is a green no-op until
+  # those are added as repo secrets (see e2e/README.md). Once present it runs the
+  # public + auth-guard specs; add the E2E_*_EMAIL/PASSWORD secrets to also run
+  # the credential-gated onboarding + invoicing flows.
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for Clerk test keys
+        id: cfg
+        env:
+          PK: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+        run: |
+          if [ -n "$PK" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::E2E skipped — add NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY + CLERK_SECRET_KEY repo secrets to enable (see e2e/README.md)."
+          fi
+      - uses: actions/setup-node@v4
+        if: steps.cfg.outputs.enabled == 'true'
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install dependencies
+        if: steps.cfg.outputs.enabled == 'true'
+        run: npm ci
+      - name: Install Playwright browser
+        if: steps.cfg.outputs.enabled == 'true'
+        run: npx playwright install --with-deps chromium
+      - name: Run E2E
+        if: steps.cfg.outputs.enabled == 'true'
+        env:
+          CI: "true"
+          NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          E2E_CARRIER_EMAIL: ${{ secrets.E2E_CARRIER_EMAIL }}
+          E2E_CARRIER_PASSWORD: ${{ secrets.E2E_CARRIER_PASSWORD }}
+          E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
+          E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+        run: npx playwright test
+      - name: Upload Playwright report
+        if: steps.cfg.outputs.enabled == 'true' && !cancelled()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
