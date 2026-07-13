@@ -7,7 +7,6 @@ import { useAuth } from "@clerk/nextjs";
 import {
   getDocuments,
   uploadDocument,
-  getDocument,
   fetchDocumentPreview,
   approveDocument,
   rejectDocument,

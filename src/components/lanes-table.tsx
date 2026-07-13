@@ -5,9 +5,6 @@
  * best average rpm first).
  */
 
-import { useCallback, useEffect, useState } from "react";
-import { useAuth } from "@clerk/nextjs";
-
 import {
   Table,
   TableBody,
@@ -17,6 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getLanes, type LaneStat } from "@/lib/api";
+import { useQuery } from "@/lib/useQuery";
 
 const COLS = 4;
 
@@ -30,26 +28,8 @@ function money(value: number | null): string {
 }
 
 export function LanesTable() {
-  const { getToken } = useAuth();
-  const [lanes, setLanes] = useState<LaneStat[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const reload = useCallback(async () => {
-    try {
-      setError(null);
-      const token = await getToken();
-      setLanes(await getLanes(token));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
-    } finally {
-      setLoading(false);
-    }
-  }, [getToken]);
-
-  useEffect(() => {
-    void reload();
-  }, [reload]);
+  const { data, loading, error } = useQuery<LaneStat[]>(getLanes);
+  const lanes = data ?? [];
 
   return (
     <>

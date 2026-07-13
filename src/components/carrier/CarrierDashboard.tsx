@@ -1,14 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useAuth, useUser } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 
 import {
   getMyLoads,
   getMySummary,
   type CarrierSummary,
 } from "@/lib/carrier-api";
-import type { Load } from "@/lib/api";
+import { useQuery } from "@/lib/useQuery";
 import {
   Table,
   TableBody,
@@ -45,31 +44,16 @@ const today = new Date().toLocaleDateString("en-US", {
 });
 
 export function CarrierDashboard() {
-  const { getToken } = useAuth();
   const { user } = useUser();
-  const [summary, setSummary] = useState<CarrierSummary | null>(null);
-  const [loads, setLoads] = useState<Load[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const token = await getToken();
-      const [s, l] = await Promise.all([getMySummary(token), getMyLoads(token)]);
-      setSummary(s);
-      setLoads(l);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load your dashboard.");
-    } finally {
-      setLoading(false);
-    }
-  }, [getToken]);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
+  const { data, loading, error } = useQuery(
+    async (token) => {
+      const [summary, loads] = await Promise.all([getMySummary(token), getMyLoads(token)]);
+      return { summary, loads };
+    },
+    { fallbackError: "Failed to load your dashboard." },
+  );
+  const summary: CarrierSummary | null = data?.summary ?? null;
+  const loads = data?.loads ?? [];
 
   const recent = loads.slice(0, 8);
 

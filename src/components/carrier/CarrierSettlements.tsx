@@ -1,10 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useAuth } from "@clerk/nextjs";
-
 import { getMyInvoices } from "@/lib/carrier-api";
 import type { Invoice } from "@/lib/api";
+import { useQuery } from "@/lib/useQuery";
 import {
   Table,
   TableBody,
@@ -23,26 +21,10 @@ import { money, formatDate } from "@/components/carrier/format";
 const receiptIcon = <Receipt size={22} />;
 
 export function CarrierSettlements() {
-  const { getToken } = useAuth();
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const reload = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      setInvoices(await getMyInvoices(await getToken()));
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load your settlements.");
-    } finally {
-      setLoading(false);
-    }
-  }, [getToken]);
-
-  useEffect(() => {
-    void reload();
-  }, [reload]);
+  const { data, loading, error } = useQuery<Invoice[]>(getMyInvoices, {
+    fallbackError: "Failed to load your settlements.",
+  });
+  const invoices = data ?? [];
 
   return (
     <main className="mx-auto w-full max-w-6xl p-5 lg:p-8">

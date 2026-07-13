@@ -176,5 +176,4 @@ export const BoxIcon = wrap(IconBox, "BoxIcon");
 export const LayersIcon = wrap(IconStack2, "LayersIcon");
 export const SnowflakeIcon = wrap(IconSnowflake, "SnowflakeIcon");
 export const ZapIcon = wrap(IconBolt, "ZapIcon");
-export const PhoneIcon = Phone;
 export const ArrowUpIcon = ArrowUp;

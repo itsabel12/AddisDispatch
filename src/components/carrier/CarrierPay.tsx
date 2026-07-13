@@ -1,10 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useAuth } from "@clerk/nextjs";
-
 import { getMyPay } from "@/lib/carrier-api";
 import type { PayrollItem } from "@/lib/api";
+import { useQuery } from "@/lib/useQuery";
 import {
   Table,
   TableBody,
@@ -24,25 +22,10 @@ const paidIcon = <Wallet size={20} />;
 const pendingIcon = <Clock size={20} />;
 
 export function CarrierPay() {
-  const { getToken } = useAuth();
-  const [items, setItems] = useState<PayrollItem[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const reload = useCallback(async () => {
-    setLoading(true);
-    try {
-      setItems(await getMyPay(await getToken()));
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load your pay.");
-    } finally {
-      setLoading(false);
-    }
-  }, [getToken]);
-
-  useEffect(() => {
-    void reload();
-  }, [reload]);
+  const { data, loading, error } = useQuery<PayrollItem[]>(getMyPay, {
+    fallbackError: "Failed to load your pay.",
+  });
+  const items = data ?? [];
 
   const paidTotal = items
     .filter((i) => i.status === "paid")

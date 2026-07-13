@@ -8,6 +8,7 @@ import { CommandPalette } from "@/components/admin/CommandPalette";
 import { AssistantWidget } from "@/components/admin/AssistantWidget";
 import { AdminFeedbackProvider } from "@/components/admin/feedback";
 import { TruckMark } from "@/components/Logo";
+import { SkipLink } from "@/components/ui/skip-link";
 import { Search, Bell } from "@/components/icons";
 
 function openPalette() {
@@ -39,6 +40,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   return (
     <AdminFeedbackProvider>
     <div className="portal-scope dispatch-light flex min-h-screen bg-background text-foreground">
+      <SkipLink />
       <Sidebar mobileOpen={drawer.mobileOpen} onClose={drawer.close} />
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -75,7 +77,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <div className="min-w-0 flex-1">{children}</div>
+        {/* Skip-link focus target. Each page supplies its own <main> landmark,
+            so this stays a <div> to avoid nesting two <main> elements. */}
+        <div id="main-content" tabIndex={-1} className="min-w-0 flex-1 outline-none">
+          {children}
+        </div>
       </div>
 
       <CommandPalette />

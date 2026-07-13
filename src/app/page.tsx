@@ -17,13 +17,15 @@ import Footer from "@/components/Footer";
 import FloatingActions from "@/components/FloatingActions";
 import Overlays from "@/components/overlays/Overlays";
 import StructuredData from "@/components/StructuredData";
+import { SkipLink } from "@/components/ui/skip-link";
 
 export default function Home() {
   return (
     <>
+      <SkipLink />
       <StructuredData />
       <Nav />
-      <main>
+      <main id="main-content" tabIndex={-1} className="outline-none">
         <Hero />
         <Value />
         <DataEdge />

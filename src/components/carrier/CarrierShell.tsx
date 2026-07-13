@@ -16,6 +16,7 @@ import { usePathname } from "next/navigation";
 import { UserButton, SignOutButton, useUser } from "@clerk/nextjs";
 
 import { cn } from "@/lib/utils";
+import { SkipLink } from "@/components/ui/skip-link";
 import { TruckMark } from "@/components/Logo";
 import {
   LayoutGrid,
@@ -215,6 +216,7 @@ export function CarrierShell({ children }: { children: React.ReactNode }) {
         theme === "light" && "dispatch-light",
       )}
     >
+      <SkipLink />
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-border bg-card lg:flex">
         <SidebarBody theme={theme} setTheme={setTheme} />
@@ -248,7 +250,11 @@ export function CarrierShell({ children }: { children: React.ReactNode }) {
           </Link>
         </header>
 
-        <div className="min-w-0 flex-1">{children}</div>
+        {/* Skip-link focus target. Each carrier page supplies its own <main>
+            landmark, so this stays a <div> to avoid nesting two <main>. */}
+        <div id="main-content" tabIndex={-1} className="min-w-0 flex-1 outline-none">
+          {children}
+        </div>
       </div>
     </div>
   );

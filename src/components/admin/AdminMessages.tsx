@@ -1,7 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useState } from "react";
 
 import {
   getLoads,
@@ -15,29 +14,16 @@ import {
 } from "@/lib/api";
 import { LoadChat } from "@/components/chat/LoadChat";
 import { PageHeader } from "@/components/ui/page-header";
+import { useQuery } from "@/lib/useQuery";
 
 export function AdminMessages() {
-  const { getToken } = useAuth();
-  const [loads, setLoads] = useState<Load[]>([]);
+  // Threads exist per load; surface only loads that have a carrier assigned.
+  const { data, loading, error } = useQuery<Load[]>(
+    async (token) => (await getLoads(token)).filter((l) => l.carrier_id),
+    { fallbackError: "Failed to load loads." },
+  );
+  const loads = data ?? [];
   const [selected, setSelected] = useState<Load | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const reload = useCallback(async () => {
-    try {
-      const all = await getLoads(await getToken());
-      // Threads exist per load; surface loads that have a carrier assigned.
-      setLoads(all.filter((l) => l.carrier_id));
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load loads.");
-    } finally {
-      setLoading(false);
-    }
-  }, [getToken]);
-
-  useEffect(() => {
-    void reload();
-  }, [reload]);
 
   return (
     <main className="mx-auto w-full max-w-7xl p-5 lg:p-8">
