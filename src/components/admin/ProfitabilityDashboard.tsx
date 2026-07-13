@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
 import {
   Chart as ChartJS,
@@ -85,11 +86,13 @@ export function ProfitabilityDashboard() {
   const t = report?.totals;
   const kpis = [
     { label: "Revenue", value: money(t?.revenue), accent: false },
-    { label: "Gross Profit", value: money(t?.gross_profit), accent: true },
-    { label: "Margin", value: pct(t?.margin), accent: true },
-    { label: "Profit / Mile", value: perMile(t?.profit_per_mile), accent: false },
+    { label: "Gross Profit", value: money(t?.gross_profit), accent: false },
+    { label: "Operating Expenses", value: money(t?.operating_expenses), accent: false },
+    { label: "Net Profit", value: money(t?.net_profit), accent: true },
+    { label: "Net Margin", value: pct(t?.net_margin), accent: true },
     { label: "Loads", value: t ? String(t.load_count) : "—", accent: false },
   ];
+  const expenseBreakdown = report?.expenses_by_category ?? [];
 
   const axis = {
     grid: { color: GRID },
@@ -169,8 +172,8 @@ export function ProfitabilityDashboard() {
         </p>
       )}
 
-      {/* KPI cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      {/* KPI cards — the P&L story: revenue → gross → less overhead → net. */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {kpis.map((k) => (
           <div key={k.label} className="rounded-xl border border-border bg-card p-5">
             <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -218,6 +221,44 @@ export function ProfitabilityDashboard() {
             options={trendOptions}
           />
         </div>
+      </div>
+
+      {/* Operating expenses → the bridge from gross to net profit. */}
+      <div className="mt-6 rounded-xl border border-border bg-card p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-sm font-semibold">Operating Expenses (Overhead)</h2>
+          <Link
+            href="/admin/expenses"
+            className="text-xs font-medium text-accent hover:underline"
+          >
+            Manage expenses →
+          </Link>
+        </div>
+        {expenseBreakdown.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            {loading
+              ? "—"
+              : "No overhead recorded for this period. Add operating expenses (insurance, software, factoring fees) to see true net profit."}
+          </p>
+        ) : (
+          <ul className="mx-auto max-w-md">
+            {expenseBreakdown.map((e) => (
+              <li
+                key={e.category}
+                className="flex items-center justify-between border-b border-border py-2 text-sm"
+              >
+                <span className="capitalize text-muted-foreground">{e.category}</span>
+                <span className="font-medium tabular-nums">{money(e.amount)}</span>
+              </li>
+            ))}
+            <li className="flex items-center justify-between pt-2.5 text-sm font-semibold">
+              <span>Total overhead</span>
+              <span className="tabular-nums text-danger">
+                −{money(t?.operating_expenses)}
+              </span>
+            </li>
+          </ul>
+        )}
       </div>
 
       {/* Customer + lane rankings */}

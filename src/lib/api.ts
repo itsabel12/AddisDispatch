@@ -1031,7 +1031,13 @@ export type ProfitTotals = {
   load_count: number;
   revenue_per_mile: number | null;
   profit_per_mile: number | null;
+  operating_expenses: number;
+  net_profit: number;
+  net_margin: number | null;
 };
+
+/** One operating-expense category's total, for the P&L breakdown. */
+export type ExpenseGroup = { category: string; amount: number };
 
 /** One day of the revenue/profit trend series. */
 export type TrendPoint = { date: string; revenue: number; profit: number };
@@ -1057,6 +1063,7 @@ export type ProfitabilityReport = {
   least_profitable_customers: GroupProfit[];
   best_lanes: GroupProfit[];
   worst_lanes: GroupProfit[];
+  expenses_by_category: ExpenseGroup[];
 };
 
 export type ProfitabilityPeriod = "today" | "week" | "month";
@@ -1069,6 +1076,92 @@ export async function getProfitability(
   return adminRequest<ProfitabilityReport>(`/profitability?period=${period}`, {
     token,
     errorFallback: "Failed to fetch profitability",
+  });
+}
+
+// --- Operating expenses (P&L overhead) -------------------------------------
+
+/** Operating-expense categories (mirror of the backend enum). */
+export const EXPENSE_CATEGORIES = [
+  "insurance",
+  "software",
+  "factoring",
+  "office",
+  "phone",
+  "marketing",
+  "professional",
+  "wages",
+  "fuel",
+  "maintenance",
+  "other",
+] as const;
+export type ExpenseCategory = (typeof EXPENSE_CATEGORIES)[number];
+
+/** An operating expense (overhead not tied to a load). */
+export type Expense = {
+  id: string;
+  incurred_on: string; // ISO date (YYYY-MM-DD)
+  category: ExpenseCategory;
+  description: string;
+  amount: number;
+  vendor: string | null;
+  recurring: boolean;
+  notes: string | null;
+  created_at: string;
+};
+
+/** Create/update payload for an expense. */
+export type ExpenseInput = {
+  incurred_on: string;
+  category: ExpenseCategory;
+  description: string;
+  amount: number;
+  vendor?: string | null;
+  recurring?: boolean;
+  notes?: string | null;
+};
+
+/** List operating expenses, most recently incurred first. */
+export async function getExpenses(token: string | null): Promise<Expense[]> {
+  return adminRequest<Expense[]>("/expenses", {
+    token,
+    errorFallback: "Failed to load expenses",
+  });
+}
+
+/** Record a new operating expense. */
+export async function createExpense(
+  token: string | null,
+  input: ExpenseInput,
+): Promise<Expense> {
+  return adminRequest<Expense>("/expenses", {
+    method: "POST",
+    body: input,
+    token,
+    errorFallback: "Could not save the expense",
+  });
+}
+
+/** Update an operating expense. */
+export async function updateExpense(
+  token: string | null,
+  id: string,
+  input: ExpenseInput,
+): Promise<Expense> {
+  return adminRequest<Expense>(`/expenses/${id}`, {
+    method: "PUT",
+    body: input,
+    token,
+    errorFallback: "Could not update the expense",
+  });
+}
+
+/** Delete an operating expense. */
+export async function deleteExpense(token: string | null, id: string): Promise<void> {
+  await adminRequest<void>(`/expenses/${id}`, {
+    method: "DELETE",
+    token,
+    errorFallback: "Could not delete the expense",
   });
 }
 

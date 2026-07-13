@@ -14,6 +14,7 @@ import {
   ClipboardCheck,
   FileInvoice,
   Wallet,
+  Receipt,
   ChartBar,
   UserPlus,
   Building,
@@ -48,6 +49,7 @@ const GROUPS: { title: string; items: NavItem[] }[] = [
     items: [
       { label: "Invoices", href: "/admin/invoices", icon: FileInvoice },
       { label: "Payroll", href: "/admin/payroll", icon: Wallet },
+      { label: "Expenses", href: "/admin/expenses", icon: Receipt },
       { label: "Profitability", href: "/admin/profitability", icon: ChartBar },
     ],
   },
