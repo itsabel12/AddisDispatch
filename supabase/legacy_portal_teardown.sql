@@ -68,19 +68,38 @@ drop function if exists public.tg_notifications_email()                cascade;
 drop function if exists public.run_daily_expiry()                      cascade;
 drop function if exists public.send_transactional_email(text,text,text) cascade;
 
--- 5. Storage: remove the private carrier-documents bucket + its policies.
+-- 5. Storage POLICIES on the private carrier-documents bucket (DDL — allowed).
+--    The bucket itself and its objects CANNOT be removed here: Supabase blocks
+--    direct DELETE FROM storage.objects / storage.buckets (a protect_delete
+--    trigger). Empty + delete the bucket via the Storage API or the dashboard
+--    instead — see "Storage bucket" below. Dropping these policies via SQL is
+--    fine (it's DDL, not a row delete).
 drop policy if exists "carrier docs select" on storage.objects;
 drop policy if exists "carrier docs insert" on storage.objects;
 drop policy if exists "carrier docs update" on storage.objects;
 drop policy if exists "carrier docs delete" on storage.objects;
-delete from storage.objects where bucket_id = 'carrier-documents';
-delete from storage.buckets where id = 'carrier-documents';
 
 -- NOTE: extensions pg_net and pg_cron are intentionally left installed — they
 -- are project-wide and may be used by other features. Remove them manually only
 -- if you are certain nothing else depends on them.
 
 commit;
+
+-- ============================================================
+-- Storage bucket (run OUTSIDE this SQL — it can't be done in the SQL editor)
+--
+-- The private `carrier-documents` bucket holds only seed/test files. Remove it
+-- one of two ways:
+--
+--   A) Dashboard: Storage → carrier-documents → select all → Delete, then
+--      delete the (now empty) bucket.
+--
+--   B) Storage API (service key), e.g.:
+--        curl -X POST  "$SUPABASE_URL/storage/v1/bucket/carrier-documents/empty" \
+--             -H "Authorization: Bearer $SERVICE_KEY" -H "apikey: $SERVICE_KEY"
+--        curl -X DELETE "$SUPABASE_URL/storage/v1/bucket/carrier-documents" \
+--             -H "Authorization: Bearer $SERVICE_KEY" -H "apikey: $SERVICE_KEY"
+-- ============================================================
 
 -- Optional: if the Resend key was stored in Supabase Vault only for the portal
 -- email trigger, you can remove it (run separately, outside this transaction):
