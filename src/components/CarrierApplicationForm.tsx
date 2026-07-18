@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { CheckIcon } from "./icons";
-import { createClient } from "@/lib/supabase/client";
+import TurnstileWidget, { turnstileConfigured } from "./TurnstileWidget";
 
 type Fields = {
   company: string;
@@ -54,6 +54,8 @@ export default function CarrierApplicationForm() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = useState(0);
 
   function validate(values: Fields): Errors {
     const next: Errors = {};
@@ -82,26 +84,37 @@ export default function CarrierApplicationForm() {
     setErrors(found);
     if (Object.keys(found).length > 0) return;
 
+    if (turnstileConfigured && !captchaToken) {
+      setSubmitError("Please complete the verification below.");
+      return;
+    }
+
     setSubmitting(true);
     setSubmitError(null);
 
-    const supabase = createClient();
-    const { error } = await supabase.from("carrier_applications").insert({
-      company_name: fields.company.trim(),
-      contact_name: fields.contact.trim(),
-      email: fields.email.trim(),
-      phone: fields.phone.trim() || null,
-      mc_number: fields.mc.trim() || null,
-      dot_number: fields.dot.trim() || null,
-      equipment_type: fields.equipment || null,
-      truck_count: fields.trucks ? Number(fields.trucks) : null,
-      preferred_lanes: fields.lanes.trim() || null,
-      notes: fields.notes.trim() || null,
+    const res = await fetch("/api/leads/carrier-application", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        company_name: fields.company.trim(),
+        contact_name: fields.contact.trim(),
+        email: fields.email.trim(),
+        phone: fields.phone.trim() || null,
+        mc_number: fields.mc.trim() || null,
+        dot_number: fields.dot.trim() || null,
+        equipment_type: fields.equipment || null,
+        truck_count: fields.trucks ? Number(fields.trucks) : null,
+        preferred_lanes: fields.lanes.trim() || null,
+        notes: fields.notes.trim() || null,
+        turnstileToken: captchaToken,
+      }),
     });
 
     setSubmitting(false);
+    setCaptchaToken(null);
+    setCaptchaReset((n) => n + 1);
 
-    if (error) {
+    if (!res.ok) {
       setSubmitError("Something went wrong submitting your application. Please try again.");
       return;
     }
@@ -210,6 +223,8 @@ export default function CarrierApplicationForm() {
           className={`${inputClass} resize-none`}
         />
       </div>
+
+      <TurnstileWidget onVerify={setCaptchaToken} resetSignal={captchaReset} />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <button
