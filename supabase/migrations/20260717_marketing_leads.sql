@@ -16,8 +16,16 @@
 --
 -- Column set below was reconstructed from the live project (verified via the
 -- PostgREST OpenAPI schema on 2026-07-17). RLS reflects the documented intent
--- — anonymous browser clients may INSERT leads but not read them back. VERIFY
--- against the live project's policies before applying to a fresh environment.
+-- — anonymous browser clients may INSERT leads but not read them back.
+--
+-- Live read-path VERIFIED 2026-07-17: with the publishable/anon key, SELECT on
+-- all three tables returns zero rows even though dispatch_requests and
+-- consultations hold real records (confirmed against the service role) — RLS is
+-- enabled and denies anon reads. However, the live tables were also observed to
+-- still hold table-level UPDATE/DELETE GRANTs for `anon` (PATCH/DELETE returned
+-- 204, not 401), which is broader than this write-only intent. The explicit
+-- REVOKE below tightens a fresh baseline; run the same REVOKE against the live
+-- project (Supabase SQL editor) to reconcile — see the PR description.
 --
 -- Idempotent: safe to re-run. Intended as the reproducible baseline for a fresh
 -- Supabase project; it does not alter the existing live tables (IF NOT EXISTS).
@@ -68,7 +76,12 @@ alter table public.carrier_applications enable row level security;
 alter table public.dispatch_requests    enable row level security;
 alter table public.consultations         enable row level security;
 
--- The publishable/anon key is the `anon` role. Grant INSERT only.
+-- The publishable/anon key is the `anon` role. Start from zero privileges so no
+-- default GRANT (SELECT/UPDATE/DELETE) can slip through, then grant INSERT only.
+revoke all on public.carrier_applications from anon;
+revoke all on public.dispatch_requests    from anon;
+revoke all on public.consultations         from anon;
+
 grant insert on public.carrier_applications to anon;
 grant insert on public.dispatch_requests    to anon;
 grant insert on public.consultations         to anon;
