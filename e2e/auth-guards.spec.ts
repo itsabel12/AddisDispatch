@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 /**
- * Authentication gate. Verifies the Clerk middleware (src/proxy.ts) redirects
+ * Authentication gate. Verifies the Clerk middleware (src/middleware.ts) redirects
  * unauthenticated visitors away from both portals to the correct login, and
  * that the login pages themselves render. No credentials required — this is the
  * security half of the "auth flow" E2E.

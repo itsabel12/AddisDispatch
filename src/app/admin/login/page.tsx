@@ -73,8 +73,10 @@ export default function AdminLoginPage() {
 
   useEffect(() => {
     if (!isLoaded || !isSignedIn || !user) return;
+    // Canonical admin role value is "admin" (matches middleware, RequireAdmin,
+    // and the backend). "Dispatcher" is human-facing copy, not a role value.
     const role = (user.publicMetadata as { role?: string })?.role;
-    if (role === "admin" || role === "dispatcher") {
+    if (role === "admin") {
       router.replace("/admin/dashboard");
     } else {
       setWrongRole(true);
