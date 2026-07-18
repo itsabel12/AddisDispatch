@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import ModalShell from "./ModalShell";
-import { createClient } from "@/lib/supabase/client";
+import TurnstileWidget, { turnstileConfigured } from "@/components/TurnstileWidget";
 import { CircleCheck, Calendar, Phone } from "@/components/icons";
 
 const MONTHS = [
@@ -26,6 +26,8 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
   const [errors, setErrors] = useState<{ name?: boolean; phone?: boolean }>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = useState(0);
 
   function prevMonth() {
     if (month === 0) {
@@ -55,21 +57,32 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
     setErrors(next);
     if (next.name || next.phone || day === null || !time) return;
 
+    if (turnstileConfigured && !captchaToken) {
+      setSubmitError("Please complete the verification below.");
+      return;
+    }
+
     setSubmitting(true);
     setSubmitError(null);
 
     const scheduledDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    const supabase = createClient();
-    const { error } = await supabase.from("consultations").insert({
-      name: name.trim(),
-      phone: phone.trim(),
-      scheduled_date: scheduledDate,
-      scheduled_time: time,
+    const res = await fetch("/api/leads/consultation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: name.trim(),
+        phone: phone.trim(),
+        scheduled_date: scheduledDate,
+        scheduled_time: time,
+        turnstileToken: captchaToken,
+      }),
     });
 
     setSubmitting(false);
+    setCaptchaToken(null);
+    setCaptchaReset((n) => n + 1);
 
-    if (error) {
+    if (!res.ok) {
       setSubmitError("Couldn't confirm your booking. Please try again.");
       return;
     }
@@ -262,6 +275,10 @@ export default function BookingModal({ onClose }: { onClose: () => void }) {
                   }`}
                 />
               </div>
+            </div>
+
+            <div className="mt-4">
+              <TurnstileWidget onVerify={setCaptchaToken} resetSignal={captchaReset} />
             </div>
 
             {submitError && (

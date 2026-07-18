@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { CheckIcon } from "./icons";
-import { createClient } from "@/lib/supabase/client";
+import TurnstileWidget, { turnstileConfigured } from "./TurnstileWidget";
 
 type Fields = {
   name: string;
@@ -24,6 +24,8 @@ export default function ContactForm() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = useState(0);
 
   function validate(values: Fields): Errors {
     const next: Errors = {};
@@ -50,21 +52,32 @@ export default function ContactForm() {
     setErrors(found);
     if (Object.keys(found).length > 0) return;
 
+    if (turnstileConfigured && !captchaToken) {
+      setSubmitError("Please complete the verification below.");
+      return;
+    }
+
     setSubmitting(true);
     setSubmitError(null);
 
-    const supabase = createClient();
-    const { error } = await supabase.from("dispatch_requests").insert({
-      name: fields.name.trim(),
-      company: fields.company.trim() || null,
-      mc_number: fields.mc.trim() || null,
-      email: fields.email.trim(),
-      lane_details: fields.lane.trim(),
+    const res = await fetch("/api/leads/dispatch-request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: fields.name.trim(),
+        company: fields.company.trim() || null,
+        mc_number: fields.mc.trim() || null,
+        email: fields.email.trim(),
+        lane_details: fields.lane.trim(),
+        turnstileToken: captchaToken,
+      }),
     });
 
     setSubmitting(false);
+    setCaptchaToken(null);
+    setCaptchaReset((n) => n + 1);
 
-    if (error) {
+    if (!res.ok) {
       setSubmitError("Something went wrong submitting your request. Please try again.");
       return;
     }
@@ -151,6 +164,8 @@ export default function ContactForm() {
           </p>
         )}
       </div>
+
+      <TurnstileWidget onVerify={setCaptchaToken} resetSignal={captchaReset} />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <button
