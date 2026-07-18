@@ -16,10 +16,13 @@ export default clerkMiddleware(async (auth, req) => {
     }
 
     // Role is read from the JWT metadata claim (embedded via Clerk session-token
-    // customization — see SETUP.md §4 step 3). If the claim is absent (setup not
-    // yet done), fall through to the page-level RequireAdmin guard.
+    // customization — see SETUP.md §4 step 3). The canonical admin role value is
+    // "admin" everywhere (backend require_admin and the page-level RequireAdmin
+    // guard both accept only "admin"; "dispatcher" is human-facing copy, not a
+    // role). If the claim is absent (setup not yet done), fall through to the
+    // page-level RequireAdmin guard.
     const role = (sessionClaims?.metadata as { role?: string } | undefined)?.role;
-    if (role !== undefined && role !== "admin" && role !== "dispatcher") {
+    if (role !== undefined && role !== "admin") {
       return NextResponse.redirect(new URL("/admin/login", req.url));
     }
   }
