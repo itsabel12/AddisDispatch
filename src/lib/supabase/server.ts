@@ -1,3 +1,8 @@
+// Enforces at BUILD time what the doc comment below only asks for: importing
+// this module from a client component fails the build instead of silently
+// shipping a bundle that reads SUPABASE_SECRET_KEY.
+import "server-only";
+
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 /**
@@ -12,9 +17,23 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
  */
 export function createServerClient(): SupabaseClient {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SECRET_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const secret = process.env.SUPABASE_SECRET_KEY;
+  const key = secret || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!url || !key) {
     throw new Error("Supabase is not configured (missing URL or key)");
   }
+
+  // Make the fallback audible. Once `insert` is revoked from `anon`, falling
+  // back to the publishable key means EVERY lead insert fails with a generic
+  // 502 — and a missing/misspelled SUPABASE_SECRET_KEY would otherwise degrade
+  // to exactly that, silently. This line is the difference between a two-minute
+  // fix and an afternoon of guessing. Logs the fact, never the value.
+  if (!secret && process.env.NODE_ENV === "production") {
+    console.warn(
+      "[supabase] SUPABASE_SECRET_KEY unset — falling back to the publishable key. " +
+        "Lead inserts will fail if `insert` has been revoked from the anon role.",
+    );
+  }
+
   return createClient(url, key, { auth: { persistSession: false } });
 }
