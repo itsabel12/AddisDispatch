@@ -1,3 +1,8 @@
+// Enforces at BUILD time what the doc comment below only asks for: importing
+// this module from a client component fails the build instead of silently
+// shipping a bundle that reads SUPABASE_SECRET_KEY.
+import "server-only";
+
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 /**

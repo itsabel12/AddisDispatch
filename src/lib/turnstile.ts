@@ -13,6 +13,10 @@
  * set. When the key IS set, a missing/invalid token is rejected.
  */
 
+// Build-time guarantee that this never reaches the browser: importing it from a
+// client component fails the build rather than shipping TURNSTILE_SECRET_KEY.
+import "server-only";
+
 const SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
 export type TurnstileResult =

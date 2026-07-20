@@ -21,11 +21,24 @@
 -- Live read-path VERIFIED 2026-07-17: with the publishable/anon key, SELECT on
 -- all three tables returns zero rows even though dispatch_requests and
 -- consultations hold real records (confirmed against the service role) — RLS is
--- enabled and denies anon reads. However, the live tables were also observed to
--- still hold table-level UPDATE/DELETE GRANTs for `anon` (PATCH/DELETE returned
--- 204, not 401), which is broader than this write-only intent. The explicit
--- REVOKE below tightens a fresh baseline; run the same REVOKE against the live
--- project (Supabase SQL editor) to reconcile — see the PR description.
+-- enabled and denies anon reads.
+--
+-- RECONCILED 2026-07-20: the live project previously still held the full default
+-- table-level GRANTs for `anon` AND `authenticated` (DELETE, INSERT, REFERENCES,
+-- SELECT, TRIGGER, TRUNCATE, UPDATE). The REVOKE/GRANT block below has now been
+-- applied to the live project; both roles hold INSERT only. Verified after the
+-- change: anon INSERT succeeds, and has_table_privilege(anon, …) is false for
+-- SELECT/DELETE/TRUNCATE on all three tables. Row counts were unaffected.
+--
+-- Why TRUNCATE mattered most: Postgres does NOT apply row-level security to
+-- TRUNCATE — it is a pure table-level privilege. So of the over-broad grants it
+-- was the only one RLS was not silently containing. (It was never reachable in
+-- practice: PostgREST exposes no verb that maps to TRUNCATE, and `anon` has no
+-- direct-login credential.)
+--
+-- Note on the earlier "PATCH/DELETE returned 204, not 401" observation: that is
+-- expected under RLS, not a hole. With no matching policy those statements match
+-- ZERO rows, and PostgREST returns 204 for "nothing to do". Nothing was mutable.
 --
 -- Idempotent: safe to re-run. Intended as the reproducible baseline for a fresh
 -- Supabase project; it does not alter the existing live tables (IF NOT EXISTS).
