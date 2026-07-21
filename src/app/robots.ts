@@ -8,8 +8,10 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        // Keep the auth-gated portals out of the index.
-        disallow: ["/admin", "/carrier"],
+        // Keep the auth-gated portal trees out of the index. The trailing "/"
+        // is important: a bare "/carrier" is a prefix rule that would ALSO
+        // block the public "/carrier-agreement" legal page from being crawled.
+        disallow: ["/admin/", "/carrier/"],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
