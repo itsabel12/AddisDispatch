@@ -1,11 +1,15 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-// All admin portal pages except the login page itself
-const isAdminPortal = createRouteMatcher(["/admin((?!/login).*)"]);
+// All admin portal pages except the login page itself. The trailing "/"
+// boundary keeps this from matching unrelated public routes that merely start
+// with "/admin" (there are none today, but it mirrors the carrier fix below).
+const isAdminPortal = createRouteMatcher(["/admin", "/admin/((?!login).*)"]);
 
-// All carrier portal pages except the login page itself
-const isCarrierPortal = createRouteMatcher(["/carrier((?!/login).*)"]);
+// All carrier portal pages except the login page itself. The "/carrier/"
+// boundary is important: without it, "/carrier((?!/login).*)" also matched the
+// public "/carrier-agreement" legal page and redirected it to /carrier/login.
+const isCarrierPortal = createRouteMatcher(["/carrier", "/carrier/((?!login).*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
   if (isAdminPortal(req)) {

@@ -5,13 +5,15 @@ import Link from "next/link";
 import { MenuIcon, CloseIcon, UserIcon } from "./icons";
 import Logo from "./Logo";
 
+// Section links are prefixed with "/" so they resolve to the homepage sections
+// from any route (e.g. the /privacy or /terms pages), not just from "/".
 const links = [
-  { label: "Services", href: "#services" },
-  { label: "How It Works", href: "#how-it-works" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Calculator", href: "#calculator" },
-  { label: "About", href: "#about" },
-  { label: "Contact", href: "#contact" },
+  { label: "Services", href: "/#services" },
+  { label: "How It Works", href: "/#how-it-works" },
+  { label: "Pricing", href: "/#pricing" },
+  { label: "Calculator", href: "/#calculator" },
+  { label: "About", href: "/#about" },
+  { label: "Contact", href: "/contact" },
   { label: "Apply as Carrier", href: "/apply" },
 ];
 
@@ -35,7 +37,7 @@ export default function Nav() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between gap-8 px-6 py-5 lg:px-10">
         {/* Left cluster: logo + primary navigation, with clear separation. */}
         <div className="flex items-center gap-8 xl:gap-14">
-          <a href="#top" aria-label="AddisDispatch home" className="shrink-0">
+          <a href="/#top" aria-label="AddisDispatch home" className="shrink-0">
             <Logo />
           </a>
 
@@ -72,7 +74,7 @@ export default function Nav() {
           </div>
 
           <a
-            href="#contact"
+            href="/#contact"
             className="hidden rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold tracking-tight text-black transition-all hover:bg-accentDeep hover:shadow-[0_0_24px_-6px] hover:shadow-accent/70 lg:inline-block"
           >
             Request Dispatch
@@ -125,7 +127,7 @@ export default function Nav() {
             </li>
             <li>
               <a
-                href="#contact"
+                href="/#contact"
                 onClick={() => setOpen(false)}
                 className="mt-2 inline-block rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-black"
               >

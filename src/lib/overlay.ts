@@ -7,8 +7,6 @@
  * client-side event handlers (they touch `window`).
  */
 
-export type LegalModal = "privacy" | "terms";
-
 export function openBooking() {
   window.dispatchEvent(new CustomEvent("ad:open-booking"));
 }
@@ -19,6 +17,6 @@ export function openPortal() {
   window.location.href = "/carrier";
 }
 
-export function openLegal(modal: LegalModal) {
-  window.dispatchEvent(new CustomEvent<LegalModal>("ad:open-legal", { detail: modal }));
-}
+// Legal documents (Privacy, Terms, Carrier Agreement) are no longer overlays —
+// they live at stable public routes (/privacy, /terms, /carrier-agreement).
+// Link to them with next/link instead of opening a modal.

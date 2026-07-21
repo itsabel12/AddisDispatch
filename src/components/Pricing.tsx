@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import Reveal from "./Reveal";
-import { openBooking, openLegal } from "@/lib/overlay";
+import { openBooking } from "@/lib/overlay";
 import { Check, X, Star } from "@/components/icons";
 
 type Feature = { label: string; included: boolean };
@@ -156,13 +157,12 @@ export default function Pricing() {
         <Reveal delay={120}>
           <p className="mt-10 text-center text-sm font-light text-inkMuted">
             All plans are month-to-month — no contracts required.{" "}
-            <button
-              type="button"
-              onClick={() => openLegal("terms")}
+            <Link
+              href="/terms"
               className="font-medium text-accent hover:underline"
             >
               View full terms →
-            </button>
+            </Link>
           </p>
         </Reveal>
       </div>
