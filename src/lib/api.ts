@@ -376,6 +376,24 @@ export const exportInvoicesCsv = (token: string | null) =>
 export const exportInvoicesQuickbooks = (token: string | null) =>
   downloadAuthedFile(token, `/invoices/export.quickbooks.csv`, "invoices-quickbooks.csv");
 
+/** Connection status for the linked QuickBooks Online company. */
+export type QuickBooksStatus = {
+  connected: boolean;
+  realm_id?: string;
+  company_name?: string | null;
+  connected_at?: string;
+  access_token_expires_at?: string;
+};
+
+/**
+ * Read whether a QuickBooks company is connected (and its realm id). The
+ * endpoint returns `{connected: false}` when nothing is linked; callers should
+ * treat a thrown error (integration not enabled / not migrated) the same way.
+ */
+export async function getQuickBooksStatus(token: string | null): Promise<QuickBooksStatus> {
+  return adminRequest<QuickBooksStatus>("/quickbooks/status", { token });
+}
+
 /** Email the broker a payment reminder (invoice attached). */
 export async function remindInvoice(token: string | null, id: string): Promise<Invoice> {
   return adminRequest<Invoice>(`/invoices/${id}/remind`, { method: "POST", token });
