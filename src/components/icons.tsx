@@ -79,6 +79,8 @@ import {
   IconClipboardCheck,
   IconCalendar,
   IconSparkles,
+  IconLifebuoy,
+  IconCopy,
 } from "@tabler/icons-react";
 
 type TablerIcon = typeof IconTruck;
@@ -124,6 +126,8 @@ export const Check = wrap(IconCheck, "Check");
 export const CircleCheck = wrap(IconCircleCheck, "CircleCheck");
 export const AlertTriangle = wrap(IconAlertTriangle, "AlertTriangle");
 export const InfoCircle = wrap(IconInfoCircle, "InfoCircle");
+export const LifeBuoy = wrap(IconLifebuoy, "LifeBuoy"); // help / support
+export const Copy = wrap(IconCopy, "Copy");
 export const Plus = wrap(IconPlus, "Plus");
 export const Minus = wrap(IconMinus, "Minus");
 export const ArrowRight = wrap(IconArrowRight, "ArrowRight");

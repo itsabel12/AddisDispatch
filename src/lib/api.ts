@@ -7,6 +7,8 @@
  * it's never hardcoded; each request attaches the caller's Clerk token.
  */
 
+import { recordIntuitTid } from "@/lib/diagnostics";
+
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
@@ -53,6 +55,9 @@ async function adminRequest<T>(path: string, opts: RequestOptions = {}): Promise
     },
     ...(hasBody ? { body: JSON.stringify(opts.body) } : {}),
   });
+  // Best-effort: if the backend forwards Intuit's transaction id, cache it for
+  // the support-page diagnostics. Header lookups are case-insensitive.
+  recordIntuitTid(res.headers.get("intuit_tid") ?? res.headers.get("x-intuit-tid"));
   if (!res.ok) throw new Error(await errorMessage(res, opts.errorFallback));
   if (res.status === 204) return undefined as T;
   const text = await res.text();
