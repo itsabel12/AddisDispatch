@@ -1,17 +1,18 @@
 /**
  * Support contact details + app version, shared by the authenticated
- * Help / Support page (app/admin/support). Centralized so the numbers and
- * hours live in one place.
- *
- * NOTE: the WhatsApp number is a placeholder shared with the marketing
- * FloatingActions widget — replace it with the real support line before launch.
+ * Help / Support page (app/admin/support) and the marketing FloatingActions
+ * widget. Centralized so the address and number live in one place.
  */
 
-export const SUPPORT_EMAIL = "support@addisdispatch.com";
+export const SUPPORT_EMAIL = "contact@addisdispatch.com";
+
+// Support line — the same number serves both phone calls and WhatsApp.
+export const SUPPORT_PHONE_DISPLAY = "+1 (469) 248-5122";
+export const SUPPORT_PHONE_TEL = "+14692485122"; // E.164, for tel: links
 
 // E.164 without the leading "+", as required by wa.me deep links.
-export const SUPPORT_WHATSAPP_NUMBER = "15550000000"; // TODO: real support line
-export const SUPPORT_WHATSAPP_DISPLAY = "+1 (555) 000-0000";
+export const SUPPORT_WHATSAPP_NUMBER = "14692485122";
+export const SUPPORT_WHATSAPP_DISPLAY = SUPPORT_PHONE_DISPLAY;
 export const SUPPORT_WHATSAPP_URL = `https://wa.me/${SUPPORT_WHATSAPP_NUMBER}`;
 
 export const BUSINESS_HOURS = "Monday–Friday, 8:00 AM – 6:00 PM Central Time";
