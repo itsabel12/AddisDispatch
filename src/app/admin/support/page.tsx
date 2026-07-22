@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useEffect, useMemo, useState } from "react";
+import { useAuth, useUser } from "@clerk/nextjs";
 
 import { RequireAdmin } from "@/components/require-admin";
 import {
@@ -19,6 +19,7 @@ import {
   BUSINESS_HOURS,
 } from "@/lib/support";
 import { collectDiagnostics, formatDiagnostics } from "@/lib/diagnostics";
+import { getQuickBooksStatus } from "@/lib/api";
 
 export default function SupportPage() {
   return (
@@ -30,23 +31,45 @@ export default function SupportPage() {
 
 function Support() {
   const { user } = useUser();
+  const { getToken } = useAuth();
   const [copied, setCopied] = useState(false);
 
   const userId = user?.id ?? null;
-  // "Company ID" is read from Clerk public metadata when present (companyId or
-  // the QuickBooks realm id); otherwise the diagnostics show "Not available".
-  const companyId = useMemo(() => {
-    const meta = user?.publicMetadata as
-      | { companyId?: string; realmId?: string; qboRealmId?: string }
-      | undefined;
-    return meta?.companyId ?? meta?.realmId ?? meta?.qboRealmId ?? null;
+
+  // The QuickBooks Realm ID is the preferred company identifier. Fetch it from
+  // the connected QuickBooks company; if the integration isn't connected /
+  // enabled, this stays null and we fall back to the internal id below.
+  const [realmId, setRealmId] = useState<string | null>(null);
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const status = await getQuickBooksStatus(await getToken());
+        if (active) setRealmId(status.connected ? status.realm_id ?? null : null);
+      } catch {
+        if (active) setRealmId(null);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [getToken]);
+
+  // Internal company id from Clerk public metadata, used only when there is no
+  // QuickBooks Realm ID.
+  const internalCompanyId = useMemo(() => {
+    const meta = user?.publicMetadata as { companyId?: string } | undefined;
+    return meta?.companyId ?? null;
   }, [user?.publicMetadata]);
+
+  const diagnosticsInput = { userId, realmId, internalCompanyId };
 
   // Snapshot for display; the copy/email actions recompute to pick up a tid
   // recorded after the page loaded.
   const diagnosticsText = useMemo(
-    () => formatDiagnostics(collectDiagnostics({ userId, companyId })),
-    [userId, companyId],
+    () => formatDiagnostics(collectDiagnostics(diagnosticsInput)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [userId, realmId, internalCompanyId],
   );
 
   const mailtoHref = useMemo(() => {
@@ -54,13 +77,14 @@ function Support() {
     const body = encodeURIComponent(
       "Describe the issue you're seeing:\n\n\n" +
         "-----------------------------\n" +
-        formatDiagnostics(collectDiagnostics({ userId, companyId })),
+        formatDiagnostics(collectDiagnostics(diagnosticsInput)),
     );
     return `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
-  }, [userId, companyId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, realmId, internalCompanyId]);
 
   async function copyDiagnostics() {
-    const text = formatDiagnostics(collectDiagnostics({ userId, companyId }));
+    const text = formatDiagnostics(collectDiagnostics(diagnosticsInput));
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);

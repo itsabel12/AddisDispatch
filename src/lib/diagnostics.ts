@@ -46,20 +46,37 @@ export type Diagnostics = {
   appVersion: string;
   userId: string;
   companyId: string;
+  /** Which identifier `companyId` came from, or null when none was available. */
+  companyIdSource: "QuickBooks Realm ID" | "Internal company ID" | null;
   lastIntuitTid: string;
   generatedAt: string;
 };
 
-/** Build the diagnostics snapshot from the identity we have + cached tid. */
+/**
+ * Build the diagnostics snapshot from the identity we have + cached tid.
+ *
+ * Company identifier precedence: the QuickBooks Realm ID is preferred (it's what
+ * Intuit support keys off), then an internal company ID, otherwise
+ * "Not available".
+ */
 export function collectDiagnostics(input: {
   userId?: string | null;
-  companyId?: string | null;
+  realmId?: string | null;
+  internalCompanyId?: string | null;
 }): Diagnostics {
+  const realmId = input.realmId?.trim() || null;
+  const internalCompanyId = input.internalCompanyId?.trim() || null;
+  const companyId = realmId ?? internalCompanyId;
   const last = getLastIntuitTid();
   return {
     appVersion: APP_VERSION || NOT_AVAILABLE,
     userId: input.userId || NOT_AVAILABLE,
-    companyId: input.companyId || NOT_AVAILABLE,
+    companyId: companyId ?? NOT_AVAILABLE,
+    companyIdSource: realmId
+      ? "QuickBooks Realm ID"
+      : internalCompanyId
+        ? "Internal company ID"
+        : null,
     lastIntuitTid: last ? last.tid : NOT_AVAILABLE,
     generatedAt: new Date().toISOString(),
   };
@@ -67,11 +84,14 @@ export function collectDiagnostics(input: {
 
 /** Render diagnostics as a plain-text block for copy / email. */
 export function formatDiagnostics(d: Diagnostics): string {
+  const company = d.companyIdSource
+    ? `${d.companyId} (${d.companyIdSource})`
+    : d.companyId;
   return [
     "AddisDispatch — diagnostic information",
     `App version: ${d.appVersion}`,
     `User ID: ${d.userId}`,
-    `Company ID: ${d.companyId}`,
+    `Company ID: ${company}`,
     `Last QuickBooks intuit_tid: ${d.lastIntuitTid}`,
     `Generated: ${d.generatedAt}`,
   ].join("\n");
