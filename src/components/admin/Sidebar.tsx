@@ -24,6 +24,7 @@ import {
   Mail,
   MessageCircle,
   FileText,
+  LifeBuoy,
   Menu,
   X,
   type IconProps,
@@ -70,6 +71,10 @@ const GROUPS: { title: string; items: NavItem[] }[] = [
       { label: "Messages", href: "/admin/messages", icon: MessageCircle },
       { label: "Customer Emails", href: "/admin/comm-templates", icon: FileText },
     ],
+  },
+  {
+    title: "Help",
+    items: [{ label: "Help / Support", href: "/admin/support", icon: LifeBuoy }],
   },
 ];
 
