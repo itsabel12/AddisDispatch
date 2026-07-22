@@ -8,12 +8,15 @@ import {
   LifeBuoy,
   Mail,
   MessageCircle,
+  Phone,
   Clock,
   Copy,
   Check,
 } from "@/components/icons";
 import {
   SUPPORT_EMAIL,
+  SUPPORT_PHONE_DISPLAY,
+  SUPPORT_PHONE_TEL,
   SUPPORT_WHATSAPP_URL,
   SUPPORT_WHATSAPP_DISPLAY,
   BUSINESS_HOURS,
@@ -120,6 +123,11 @@ function Support() {
           <ContactRow icon={<Mail size={18} />} label="Support email">
             <a href={`mailto:${SUPPORT_EMAIL}`} className="text-accentDeep hover:underline">
               {SUPPORT_EMAIL}
+            </a>
+          </ContactRow>
+          <ContactRow icon={<Phone size={18} />} label="Phone">
+            <a href={`tel:${SUPPORT_PHONE_TEL}`} className="text-accentDeep hover:underline">
+              {SUPPORT_PHONE_DISPLAY}
             </a>
           </ContactRow>
           <ContactRow icon={<MessageCircle size={18} />} label="WhatsApp">

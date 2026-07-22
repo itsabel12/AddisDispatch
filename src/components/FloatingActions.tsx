@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { openBooking } from "@/lib/overlay";
+import { SUPPORT_WHATSAPP_URL } from "@/lib/support";
 import { ArrowUpIcon, MessageCircle } from "./icons";
 
 export default function FloatingActions() {
@@ -21,7 +22,7 @@ export default function FloatingActions() {
     <>
       {/* WhatsApp */}
       <a
-        href="https://wa.me/15550000000"
+        href={SUPPORT_WHATSAPP_URL}
         target="_blank"
         rel="noopener noreferrer"
         title="Chat on WhatsApp"
