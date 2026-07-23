@@ -89,7 +89,14 @@ export default function TurnstileWidget({ onVerify, resetSignal = 0 }: Props) {
         src="https://challenges.cloudflare.com/turnstile/v0/api.js"
         strategy="afterInteractive"
       />
-      <div ref={containerRef} className="min-h-[65px]" />
+      {/*
+       * `[&_a]:hidden` suppresses the bare "Troubleshoot" link Cloudflare injects
+       * directly into this container when a challenge errors — it renders as an
+       * unstyled blue anchor that clashes with the form design. A genuine
+       * interactive challenge renders inside an iframe (not an <a>), so it is
+       * unaffected and still shows.
+       */}
+      <div ref={containerRef} className="min-h-[65px] [&_a]:hidden" />
     </>
   );
 }
