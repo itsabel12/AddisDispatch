@@ -18,7 +18,7 @@ type Tier = {
 const tiers: Tier[] = [
   {
     name: "Solo Operator",
-    pct: "8",
+    pct: "10",
     desc: "For single-truck owner-operators who want full-service dispatch with a dedicated dispatcher.",
     features: [
       { label: "1 truck covered", included: true },
@@ -33,7 +33,7 @@ const tiers: Tier[] = [
   },
   {
     name: "Professional",
-    pct: "7",
+    pct: "8",
     desc: "For carriers ready to maximize every lane. Full-service dispatch with priority broker access.",
     popular: true,
     features: [
@@ -44,22 +44,7 @@ const tiers: Tier[] = [
       { label: "Priority broker relationships", included: true },
       { label: "Phone & WhatsApp support", included: true },
       { label: "Daily performance tracking", included: true },
-      { label: "Custom lane strategy sessions", included: false },
-    ],
-  },
-  {
-    name: "Fleet",
-    pct: "6",
-    desc: "Built for growing fleets needing scalable dispatch, deep analytics, and a dedicated account manager.",
-    features: [
-      { label: "4–10 trucks covered", included: true },
-      { label: "Dedicated account manager", included: true },
-      { label: "Everything in Professional", included: true },
       { label: "Custom lane strategy sessions", included: true },
-      { label: "24/7 priority hotline", included: true },
-      { label: "Monthly strategy call", included: true },
-      { label: "Full fleet analytics portal", included: true },
-      { label: "Broker rate benchmarking", included: true },
     ],
   },
 ];
@@ -83,7 +68,7 @@ export default function Pricing() {
           </div>
         </Reveal>
 
-        <div className="mt-16 grid gap-6 lg:grid-cols-3">
+        <div className="mx-auto mt-16 grid max-w-4xl gap-6 sm:grid-cols-2">
           {tiers.map((tier, i) => (
             <Reveal key={tier.name} delay={i * 90}>
               <div

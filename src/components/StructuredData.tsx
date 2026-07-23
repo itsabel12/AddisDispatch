@@ -43,9 +43,8 @@ export default function StructuredData() {
           audienceType: "Owner-operators and small trucking fleets",
         },
         offers: [
-          { "@type": "Offer", name: "Solo", description: "Owner-operator dispatching", price: "8", priceCurrency: "USD", unitText: "percent of gross" },
-          { "@type": "Offer", name: "Professional", description: "Up to 3 trucks", price: "7", priceCurrency: "USD", unitText: "percent of gross" },
-          { "@type": "Offer", name: "Fleet", description: "4–10 trucks", price: "6", priceCurrency: "USD", unitText: "percent of gross" },
+          { "@type": "Offer", name: "Solo", description: "Owner-operator dispatching", price: "10", priceCurrency: "USD", unitText: "percent of gross" },
+          { "@type": "Offer", name: "Professional", description: "Up to 3 trucks", price: "8", priceCurrency: "USD", unitText: "percent of gross" },
         ],
       },
       {

@@ -7,7 +7,7 @@ export type Faq = { q: string; a: string };
 export const faqs: Faq[] = [
   {
     q: "What percentage do you charge?",
-    a: "We charge 6–8% of the gross load rate depending on fleet size and plan. Solo operators pay 8%, Professional (up to 3 trucks) 7%, and Fleet accounts (4–10 trucks) 6%. No hidden fees, no minimums.",
+    a: "We charge 8–10% of the gross load rate depending on fleet size and plan. Solo operators pay 10% and Professional accounts (up to 3 trucks) pay 8%. No hidden fees, no minimums.",
   },
   {
     q: "Do you work with new carriers?",

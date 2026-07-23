@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import ContactForm from "@/components/ContactForm";
+import { SUPPORT_EMAIL, SUPPORT_PHONE_DISPLAY, SUPPORT_PHONE_TEL } from "@/lib/support";
 
 export const metadata: Metadata = {
   title: "Contact Us",
@@ -35,19 +36,22 @@ export default function ContactPage() {
                   margins protected.
                 </p>
 
-                {/* Contact details intentionally left blank — to be filled in later. */}
                 <dl className="mt-10 space-y-4 text-sm">
                   <div>
                     <dt className="font-medium text-ink">Phone</dt>
-                    <dd className="font-light text-inkMuted/60">— coming soon —</dd>
+                    <dd className="font-light text-inkMuted">
+                      <a href={`tel:${SUPPORT_PHONE_TEL}`} className="hover:text-accent">
+                        {SUPPORT_PHONE_DISPLAY}
+                      </a>
+                    </dd>
                   </div>
                   <div>
                     <dt className="font-medium text-ink">Email</dt>
-                    <dd className="font-light text-inkMuted/60">— coming soon —</dd>
-                  </div>
-                  <div>
-                    <dt className="font-medium text-ink">Office</dt>
-                    <dd className="font-light text-inkMuted/60">— coming soon —</dd>
+                    <dd className="font-light text-inkMuted">
+                      <a href={`mailto:${SUPPORT_EMAIL}`} className="hover:text-accent">
+                        {SUPPORT_EMAIL}
+                      </a>
+                    </dd>
                   </div>
                 </dl>
               </div>

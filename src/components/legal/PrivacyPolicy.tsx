@@ -41,7 +41,7 @@ export default function PrivacyPolicy() {
       <H2>4. Your Rights</H2>
       <P>
         Request access, correction, or deletion at{" "}
-        <strong className="font-medium text-ink">privacy@addisdispatch.com</strong>.
+        <strong className="font-medium text-ink">contact@addisdispatch.com</strong>.
       </P>
 
       <Callout>

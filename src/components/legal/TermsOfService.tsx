@@ -29,13 +29,13 @@ export default function TermsOfService() {
       <H2>2. Carrier Obligations</H2>
       <UL>
         <li>Valid MC authority and USDOT registration</li>
-        <li>Minimum liability insurance of $1,000,000</li>
+        <li>Minimum liability insurance</li>
         <li>Honor all rate confirmations made on your behalf</li>
       </UL>
 
       <H2>3. Fees</H2>
       <P>
-        6–8% of gross load rate based on your plan. Invoiced weekly, due within 7
+        8–10% of gross load rate based on your plan. Invoiced weekly, due within 7
         business days.
       </P>
 
@@ -45,7 +45,7 @@ export default function TermsOfService() {
         fees remain due.
       </P>
 
-      <Callout>Questions? Contact legal@addisdispatch.com</Callout>
+      <Callout>Questions? Email contact@addisdispatch.com</Callout>
     </>
   );
 }
