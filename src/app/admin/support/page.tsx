@@ -39,18 +39,23 @@ function Support() {
 
   const userId = user?.id ?? null;
 
-  // The QuickBooks Realm ID is the preferred company identifier. Fetch it from
-  // the connected QuickBooks company; if the integration isn't connected /
-  // enabled, this stays null and we fall back to the internal id below.
+  // QuickBooks connection state + Realm ID, fetched from the connected company.
+  // If the integration isn't connected / enabled, these stay false/null.
   const [realmId, setRealmId] = useState<string | null>(null);
+  const [qbConnected, setQbConnected] = useState(false);
   useEffect(() => {
     let active = true;
     (async () => {
       try {
         const status = await getQuickBooksStatus(await getToken());
-        if (active) setRealmId(status.connected ? status.realm_id ?? null : null);
+        if (!active) return;
+        setQbConnected(status.connected);
+        setRealmId(status.connected ? status.realm_id ?? null : null);
       } catch {
-        if (active) setRealmId(null);
+        if (active) {
+          setQbConnected(false);
+          setRealmId(null);
+        }
       }
     })();
     return () => {
@@ -58,36 +63,43 @@ function Support() {
     };
   }, [getToken]);
 
-  // Internal company id from Clerk public metadata, used only when there is no
-  // QuickBooks Realm ID.
+  // Internal company id from Clerk public metadata (shown alongside the Realm ID).
   const internalCompanyId = useMemo(() => {
     const meta = user?.publicMetadata as { companyId?: string } | undefined;
     return meta?.companyId ?? null;
   }, [user?.publicMetadata]);
 
-  const diagnosticsInput = { userId, realmId, internalCompanyId };
+  const buildDiagnostics = () =>
+    formatDiagnostics(
+      collectDiagnostics({
+        userId,
+        realmId,
+        internalCompanyId,
+        quickbooksConnected: qbConnected,
+      }),
+    );
 
-  // Snapshot for display; the copy/email actions recompute to pick up a tid
-  // recorded after the page loaded.
-  const diagnosticsText = useMemo(
-    () => formatDiagnostics(collectDiagnostics(diagnosticsInput)),
+  // Computed after mount (client-only) so browser detection + cached tid are
+  // present without causing an SSR/hydration mismatch (starts empty on both).
+  const [diagnosticsText, setDiagnosticsText] = useState("Collecting diagnostics…");
+  useEffect(() => {
+    setDiagnosticsText(buildDiagnostics());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [userId, realmId, internalCompanyId],
-  );
+  }, [userId, realmId, internalCompanyId, qbConnected]);
 
   const mailtoHref = useMemo(() => {
     const subject = encodeURIComponent("AddisDispatch support request");
     const body = encodeURIComponent(
       "Describe the issue you're seeing:\n\n\n" +
         "-----------------------------\n" +
-        formatDiagnostics(collectDiagnostics(diagnosticsInput)),
+        diagnosticsText,
     );
     return `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId, realmId, internalCompanyId]);
+  }, [diagnosticsText]);
 
   async function copyDiagnostics() {
-    const text = formatDiagnostics(collectDiagnostics(diagnosticsInput));
+    // Recompute fresh to capture a tid recorded after the last render.
+    const text = buildDiagnostics();
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
@@ -173,7 +185,7 @@ function Support() {
             aria-live="polite"
           >
             {copied ? <Check size={16} /> : <Copy size={16} />}
-            {copied ? "Copied" : "Copy diagnostic information"}
+            {copied ? "Copied" : "Copy Diagnostics"}
           </button>
         </div>
 
