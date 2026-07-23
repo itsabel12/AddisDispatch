@@ -18,7 +18,7 @@ type Tier = {
 const tiers: Tier[] = [
   {
     name: "Solo Operator",
-    pct: "10",
+    pct: "8",
     desc: "For single-truck owner-operators who want full-service dispatch with a dedicated dispatcher.",
     features: [
       { label: "1 truck covered", included: true },
@@ -33,7 +33,7 @@ const tiers: Tier[] = [
   },
   {
     name: "Professional",
-    pct: "8",
+    pct: "10",
     desc: "For carriers ready to maximize every lane. Full-service dispatch with priority broker access.",
     popular: true,
     features: [
