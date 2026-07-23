@@ -8,10 +8,33 @@
  * `intuit_tid` header, and cached in localStorage so it survives navigation.
  */
 
-import { APP_VERSION } from "./support";
+import { APP_VERSION, APP_ENVIRONMENT } from "./support";
 
 const TID_KEY = "qbo:lastIntuitTid";
 const NOT_AVAILABLE = "Not available";
+
+/**
+ * Best-effort browser name + major version from the User-Agent, e.g.
+ * "Chrome 142". Returns "Not available" during SSR (no navigator). Order
+ * matters: Edge/Opera embed "Chrome" in their UA, so they're checked first.
+ */
+function detectBrowser(): string {
+  if (typeof navigator === "undefined") return NOT_AVAILABLE;
+  const ua = navigator.userAgent;
+  const patterns: [string, RegExp][] = [
+    ["Edge", /Edg(?:e|A|iOS)?\/(\d+)/],
+    ["Opera", /OPR\/(\d+)/],
+    ["Samsung Internet", /SamsungBrowser\/(\d+)/],
+    ["Chrome", /Chrome\/(\d+)/],
+    ["Firefox", /Firefox\/(\d+)/],
+    ["Safari", /Version\/(\d+)[\d.]*\s+(?:Mobile\/\S+\s+)?Safari/],
+  ];
+  for (const [name, re] of patterns) {
+    const m = ua.match(re);
+    if (m) return `${name} ${m[1]}`;
+  }
+  return ua.slice(0, 80) || NOT_AVAILABLE; // fallback: truncated raw UA
+}
 
 /** Persist the latest QuickBooks transaction id (no-op on the server). */
 export function recordIntuitTid(tid: string | null | undefined): void {
@@ -44,55 +67,52 @@ export function getLastIntuitTid(): { tid: string; at: string } | null {
 
 export type Diagnostics = {
   appVersion: string;
+  environment: string;
+  quickbooksConnected: boolean;
+  realmId: string;
+  lastIntuitTid: string;
   userId: string;
   companyId: string;
-  /** Which identifier `companyId` came from, or null when none was available. */
-  companyIdSource: "QuickBooks Realm ID" | "Internal company ID" | null;
-  lastIntuitTid: string;
+  browser: string;
   generatedAt: string;
 };
 
 /**
- * Build the diagnostics snapshot from the identity we have + cached tid.
- *
- * Company identifier precedence: the QuickBooks Realm ID is preferred (it's what
- * Intuit support keys off), then an internal company ID, otherwise
- * "Not available".
+ * Build the diagnostics snapshot. Every field is non-sensitive — build metadata,
+ * opaque identifiers (Clerk user id, QuickBooks realm / internal company id), a
+ * trace id, and client context. No tokens, secrets, names, or emails.
  */
 export function collectDiagnostics(input: {
   userId?: string | null;
   realmId?: string | null;
   internalCompanyId?: string | null;
+  quickbooksConnected?: boolean;
 }): Diagnostics {
-  const realmId = input.realmId?.trim() || null;
-  const internalCompanyId = input.internalCompanyId?.trim() || null;
-  const companyId = realmId ?? internalCompanyId;
   const last = getLastIntuitTid();
   return {
     appVersion: APP_VERSION || NOT_AVAILABLE,
-    userId: input.userId || NOT_AVAILABLE,
-    companyId: companyId ?? NOT_AVAILABLE,
-    companyIdSource: realmId
-      ? "QuickBooks Realm ID"
-      : internalCompanyId
-        ? "Internal company ID"
-        : null,
+    environment: APP_ENVIRONMENT || NOT_AVAILABLE,
+    quickbooksConnected: Boolean(input.quickbooksConnected),
+    realmId: input.realmId?.trim() || NOT_AVAILABLE,
     lastIntuitTid: last ? last.tid : NOT_AVAILABLE,
+    userId: input.userId?.trim() || NOT_AVAILABLE,
+    companyId: input.internalCompanyId?.trim() || NOT_AVAILABLE,
+    browser: detectBrowser(),
     generatedAt: new Date().toISOString(),
   };
 }
 
 /** Render diagnostics as a plain-text block for copy / email. */
 export function formatDiagnostics(d: Diagnostics): string {
-  const company = d.companyIdSource
-    ? `${d.companyId} (${d.companyIdSource})`
-    : d.companyId;
   return [
-    "AddisDispatch — diagnostic information",
-    `App version: ${d.appVersion}`,
+    `App Version: ${d.appVersion}`,
+    `Environment: ${d.environment}`,
+    `QuickBooks Connected: ${d.quickbooksConnected ? "Yes" : "No"}`,
+    `Realm ID: ${d.realmId}`,
+    `Last intuit_tid: ${d.lastIntuitTid}`,
     `User ID: ${d.userId}`,
-    `Company ID: ${company}`,
-    `Last QuickBooks intuit_tid: ${d.lastIntuitTid}`,
-    `Generated: ${d.generatedAt}`,
+    `Company ID: ${d.companyId}`,
+    `Timestamp: ${d.generatedAt}`,
+    `Browser: ${d.browser}`,
   ].join("\n");
 }
