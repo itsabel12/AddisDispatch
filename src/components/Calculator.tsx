@@ -16,8 +16,8 @@ export default function Calculator() {
   const [rpm, setRpm] = useState(2.4);
 
   const current = miles * rpm;
-  // Avg 18% RPM improvement + 10% more loaded miles, after 7% (Professional) fee.
-  const withAtlas = miles * 1.1 * rpm * 1.18 * 0.93;
+  // Avg 18% RPM improvement + 10% more loaded miles, after 8% (Professional) fee.
+  const withAtlas = miles * 1.1 * rpm * 1.18 * 0.92;
   const annualGain = (withAtlas - current) * 52;
   const barWidth = Math.min(Math.round((withAtlas / Math.max(current, 1)) * 100), 100);
 
@@ -123,7 +123,7 @@ export default function Calculator() {
 
               <div className="rounded-2xl border border-accent/30 bg-accent/5 p-6 backdrop-blur-md">
                 <div className="text-xs font-medium uppercase tracking-wider text-accent/80">
-                  With AddisDispatch (after 7% fee)
+                  With AddisDispatch (after 8% fee)
                 </div>
                 <div className="mt-1 font-display text-3xl font-bold tracking-tight text-accent">
                   {money(withAtlas)}
@@ -169,7 +169,7 @@ export default function Calculator() {
 
               <p className="text-xs font-light leading-relaxed text-inkMuted/50">
                 * Projections based on avg carrier results. Individual results vary. Fee
-                of 7% (Professional plan) applied to AddisDispatch revenue.
+                of 8% (Professional plan) applied to AddisDispatch revenue.
               </p>
             </div>
           </Reveal>
