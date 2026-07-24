@@ -12,6 +12,7 @@ import {
   Tooltip,
   Filler,
   type ChartOptions,
+  type ScriptableContext,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 
@@ -33,10 +34,29 @@ import { RadialGauge } from "@/components/ui/radial-gauge";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler);
 
-const ACCENT = "#ef7f18";
-const SUCCESS = "#12a150";
-const GRID = "rgba(35,32,27,0.06)";
-const TICK = "rgba(35,32,27,0.4)";
+// Dashdark X chart palette (dark canvas). Series map: Revenue = brand orange,
+// Profit = success green. Grid/ticks tuned for legibility on #0F1115.
+const ACCENT = "#ff6b00";
+const ACCENT_RGB = "255,107,0";
+const SUCCESS = "#14ca74";
+const SUCCESS_RGB = "20,202,116";
+const DANGER = "#ff5a65";
+const GRID = "rgba(255,255,255,0.06)";
+const TICK = "#a2a8b8";
+
+// Vertical gradient area fill — stronger at the line, fading to transparent —
+// matching the extracted charts' gradient fade. Falls back to a flat tint on
+// the first paint before the chart area has been measured.
+function areaFill(rgb: string) {
+  return (ctx: ScriptableContext<"line">) => {
+    const { ctx: c, chartArea } = ctx.chart;
+    if (!chartArea) return `rgba(${rgb},0.18)`;
+    const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+    g.addColorStop(0, `rgba(${rgb},0.28)`);
+    g.addColorStop(1, `rgba(${rgb},0)`);
+    return g;
+  };
+}
 
 const SEVERITY_DOT: Record<string, string> = {
   info: "bg-info",
@@ -205,7 +225,7 @@ export function CommandCenter() {
                         label: "Revenue",
                         data: trendPoints.map((p) => p.revenue),
                         borderColor: ACCENT,
-                        backgroundColor: "rgba(239,127,24,0.10)",
+                        backgroundColor: areaFill(ACCENT_RGB),
                         borderWidth: 2.5,
                         pointRadius: 0,
                         pointHoverRadius: 4,
@@ -216,7 +236,7 @@ export function CommandCenter() {
                         label: "Profit",
                         data: trendPoints.map((p) => p.profit),
                         borderColor: SUCCESS,
-                        backgroundColor: "rgba(18,161,80,0.08)",
+                        backgroundColor: areaFill(SUCCESS_RGB),
                         borderWidth: 2.5,
                         pointRadius: 0,
                         pointHoverRadius: 4,
@@ -243,7 +263,7 @@ export function CommandCenter() {
           <CardContent className="flex items-center justify-around pt-2">
             <RadialGauge value={pct(byStatus.delivered ?? 0)} label="Delivered" color={SUCCESS} />
             <RadialGauge value={pct(byStatus.in_transit ?? 0)} label="In Transit" color={ACCENT} />
-            <RadialGauge value={pct(byStatus.issue ?? 0)} label="Issues" color="#dc2b2b" />
+            <RadialGauge value={pct(byStatus.issue ?? 0)} label="Issues" color={DANGER} />
           </CardContent>
         </Card>
       </div>
