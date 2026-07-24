@@ -324,7 +324,7 @@ export function CommandCenter() {
           <CardContent className="grid grid-cols-3 gap-3 pt-2 sm:grid-cols-5">
             {data &&
               Object.entries(data.invoices.by_status).map(([status, count]) => (
-                <div key={status} className="rounded-xl border border-border bg-muted/40 p-3 text-center">
+                <div key={status} className="rounded-lg border border-border bg-secondary/50 p-3 text-center">
                   <div className="font-heading text-lg font-semibold tabular-nums">{count}</div>
                   <div className="text-xs capitalize text-muted-foreground">{status}</div>
                 </div>
@@ -352,9 +352,9 @@ function QueueStat({ label, value, href }: { label: string; value: number; href:
   return (
     <Link
       href={href}
-      className="rounded-xl border border-border bg-muted/40 p-3 text-center transition-colors hover:border-accent/40 hover:bg-accent/5"
+      className="rounded-lg border border-border bg-secondary/50 p-3 text-center transition-colors hover:border-accent/40 hover:bg-accent/5"
     >
-      <div className={`font-heading text-lg font-semibold tabular-nums ${value > 0 ? "text-accentDeep" : ""}`}>{value}</div>
+      <div className={`font-heading text-lg font-semibold tabular-nums ${value > 0 ? "text-accent" : ""}`}>{value}</div>
       <div className="text-xs text-muted-foreground">{label}</div>
     </Link>
   );

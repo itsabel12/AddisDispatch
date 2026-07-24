@@ -3,16 +3,18 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Card — the core surface of the dispatcher portal's light design system.
- * White panel, soft warm shadow, generously rounded. Compose with the header /
- * title / content / footer helpers for consistent internal spacing.
+ * Card — the core panel surface of the dispatcher portal. Token-driven, so it
+ * follows the active scope (Dashdark X dark theme in the admin): a `--card`
+ * surface, a hairline `--border`, r12 corners and restrained elevation, matching
+ * the extracted design's panels. Compose with the header / title / content /
+ * footer helpers for consistent internal spacing.
  */
 function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card"
       className={cn(
-        "rounded-2xl border border-border bg-card text-card-foreground shadow-card",
+        "rounded-xl border border-border bg-card text-card-foreground shadow-card",
         className,
       )}
       {...props}
