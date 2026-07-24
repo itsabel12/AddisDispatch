@@ -49,7 +49,7 @@ export function AssistantWidget() {
       </button>
 
       {open && (
-        <div className="portal-scope fixed bottom-20 right-5 z-50 flex h-[480px] w-[360px] flex-col rounded-xl border border-border bg-card shadow-2xl">
+        <div className="portal-scope fixed bottom-20 right-5 z-50 flex h-[480px] max-h-[calc(100vh-6rem)] w-[360px] max-w-[calc(100vw-2.5rem)] flex-col rounded-xl border border-border bg-card shadow-2xl">
           <div className="border-b border-border px-4 py-3">
             <p className="text-sm font-semibold">AI Assistant</p>
             <p className="text-xs text-muted-foreground">
