@@ -27,8 +27,8 @@ const tiers: Tier[] = [
       { label: "Rate confirmations & BOL", included: true },
       { label: "Email & phone support", included: true },
       { label: "Weekly performance report", included: true },
-      { label: "Priority broker access", included: false },
-      { label: "Full paperwork management", included: false },
+      { label: "Priority broker access", included: true },
+      { label: "Full paperwork management", included: true },
     ],
   },
   {
