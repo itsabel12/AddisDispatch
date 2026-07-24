@@ -148,6 +148,74 @@
   -webkit-font-smoothing: antialiased;
 }
 
+/* ─────────────────────────────────────────────
+   DISPATCHER PORTAL — Dashdark X reskin (2026)
+   A dark data-dashboard theme scoped to `.portal-scope.dispatch-dark`, ported
+   from the extracted "Dashdark X" Figma design (surface stepping, r8/r12 radii,
+   restrained shadows, muted-cool text roles) but rebranded to AddisDispatch:
+   the design's violet accent is replaced by AddisDispatch orange (#FF6B00).
+   Structure comes from the Figma extraction; the palette below is the brand
+   override the user specified. Overrides the shadcn semantic tokens + the
+   marketing --color-* tokens the admin components consume, so every dispatcher
+   screen flips to dark with no per-component rewrites.
+   ───────────────────────────────────────────── */
+.portal-scope.dispatch-dark {
+  /* Surfaces & ink (brand-specified) */
+  --background: #0f1115;        /* app canvas (Figma #081028) */
+  --foreground: #ffffff;        /* primary text */
+  --card: #181b22;              /* cards / panels (Figma #0b1739) */
+  --card-foreground: #ffffff;
+  --popover: #181b22;
+  --popover-foreground: #ffffff;
+
+  /* Brand primary = AddisDispatch orange (replaces Figma violet #cb3cff).
+     Foreground is near-black ink: white on #FF6B00 is ~2.9:1 (fails AA),
+     dark ink on orange is ~7:1 (passes). Matches the light theme's rationale. */
+  --primary: #ff6b00;
+  --primary-foreground: #0f1115;
+
+  /* Neutrals — muted-cool text roles from the Figma (#aeb9e1 / #7e89ac),
+     retuned to meet AA 4.5:1 on the #0f1115 canvas. */
+  --secondary: #20242e;         /* elevated / hover fill (Figma #0a1330) */
+  --secondary-foreground: #e7e9ee;
+  --muted: #20242e;
+  --muted-foreground: #a2a8b8;  /* secondary text (AA-compliant) */
+  --accent-foreground: #ffffff;
+  --destructive: #ff5a65;
+  --border: #2a2e38;            /* hairline (Figma #343b4f) */
+  --input: #2a2e38;
+  --ring: #ff6b00;
+  --radius: 0.75rem;            /* 12px panels; cards use 8px via rounded-lg */
+
+  /* Marketing --color-* tokens the admin components reference directly. */
+  --color-base: #0f1115;
+  --color-surface: #181b22;
+  --color-elevated: #20242e;
+  --color-line: #2a2e38;
+  --color-ink: #ffffff;
+  --color-inkMuted: #a2a8b8;
+  --color-accent: #ff6b00;
+  --color-accentDeep: #e85d00;
+  --color-success: #14ca74;
+  --color-danger: #ff5a65;
+  --color-info: #3b82f6;
+
+  /* Restrained elevation (Figma shadows are near-black, low-alpha). */
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.40);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.35), 0 12px 28px -14px rgba(0, 0, 0, 0.55);
+  --shadow-pop: 0 8px 40px -12px rgba(0, 0, 0, 0.65);
+
+  /* Mona Sans (extracted design's family) for the whole portal — one family
+     for headings and body, matching the Figma. Falls back to the marketing
+     humanist stack if the local font hasn't loaded. */
+  --font-heading: var(--font-mona), var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-mona), var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
+
+  font-family: var(--font-body);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+}
+
 /* shadcn components assume a default border color via a base reset. Scope that
    to the portal subtree only (utilities like `border-accent` still win). */
 @layer base {
@@ -162,7 +230,10 @@
      defaults — this just gives unstyled inputs a coherent baseline + focus. */
   .dispatch-light input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
   .dispatch-light select,
-  .dispatch-light textarea {
+  .dispatch-light textarea,
+  .dispatch-dark input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
+  .dispatch-dark select,
+  .dispatch-dark textarea {
     border-radius: 0.625rem;
     border: 1px solid var(--input);
     background-color: var(--card);
@@ -173,12 +244,16 @@
   }
   .dispatch-light input:focus-visible,
   .dispatch-light select:focus-visible,
-  .dispatch-light textarea:focus-visible {
+  .dispatch-light textarea:focus-visible,
+  .dispatch-dark input:focus-visible,
+  .dispatch-dark select:focus-visible,
+  .dispatch-dark textarea:focus-visible {
     outline: none;
     border-color: var(--ring);
     box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 20%, transparent);
   }
-  .dispatch-light ::placeholder {
+  .dispatch-light ::placeholder,
+  .dispatch-dark ::placeholder {
     color: var(--muted-foreground);
     opacity: 1;
   }
@@ -187,7 +262,11 @@
   .dispatch-light a:focus-visible,
   .dispatch-light button:focus-visible,
   .dispatch-light [role="button"]:focus-visible,
-  .dispatch-light [tabindex]:focus-visible {
+  .dispatch-light [tabindex]:focus-visible,
+  .dispatch-dark a:focus-visible,
+  .dispatch-dark button:focus-visible,
+  .dispatch-dark [role="button"]:focus-visible,
+  .dispatch-dark [tabindex]:focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
     border-radius: 8px;

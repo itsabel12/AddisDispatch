@@ -31,7 +31,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   // The login route is pre-auth: render a clean centered canvas, no sidebar.
   if (pathname === "/admin/login") {
     return (
-      <div className="portal-scope dispatch-light flex min-h-screen items-center justify-center bg-background px-4 text-foreground">
+      <div className="portal-scope dispatch-dark flex min-h-screen items-center justify-center bg-background px-4 text-foreground">
         {children}
       </div>
     );
@@ -39,34 +39,43 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   return (
     <AdminFeedbackProvider>
-    <div className="portal-scope dispatch-light flex min-h-screen bg-background text-foreground">
+    <div className="portal-scope dispatch-dark flex min-h-screen bg-background text-foreground">
       <SkipLink />
       <Sidebar mobileOpen={drawer.mobileOpen} onClose={drawer.close} />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-card/80 px-4 backdrop-blur lg:px-8">
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur lg:px-8">
           <SidebarTrigger onOpen={drawer.open} />
           <Link
             href="/admin/dashboard"
             className="flex items-center gap-2 font-heading text-sm font-semibold text-foreground lg:hidden"
           >
             <TruckMark size={24} />
-            Addis<span className="text-accentDeep">Dispatch</span>
+            Addis<span className="text-accent">Dispatch</span>
           </Link>
 
           <button
             type="button"
             onClick={openPalette}
-            className="hidden h-9 flex-1 items-center gap-2 rounded-xl border border-border bg-background px-3 text-sm text-muted-foreground transition-colors hover:border-accent/40 sm:flex sm:max-w-sm"
+            className="hidden h-9 flex-1 items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm text-muted-foreground transition-colors hover:border-accent/40 hover:text-foreground sm:flex sm:max-w-md"
           >
-            <Search size={16} />
+            <Search size={16} className="shrink-0" />
             Search or jump to…
-            <kbd className="ml-auto rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium">
+            <kbd className="ml-auto rounded border border-border bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
               ⌘K
             </kbd>
           </button>
 
           <div className="ml-auto flex items-center gap-1 sm:ml-0">
+            {/* Compact search affordance for narrow screens (opens ⌘K palette). */}
+            <button
+              type="button"
+              onClick={openPalette}
+              aria-label="Search"
+              className="grid size-9 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:hidden"
+            >
+              <Search size={20} />
+            </button>
             <Link
               href="/admin/dashboard"
               aria-label="Alerts"

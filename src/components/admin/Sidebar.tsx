@@ -88,7 +88,7 @@ function Logo() {
     <Link href="/admin/dashboard" className="flex items-center gap-2.5 px-2 text-foreground">
       <TruckMark size={30} />
       <span className="font-heading text-[15px] font-semibold tracking-tight">
-        Addis<span className="text-accentDeep">Dispatch</span>
+        Addis<span className="text-accent">Dispatch</span>
       </span>
     </Link>
   );
@@ -97,13 +97,13 @@ function Logo() {
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   return (
-    <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-2">
+    <nav className="flex-1 space-y-6 overflow-y-auto px-4 py-4">
       {GROUPS.map((group) => (
         <div key={group.title}>
-          <p className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/70">
+          <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
             {group.title}
           </p>
-          <ul className="space-y-0.5">
+          <ul className="space-y-1">
             {group.items.map((item) => {
               const active = isActive(pathname, item.href);
               const Icon = item.icon;
@@ -114,13 +114,22 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
                     onClick={onNavigate}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition-colors",
+                      "relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors",
                       active
-                        ? "bg-accent font-semibold text-[#1a1712] shadow-soft"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                        ? "bg-secondary font-semibold text-foreground"
+                        : "font-medium text-muted-foreground hover:bg-muted hover:text-foreground",
                     )}
                   >
-                    <Icon size={20} className={active ? "text-[#1a1712]" : ""} />
+                    {active && (
+                      <span
+                        aria-hidden
+                        className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-accent"
+                      />
+                    )}
+                    <Icon
+                      size={20}
+                      className={active ? "text-accent" : "text-muted-foreground"}
+                    />
                     {item.label}
                   </Link>
                 </li>
@@ -144,8 +153,8 @@ export function Sidebar({
   return (
     <>
       {/* Desktop */}
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-border bg-card lg:flex">
-        <div className="flex h-16 items-center">
+      <aside className="sticky top-0 hidden h-screen w-[300px] shrink-0 flex-col border-r border-border bg-background lg:flex">
+        <div className="flex h-16 items-center px-2">
           <Logo />
         </div>
         <NavList />
@@ -157,8 +166,8 @@ export function Sidebar({
       {/* Mobile drawer */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-          <aside className="absolute inset-y-0 left-0 flex w-72 flex-col bg-card shadow-pop">
+          <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+          <aside className="absolute inset-y-0 left-0 flex w-[300px] flex-col border-r border-border bg-background shadow-pop">
             <div className="flex h-16 items-center justify-between pr-3">
               <Logo />
               <button

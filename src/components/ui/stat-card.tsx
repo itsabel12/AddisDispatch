@@ -35,36 +35,41 @@ export function StatCard({
           {label}
         </span>
         {icon && (
-          <span className="grid size-8 place-items-center rounded-lg bg-accent/10 text-accentDeep">
+          <span
+            className={cn(
+              "grid size-8 place-items-center rounded-lg",
+              accent ? "bg-accent/15 text-accent" : "bg-secondary text-muted-foreground",
+            )}
+          >
             {icon}
           </span>
         )}
       </div>
       <div
         className={cn(
-          "mt-2 font-heading text-3xl font-semibold tracking-tight tabular-nums",
-          accent ? "text-accentDeep" : "text-foreground",
+          "mt-2 font-heading text-2xl font-semibold tracking-tight tabular-nums",
+          accent ? "text-accent" : "text-foreground",
         )}
       >
         {value}
       </div>
       {(delta || hint) && (
-        <div className="mt-1.5 flex items-center gap-1.5 text-xs">
+        <div className="mt-2 flex items-center gap-2 text-xs">
           {delta && (
             <span
               className={cn(
-                "inline-flex items-center gap-0.5 font-medium",
-                delta.direction === "up" && "text-success",
-                delta.direction === "down" && "text-danger",
-                delta.direction === "flat" && "text-muted-foreground",
+                "inline-flex items-center gap-0.5 rounded-md border px-1.5 py-0.5 text-[11px] font-semibold",
+                delta.direction === "up" && "border-success/30 bg-success/15 text-success",
+                delta.direction === "down" && "border-danger/30 bg-danger/15 text-danger",
+                delta.direction === "flat" && "border-border bg-secondary text-muted-foreground",
               )}
             >
               {delta.direction === "up" ? (
-                <ArrowUp size={14} />
+                <ArrowUp size={12} />
               ) : delta.direction === "down" ? (
-                <ArrowUp size={14} className="rotate-180" />
+                <ArrowUp size={12} className="rotate-180" />
               ) : (
-                <ArrowRight size={14} />
+                <ArrowRight size={12} />
               )}
               {delta.value}
             </span>
@@ -76,7 +81,7 @@ export function StatCard({
   );
 
   const base = cn(
-    "block rounded-2xl border border-border bg-card p-5 shadow-soft transition-all",
+    "block rounded-lg border border-border bg-card p-5 transition-all",
     href && "hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-card",
     className,
   );

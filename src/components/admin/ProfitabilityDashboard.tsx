@@ -13,6 +13,7 @@ import {
   Tooltip,
   Filler,
   type ChartOptions,
+  type ScriptableContext,
 } from "chart.js";
 import { Line, Bar } from "react-chartjs-2";
 
@@ -34,10 +35,27 @@ ChartJS.register(
   Filler,
 );
 
-const ACCENT = "#ef7f18";
-const SUCCESS = "#12a150";
-const GRID = "rgba(35,32,27,0.06)";
-const TICK = "rgba(35,32,27,0.4)";
+// Dashdark X chart palette (dark canvas). Revenue = brand orange, Profit =
+// success green; grid/ticks tuned for legibility on #0F1115.
+const ACCENT = "#ff6b00";
+const ACCENT_RGB = "255,107,0";
+const SUCCESS = "#14ca74";
+const SUCCESS_RGB = "20,202,116";
+const GRID = "rgba(255,255,255,0.06)";
+const TICK = "#a2a8b8";
+
+// Vertical gradient area fill (fades to transparent), matching the extracted
+// charts. Falls back to a flat tint before the chart area is measured.
+function areaFill(rgb: string) {
+  return (ctx: ScriptableContext<"line">) => {
+    const { ctx: c, chartArea } = ctx.chart;
+    if (!chartArea) return `rgba(${rgb},0.18)`;
+    const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+    g.addColorStop(0, `rgba(${rgb},0.28)`);
+    g.addColorStop(1, `rgba(${rgb},0)`);
+    return g;
+  };
+}
 
 const PERIODS: { key: ProfitabilityPeriod; label: string }[] = [
   { key: "today", label: "Today" },
@@ -200,7 +218,7 @@ export function ProfitabilityDashboard() {
                   label: "Revenue",
                   data: trend.map((p) => p.revenue),
                   borderColor: ACCENT,
-                  backgroundColor: "rgba(242,137,31,0.10)",
+                  backgroundColor: areaFill(ACCENT_RGB),
                   borderWidth: 2.5,
                   pointRadius: 3,
                   fill: true,
@@ -210,7 +228,7 @@ export function ProfitabilityDashboard() {
                   label: "Profit",
                   data: trend.map((p) => p.profit),
                   borderColor: SUCCESS,
-                  backgroundColor: "rgba(78,209,124,0.08)",
+                  backgroundColor: areaFill(SUCCESS_RGB),
                   borderWidth: 2.5,
                   pointRadius: 3,
                   fill: true,
