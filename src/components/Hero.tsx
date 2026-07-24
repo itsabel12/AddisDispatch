@@ -35,11 +35,6 @@ export default function Hero() {
 
       <div className="mx-auto w-full max-w-7xl px-6 pt-28 pb-20 lg:px-8">
         <div className="max-w-2xl">
-          <p className="mb-7 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-surface/60 px-4 py-1.5 text-[0.6875rem] font-semibold uppercase tracking-[0.28em] text-accent backdrop-blur">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
-            Data-Driven Freight Dispatch
-          </p>
-
           <h1 className="font-display text-[2.75rem] font-bold leading-[1.02] tracking-[-0.035em] text-ink text-balance sm:text-6xl lg:text-[5.25rem]">
             Dispatch,
             <br />
