@@ -149,6 +149,28 @@
 }
 
 /* ─────────────────────────────────────────────
+   HOMEPAGE TYPOGRAPHY — Figma "Roboto Slab" pairing
+   (file HgOKa4AeGkXcvqZ5h3XweP, frame 1434:3). Roboto Slab carries display/
+   headings, Roboto carries body & UI text. Scoped to `.home-type` (set only in
+   app/page.tsx on a display:contents wrapper) so portals, login, dashboards,
+   and every other route keep the Bricolage/Hanken pairing untouched.
+   ───────────────────────────────────────────── */
+.home-type {
+  --font-display: var(--font-roboto-slab), ui-serif, Georgia, serif;
+  --font-sans: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
+  /* Re-resolve the base family here: body computes font-sans above this
+     wrapper, so descendants must pick up the remapped variable. */
+  font-family: var(--font-sans);
+}
+/* The Figma spec sets letter-spacing to 0 for the slab display face; the
+   negative tracking in the markup was tuned for Bricolage Grotesque and makes
+   slab serifs collide. Higher specificity than tracking-* utilities. */
+.home-type .font-display,
+.home-type :is(h1, h2, h3, h4) {
+  letter-spacing: 0;
+}
+
+/* ─────────────────────────────────────────────
    DISPATCHER PORTAL — Dashdark X reskin (2026)
    A dark data-dashboard theme scoped to `.portal-scope.dispatch-dark`, ported
    from the extracted "Dashdark X" Figma design (surface stepping, r8/r12 radii,

@@ -1,3 +1,4 @@
+import { Roboto_Slab, Roboto } from "next/font/google";
 import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
 import Value from "@/components/Value";
@@ -19,9 +20,27 @@ import Overlays from "@/components/overlays/Overlays";
 import StructuredData from "@/components/StructuredData";
 import { SkipLink } from "@/components/ui/skip-link";
 
+// Homepage-only typography — the "Roboto Slab" pairing selected in Figma
+// (file HgOKa4AeGkXcvqZ5h3XweP): Roboto Slab for display, Roboto for body/UI.
+// Scoped via `.home-type` (globals.css) so every other route keeps the
+// Bricolage/Hanken pairing from the root layout.
+const robotoSlab = Roboto_Slab({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-roboto-slab",
+  display: "swap",
+});
+
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "700"],
+  variable: "--font-roboto",
+  display: "swap",
+});
+
 export default function Home() {
   return (
-    <>
+    <div className={`${robotoSlab.variable} ${roboto.variable} home-type contents`}>
       <SkipLink />
       <StructuredData />
       <Nav />
@@ -44,6 +63,6 @@ export default function Home() {
       <Footer />
       <FloatingActions />
       <Overlays />
-    </>
+    </div>
   );
 }
