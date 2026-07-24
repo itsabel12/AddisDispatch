@@ -9,16 +9,19 @@ import { cn } from "@/lib/utils";
  * One authoritative set of tones keeps colored states consistent everywhere.
  */
 const badgeVariants = cva(
-  "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-medium capitalize",
+  "inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border px-2 py-0.5 text-xs font-medium capitalize",
   {
     variants: {
+      // Extracted "Dashdark X" badge: a ~20% tint fill + hairline border of the
+      // same hue + colored text (matches the StatCard delta chip). Text tones
+      // brightened for legibility on the dark canvas.
       tone: {
-        neutral: "border-border bg-muted text-muted-foreground",
-        accent: "border-accent/25 bg-accent/10 text-accentDeep",
-        success: "border-success/25 bg-success/10 text-success",
-        warning: "border-amber-500/25 bg-amber-500/10 text-amber-600",
-        danger: "border-danger/25 bg-danger/10 text-danger",
-        info: "border-info/25 bg-info/10 text-info",
+        neutral: "border-border bg-secondary text-muted-foreground",
+        accent: "border-accent/30 bg-accent/15 text-accent",
+        success: "border-success/30 bg-success/15 text-success",
+        warning: "border-amber-400/30 bg-amber-400/15 text-amber-400",
+        danger: "border-danger/30 bg-danger/15 text-danger",
+        info: "border-info/30 bg-info/15 text-info",
       },
     },
     defaultVariants: { tone: "neutral" },
