@@ -31,6 +31,7 @@ import {
   remindInvoice,
   exportInvoicesCsv,
   exportInvoicesQuickbooks,
+  pushInvoiceToQuickBooks,
   type Invoice,
   type InvoiceCreateInput,
   type InvoiceUpdateInput,
@@ -419,6 +420,15 @@ export function InvoicesTable() {
     }, "Reminder failed");
   }
 
+  async function handlePushQuickbooks(invoice: Invoice) {
+    await withBusy(async () => {
+      const token = await getToken();
+      await pushInvoiceToQuickBooks(token, invoice.id);
+      toast.success(`Invoice ${invoice.invoice_number} sent to QuickBooks.`);
+      await reload();
+    }, "Could not send to QuickBooks");
+  }
+
   async function handleExportCsv() {
     await withBusy(async () => {
       const token = await getToken();
@@ -589,6 +599,28 @@ export function InvoicesTable() {
                       >
                         Packet
                       </button>
+                      {inv.quickbooks_invoice_id ? (
+                        <span
+                          className="text-xs text-emerald-700"
+                          title={`Synced to QuickBooks${
+                            inv.quickbooks_synced_at
+                              ? ` on ${new Date(inv.quickbooks_synced_at).toLocaleDateString()}`
+                              : ""
+                          }`}
+                        >
+                          QB ✓
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          disabled={busy}
+                          className="text-xs text-accentDeep hover:underline disabled:opacity-50"
+                          onClick={() => handlePushQuickbooks(inv)}
+                          title="Create this invoice in the connected QuickBooks company"
+                        >
+                          Send to QB
+                        </button>
+                      )}
                       <button
                         type="button"
                         className="text-xs text-blue-700 hover:underline"

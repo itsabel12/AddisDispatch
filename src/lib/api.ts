@@ -212,6 +212,8 @@ export type Invoice = {
   pod_document_id: string | null;
   broker_name: string | null;
   lane: string | null;
+  quickbooks_invoice_id: string | null;
+  quickbooks_synced_at: string | null;
 };
 
 /** Fields to create an invoice from a load. */
@@ -397,6 +399,27 @@ export async function getQuickBooksStatus(token: string | null): Promise<QuickBo
 /** Email the broker a payment reminder (invoice attached). */
 export async function remindInvoice(token: string | null, id: string): Promise<Invoice> {
   return adminRequest<Invoice>(`/invoices/${id}/remind`, { method: "POST", token });
+}
+
+/** Result of pushing one invoice into the connected QuickBooks company. */
+export type QuickBooksPushResult = {
+  invoice_id: string;
+  quickbooks_invoice_id: string | null;
+  quickbooks_synced_at: string | null;
+};
+
+/**
+ * Push a single invoice into QuickBooks Online (manual "Send to QuickBooks").
+ * Idempotent server-side: re-pushing an already-synced invoice returns 409.
+ */
+export async function pushInvoiceToQuickBooks(
+  token: string | null,
+  id: string,
+): Promise<QuickBooksPushResult> {
+  return adminRequest<QuickBooksPushResult>(`/quickbooks/invoices/${id}/push`, {
+    method: "POST",
+    token,
+  });
 }
 
 // --- POD review queue (dispatcher) -----------------------------------------
