@@ -31,7 +31,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   // The login route is pre-auth: render a clean centered canvas, no sidebar.
   if (pathname === "/admin/login") {
     return (
-      <div className="portal-scope dispatch-light flex min-h-screen items-center justify-center bg-background px-4 text-foreground">
+      <div className="portal-scope dispatch-dark flex min-h-screen items-center justify-center bg-background px-4 text-foreground">
         {children}
       </div>
     );
@@ -39,7 +39,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   return (
     <AdminFeedbackProvider>
-    <div className="portal-scope dispatch-light flex min-h-screen bg-background text-foreground">
+    <div className="portal-scope dispatch-dark flex min-h-screen bg-background text-foreground">
       <SkipLink />
       <Sidebar mobileOpen={drawer.mobileOpen} onClose={drawer.close} />
 

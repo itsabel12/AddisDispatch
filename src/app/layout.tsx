@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { Bricolage_Grotesque, Hanken_Grotesk } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
 // Canonical site origin (override per-environment). Used for metadataBase,
@@ -24,6 +25,17 @@ const hanken = Hanken_Grotesk({
   weight: ["300", "400", "500", "600", "700"],
   variable: "--font-hanken",
   display: "swap",
+});
+
+// Dispatcher portal (Dashdark X reskin) — self-hosted Mona Sans variable font,
+// the exact family from the extracted Figma design (v2.0.27, OFL). Exposed as
+// --font-mona and consumed only inside the admin via `.dispatch-dark`
+// (globals.css); marketing pages keep the Bricolage/Hanken pairing above.
+const monaSans = localFont({
+  src: "./fonts/MonaSans-VF.woff2",
+  variable: "--font-mona",
+  display: "swap",
+  weight: "200 900",
 });
 
 const TITLE = "AddisDispatch — Dispatch, Engineered by Data";
@@ -76,7 +88,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${bricolage.variable} ${hanken.variable}`}
+      className={`${bricolage.variable} ${hanken.variable} ${monaSans.variable}`}
     >
       <body className="bg-aerial min-h-screen bg-base font-sans text-ink antialiased [text-rendering:optimizeLegibility]">
         {children}
