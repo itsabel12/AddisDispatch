@@ -24,6 +24,13 @@ import {
 import { collectDiagnostics, formatDiagnostics } from "@/lib/diagnostics";
 import { getQuickBooksStatus } from "@/lib/api";
 
+// Human-readable tail for each callback error reason (see routers/quickbooks.py).
+const QB_ERROR_REASONS: Record<string, string> = {
+  state: " — the connection link expired",
+  exchange: " — QuickBooks declined the authorization",
+  unconfigured: " — the integration isn't configured on the server",
+};
+
 export default function SupportPage() {
   return (
     <RequireAdmin>
@@ -62,6 +69,27 @@ function Support() {
       active = false;
     };
   }, [getToken]);
+
+  // Result of the QuickBooks OAuth callback, which 303-redirects the browser
+  // back here with ?quickbooks=connected | error&reason=…. Read from the URL
+  // once on mount (via window.location so we don't need a Suspense boundary),
+  // then stripped from the address bar so a refresh doesn't re-show it.
+  const [qbNotice, setQbNotice] = useState<
+    { type: "connected" | "error"; reason?: string } | null
+  >(null);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const outcome = params.get("quickbooks");
+    if (outcome !== "connected" && outcome !== "error") return;
+    // One-time read of the OAuth callback result from the URL on mount — a
+    // legitimate external-system sync, not a render-derived value.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setQbNotice({ type: outcome, reason: params.get("reason") ?? undefined });
+    params.delete("quickbooks");
+    params.delete("reason");
+    const qs = params.toString();
+    window.history.replaceState(null, "", window.location.pathname + (qs ? `?${qs}` : ""));
+  }, []);
 
   // Internal company id from Clerk public metadata (shown alongside the Realm ID).
   const internalCompanyId = useMemo(() => {
@@ -125,6 +153,23 @@ function Support() {
           </p>
         </div>
       </header>
+
+      {qbNotice && (
+        <div
+          role="status"
+          className={`mb-6 rounded-xl border px-4 py-3 text-sm ${
+            qbNotice.type === "connected"
+              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-200"
+              : "border-red-500/30 bg-red-500/10 text-red-200"
+          }`}
+        >
+          {qbNotice.type === "connected"
+            ? "QuickBooks connected successfully."
+            : `Couldn't connect QuickBooks${
+                QB_ERROR_REASONS[qbNotice.reason ?? ""] ?? ""
+              }. Please try connecting again.`}
+        </div>
+      )}
 
       {/* Contact channels */}
       <section className="rounded-2xl border border-border bg-card p-6 shadow-soft">
